@@ -17,24 +17,24 @@ export const signUp = async (email: string, password: string, fullName: string) 
       }
     }
   });
-  
+
   if (!error && data?.user) {
     // Создаем запись в таблице profiles
     const { error: profileError } = await supabase
       .from('profiles')
       .insert([
-        { 
-          id: data.user.id, 
+        {
+          id: data.user.id,
           email: email,
           full_name: fullName,
         }
       ]);
-      
+
     if (profileError) {
       console.error('Ошибка при создании профиля:', profileError);
     }
   }
-  
+
   return { data, error };
 };
 
@@ -63,4 +63,25 @@ export const updatePassword = async (password: string) => {
     password,
   });
   return { data, error };
-}; 
+};
+
+// OAuth функции
+export const signInWithGoogle = async () => {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: `${window.location.origin}/projects`,
+    },
+  });
+  return { data, error };
+};
+
+export const signInWithGithub = async () => {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'github',
+    options: {
+      redirectTo: `${window.location.origin}/projects`,
+    },
+  });
+  return { data, error };
+};

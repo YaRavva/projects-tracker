@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { supabase, signIn, signUp, signOut, resetPassword, updatePassword } from '../lib/supabase'
+import { supabase, signIn, signUp, signOut, resetPassword, updatePassword, signInWithGoogle, signInWithGithub } from '../lib/supabase'
 import { Session, User } from '@supabase/supabase-js'
 import { useRouter } from 'next/router'
 
@@ -11,6 +11,8 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any, data: any }>
   signOut: () => Promise<{ error: any }>
   resetPassword: (email: string) => Promise<{ error: any }>
+  signInWithGoogle: () => Promise<{ error: any, data: any }>
+  signInWithGithub: () => Promise<{ error: any, data: any }>
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -21,6 +23,8 @@ const AuthContext = createContext<AuthContextType>({
   signUp: async () => ({ error: null, data: null }),
   signOut: async () => ({ error: null }),
   resetPassword: async () => ({ error: null }),
+  signInWithGoogle: async () => ({ error: null, data: null }),
+  signInWithGithub: async () => ({ error: null, data: null }),
 })
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -33,13 +37,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // Получаем текущую сессию и устанавливаем слушатель изменений
     const setData = async () => {
       setLoading(true)
-      
+
       const { data: { session }, error } = await supabase.auth.getSession()
-      
+
       if (error) {
         console.error('Ошибка при получении сессии:', error.message)
       }
-      
+
       setSession(session)
       setUser(session?.user ?? null)
       setLoading(false)
@@ -60,18 +64,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
-    
+
     if (!error) {
       // Редирект на страницу проектов после успешного входа
       router.push('/projects')
     }
-    
+
     return { error }
   }
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const { data, error } = await supabase.auth.signUp({ 
-      email, 
+    const { data, error } = await supabase.auth.signUp({
+      email,
       password,
       options: {
         data: {
@@ -79,19 +83,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         }
       }
     })
-    
+
     if (!error && data?.user) {
       // Создаем запись в таблице profiles
       const { error: profileError } = await supabase
         .from('profiles')
         .insert([
-          { 
-            id: data.user.id, 
+          {
+            id: data.user.id,
             email: email,
             full_name: fullName,
           }
         ])
-        
+
       if (profileError) {
         console.error('Ошибка при создании профиля:', profileError)
       } else {
@@ -99,7 +103,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         router.push('/projects')
       }
     }
-    
+
     return { data, error }
   }
 
@@ -123,6 +127,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     signUp,
     signOut,
     resetPassword,
+    signInWithGoogle,
+    signInWithGithub,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

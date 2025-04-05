@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import Link from 'next/link';
+import OAuthButtons from './OAuthButtons';
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -28,13 +29,13 @@ const LoginForm: React.FC = () => {
   return (
     <form onSubmit={handleSubmit} className="auth-form">
       <h2>Вход в систему</h2>
-      
+
       {error && (
         <div className="auth-error">
           {error}
         </div>
       )}
-      
+
       <div className="form-group">
         <label htmlFor="email">Email</label>
         <input
@@ -47,7 +48,7 @@ const LoginForm: React.FC = () => {
           placeholder="your@email.com"
         />
       </div>
-      
+
       <div className="form-group">
         <label htmlFor="password">Пароль</label>
         <input
@@ -60,13 +61,13 @@ const LoginForm: React.FC = () => {
           placeholder="••••••••"
         />
       </div>
-      
+
       <div className="text-right mb-4">
         <Link href="/reset-password" className="text-sm text-crypto-green-500 hover:text-crypto-green-400">
           Забыли пароль?
         </Link>
       </div>
-      
+
       <button
         type="submit"
         className="btn-primary w-full"
@@ -74,7 +75,9 @@ const LoginForm: React.FC = () => {
       >
         {loading ? 'Вход...' : 'Войти'}
       </button>
-      
+
+      <OAuthButtons className="mt-6" />
+
       <div className="mt-4 text-center text-sm text-gray-400">
         Нет аккаунта?{' '}
         <Link href="/register" className="text-crypto-green-500 hover:text-crypto-green-400">
@@ -85,4 +88,4 @@ const LoginForm: React.FC = () => {
   );
 };
 
-export default LoginForm; 
+export default LoginForm;

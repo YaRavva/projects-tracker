@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import Link from 'next/link';
+import OAuthButtons from './OAuthButtons';
 
 const RegisterForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -29,13 +30,13 @@ const RegisterForm: React.FC = () => {
   return (
     <form onSubmit={handleSubmit} className="auth-form">
       <h2>Регистрация</h2>
-      
+
       {error && (
         <div className="auth-error">
           {error}
         </div>
       )}
-      
+
       <div className="form-group">
         <label htmlFor="fullName">Полное имя</label>
         <input
@@ -48,7 +49,7 @@ const RegisterForm: React.FC = () => {
           placeholder="Иван Иванов"
         />
       </div>
-      
+
       <div className="form-group">
         <label htmlFor="email">Email</label>
         <input
@@ -61,7 +62,7 @@ const RegisterForm: React.FC = () => {
           placeholder="your@email.com"
         />
       </div>
-      
+
       <div className="form-group">
         <label htmlFor="password">Пароль</label>
         <input
@@ -75,7 +76,7 @@ const RegisterForm: React.FC = () => {
           minLength={6}
         />
       </div>
-      
+
       <button
         type="submit"
         className="btn-primary w-full"
@@ -83,7 +84,9 @@ const RegisterForm: React.FC = () => {
       >
         {loading ? 'Регистрация...' : 'Зарегистрироваться'}
       </button>
-      
+
+      <OAuthButtons className="mt-6" />
+
       <div className="mt-4 text-center text-sm text-gray-400">
         Уже есть аккаунт?{' '}
         <Link href="/login" className="text-crypto-green-500 hover:text-crypto-green-400">
@@ -94,4 +97,4 @@ const RegisterForm: React.FC = () => {
   );
 };
 
-export default RegisterForm; 
+export default RegisterForm;
