@@ -13,7 +13,7 @@ const EditProjectPage: NextPage = () => {
   const { user } = useAuth();
   const router = useRouter();
   const { id } = router.query;
-  
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [projectData, setProjectData] = useState<any>(null);
@@ -21,10 +21,10 @@ const EditProjectPage: NextPage = () => {
   useEffect(() => {
     const fetchProject = async () => {
       if (!id || !user) return;
-      
+
       try {
         setLoading(true);
-        
+
         // Загружаем основные данные проекта
         const { data: project, error: projectError } = await supabase
           .from('projects')
@@ -32,19 +32,19 @@ const EditProjectPage: NextPage = () => {
           .eq('id', id)
           .eq('owner_id', user.id)
           .single();
-        
+
         if (projectError) throw projectError;
         if (!project) throw new Error('Проект не найден');
-        
+
         // Загружаем этапы проекта
         const { data: stages, error: stagesError } = await supabase
           .from('project_stages')
           .select('*')
           .eq('project_id', id)
           .order('created_at', { ascending: true });
-        
+
         if (stagesError) throw stagesError;
-        
+
         // Загружаем метаданные проекта (участники команды)
         const { data: meta, error: metaError } = await supabase
           .from('project_meta')
@@ -52,17 +52,17 @@ const EditProjectPage: NextPage = () => {
           .eq('project_id', id)
           .eq('key', 'team_members')
           .single();
-        
+
         // Формируем данные для формы
         setProjectData({
           ...project,
           team_members: meta?.value || [{ name: '', class: '', role: 'Лидер' }],
-          stages: stages?.length > 0 
+          stages: stages?.length > 0
             ? stages.map(s => ({
                 name: s.name,
                 deadline: s.deadline || '',
                 completed: s.completed
-              })) 
+              }))
             : [{ name: '', deadline: '', completed: false }]
         });
       } catch (err: any) {
@@ -72,7 +72,7 @@ const EditProjectPage: NextPage = () => {
         setLoading(false);
       }
     };
-    
+
     fetchProject();
   }, [id, user]);
 
@@ -113,9 +113,9 @@ const EditProjectPage: NextPage = () => {
     <ProtectedRoute>
       <Layout>
         <Head>
-          <title>Редактирование проекта | IT Projects</title>
+          <title>Edit Project | Digital Projects Tracker</title>
         </Head>
-        
+
         <div className="container mx-auto px-4 py-8">
           <div className="mb-6">
             <Link href={`/projects/${id}`} className="text-crypto-green-500 hover:underline flex items-center">
@@ -125,9 +125,9 @@ const EditProjectPage: NextPage = () => {
               Вернуться к проекту
             </Link>
           </div>
-          
+
           <h1 className="text-2xl font-bold text-white mb-6">Редактирование проекта</h1>
-          
+
           <ProjectForm initialData={projectData} isEditing={true} projectId={id as string} />
         </div>
       </Layout>
@@ -135,4 +135,4 @@ const EditProjectPage: NextPage = () => {
   );
 };
 
-export default EditProjectPage; 
+export default EditProjectPage;

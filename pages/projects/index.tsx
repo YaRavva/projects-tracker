@@ -30,7 +30,7 @@ const ProjectsPage: NextPage = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       if (!user) return;
-      
+
       try {
         setLoading(true);
         const { data, error } = await supabase
@@ -38,9 +38,9 @@ const ProjectsPage: NextPage = () => {
           .select('*')
           .eq('owner_id', user.id)
           .order('created_at', { ascending: false });
-        
+
         if (error) throw error;
-        
+
         setProjects(data || []);
       } catch (err: any) {
         console.error('Ошибка при загрузке проектов:', err);
@@ -49,7 +49,7 @@ const ProjectsPage: NextPage = () => {
         setLoading(false);
       }
     };
-    
+
     fetchProjects();
   }, [user]);
 
@@ -61,26 +61,26 @@ const ProjectsPage: NextPage = () => {
     <ProtectedRoute>
       <Layout>
         <Head>
-          <title>Мои проекты | IT Projects</title>
+          <title>My Projects | Digital Projects Tracker</title>
         </Head>
-        
+
         <div className="container mx-auto px-4 py-8">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-2xl font-bold text-white">Мои проекты</h1>
-            <button 
+            <button
               onClick={handleCreateProject}
               className="btn-primary"
             >
               Создать проект
             </button>
           </div>
-          
+
           {error && (
             <div className="bg-red-500/20 border border-red-500 text-white p-4 rounded-md mb-6">
               {error}
             </div>
           )}
-          
+
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-crypto-green-500"></div>
@@ -89,7 +89,7 @@ const ProjectsPage: NextPage = () => {
             <div className="bg-crypto-black/30 border border-glass-border rounded-lg p-8 text-center">
               <h3 className="text-xl font-medium text-white mb-4">У вас пока нет проектов</h3>
               <p className="text-gray-400 mb-6">Создайте свой первый проект, чтобы начать работу</p>
-              <button 
+              <button
                 onClick={handleCreateProject}
                 className="btn-primary"
               >
@@ -105,4 +105,4 @@ const ProjectsPage: NextPage = () => {
   );
 };
 
-export default ProjectsPage; 
+export default ProjectsPage;

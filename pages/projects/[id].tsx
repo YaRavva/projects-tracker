@@ -181,12 +181,12 @@ const ProjectDetailPage: NextPage = () => {
     <ProtectedRoute>
       <Layout>
         <Head>
-          <title>{project.title} | IT Projects</title>
+          <title>{project.title} | Digital Projects Tracker</title>
         </Head>
 
         <div className="container mx-auto px-4 py-8">
           <div className="mb-6">
-            <Link href="/projects" className="text-crypto-green-500 hover:underline flex items-center">
+            <Link href="/projects" className="text-cryptix-green hover:underline flex items-center">
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
@@ -194,7 +194,7 @@ const ProjectDetailPage: NextPage = () => {
             </Link>
           </div>
 
-          <div className="bg-crypto-black/30 border border-glass-border rounded-lg p-6 mb-8">
+          <div className="bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg p-6 mb-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
               <h1 className="text-2xl font-bold text-white mb-2 md:mb-0">{project.title}</h1>
 
@@ -411,5 +411,12 @@ const ProjectDetailPage: NextPage = () => {
     </ProtectedRoute>
   );
 };
+
+// Добавляем getServerSideProps вместо getStaticPaths, так как данные динамические
+export async function getServerSideProps(context) {
+  return {
+    props: {}, // Будет передано в компонент ProjectDetailPage
+  };
+}
 
 export default ProjectDetailPage;

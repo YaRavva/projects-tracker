@@ -7,30 +7,30 @@ const HomePage: React.FC = () => {
   const { user, loading } = useAuth();
 
   return (
-    <Layout title="Главная | Управление проектами">
+    <Layout title="Home | Digital Projects Tracker">
       <div className="flex flex-col items-center justify-center py-12">
         <h1 className="text-4xl md:text-5xl font-bold text-center text-white mb-6">
-          Система управления <span className="text-crypto-green-500">цифровыми проектами</span>
+          Digital <span className="text-cryptix-green">Projects</span> Tracker
         </h1>
-        
+
         <p className="text-xl text-gray-300 text-center max-w-3xl mb-8">
           Создавайте проекты, отслеживайте их прогресс, управляйте этапами и участниками.
           Включает аналитику и возможность импорта данных из PRD.md файлов.
         </p>
-        
+
         <div className="flex flex-wrap justify-center gap-4 mb-16">
           {!loading && (
             <>
               {user ? (
                 <>
-                  <Link 
-                    href="/projects" 
+                  <Link
+                    href="/projects"
                     className="btn-primary text-lg px-6 py-3"
                   >
                     Мои проекты
                   </Link>
-                  <Link 
-                    href="/settings" 
+                  <Link
+                    href="/settings"
                     className="btn-secondary text-lg px-6 py-3"
                   >
                     Настройки
@@ -38,14 +38,14 @@ const HomePage: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <Link 
-                    href="/login" 
+                  <Link
+                    href="/login"
                     className="btn-primary text-lg px-6 py-3"
                   >
                     Войти
                   </Link>
-                  <Link 
-                    href="/register" 
+                  <Link
+                    href="/register"
                     className="btn-secondary text-lg px-6 py-3"
                   >
                     Зарегистрироваться
@@ -55,7 +55,7 @@ const HomePage: React.FC = () => {
             </>
           )}
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl">
           <div className="glass-card">
             <div className="glass-card-body">
@@ -65,14 +65,14 @@ const HomePage: React.FC = () => {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                   </svg>
                 </div>
-                <h3 className="text-xl font-semibold text-white">Управление проектами</h3>
+                <h3 className="text-xl font-semibold text-white">Project Management</h3>
               </div>
               <p className="text-gray-300">
                 Создавайте, редактируйте и удаляйте проекты. Отслеживайте их статус и прогресс в реальном времени.
               </p>
             </div>
           </div>
-          
+
           <div className="glass-card">
             <div className="glass-card-body">
               <div className="flex items-center mb-4">
@@ -88,7 +88,7 @@ const HomePage: React.FC = () => {
               </p>
             </div>
           </div>
-          
+
           <div className="glass-card">
             <div className="glass-card-body">
               <div className="flex items-center mb-4">
@@ -105,7 +105,7 @@ const HomePage: React.FC = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl">
           <div className="glass-card">
             <div className="glass-card-body">
@@ -122,7 +122,7 @@ const HomePage: React.FC = () => {
               </p>
             </div>
           </div>
-          
+
           <div className="glass-card">
             <div className="glass-card-body">
               <div className="flex items-center mb-4">
@@ -138,7 +138,7 @@ const HomePage: React.FC = () => {
               </p>
             </div>
           </div>
-          
+
           <div className="glass-card">
             <div className="glass-card-body">
               <div className="flex items-center mb-4">
@@ -160,4 +160,4 @@ const HomePage: React.FC = () => {
   );
 };
 
-export default HomePage; 
+export default HomePage;

@@ -452,3 +452,484 @@ html {
 .mobile-menu-link {
   @apply block py-3 px-6 text-xl text-gray-300 hover:text-white border-b border-glass-border transition-colors;
 }
+
+/* Стили для выпадающих списков */
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2300ff9d' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.5rem center;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+select option {
+  background-color: #0f1923;
+  color: white;
+  padding: 0.5rem;
+}
+
+
+
+/* Стили для чекбоксов */
+input[type="checkbox"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  max-width: 20px;
+  max-height: 20px;
+  border: 2px solid var(--glass-border);
+  border-radius: 4px;
+  background-color: var(--glass-bg);
+  display: inline-block;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  vertical-align: middle;
+  cursor: pointer;
+  box-sizing: border-box;
+}
+
+input[type="checkbox"]:checked {
+  background-color: var(--cryptix-green);
+  border-color: var(--cryptix-green);
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  max-width: 20px;
+  max-height: 20px;
+}
+
+/* Стили для календаря */
+input[type="date"] {
+  position: relative;
+  color: white;
+  background-color: var(--glass-bg);
+}
+
+/* Стили для иконки календаря */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2300ff9d' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'%3E%3C/path%3E%3C/svg%3E");
+  width: 20px;
+  height: 20px;
+  opacity: 0.7;
+  cursor: pointer;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Стили для поля ввода даты */
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  color: white;
+  padding: 0;
+}
+
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-year-field,
+input[type="date"]::-webkit-datetime-edit-text {
+  color: white;
+}
+
+input[type="date"]::-webkit-inner-spin-button {
+  display: none;
+}
+
+/* Стили для выпадающего календаря */
+::-webkit-datetime-edit-fields-wrapper {
+  color: white;
+}
+::-webkit-calendar-picker-indicator {
+  filter: invert(1) sepia(100%) saturate(10000%) hue-rotate(110deg);
+}
+
+/* Стили для календаря в Chrome */
+::-webkit-calendar-picker {
+  background-color: var(--cryptix-darker) !important;
+  color: white !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+  font-family: 'Inter', sans-serif !important;
+  position: absolute !important;
+  right: 0 !important;
+  left: auto !important;
+  top: calc(100% + 5px) !important;
+  z-index: 100 !important;
+}
+
+/* Стили для заголовка календаря */
+::-webkit-calendar-picker-header {
+  background-color: rgba(0, 255, 157, 0.1) !important;
+  color: white !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+}
+
+/* Стили для дней недели */
+::-webkit-calendar-picker-weekday {
+  color: var(--cryptix-green) !important;
+  font-weight: bold !important;
+}
+
+/* Стили для дней */
+::-webkit-calendar-picker-day {
+  color: white !important;
+  border-radius: 4px !important;
+}
+
+::-webkit-calendar-picker-day:hover {
+  background-color: rgba(0, 255, 157, 0.2) !important;
+}
+
+/* Стили для выбранного дня */
+::-webkit-calendar-picker-day-selected {
+  background-color: var(--cryptix-green) !important;
+  color: var(--cryptix-darker) !important;
+  font-weight: bold !important;
+  border-radius: 4px !important;
+}
+
+/* Стили для текущего дня */
+::-webkit-calendar-picker-day-today {
+  border: 1px solid var(--cryptix-green) !important;
+  border-radius: 4px !important;
+}
+
+/* Стили для кнопок в календаре */
+::-webkit-calendar-picker-footer {
+  border-top: 1px solid var(--glass-border) !important;
+  padding: 8px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+}
+
+::-webkit-calendar-picker-footer button {
+  background-color: transparent !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 4px !important;
+  color: var(--cryptix-green) !important;
+  padding: 4px 8px !important;
+  cursor: pointer !important;
+  font-size: 12px !important;
+}
+
+::-webkit-calendar-picker-footer button:hover {
+  background-color: rgba(0, 255, 157, 0.1) !important;
+}
+
+::-webkit-calendar-picker-footer button.today {
+  font-weight: bold !important;
+}
+
+::-webkit-calendar-picker-footer button.clear {
+  color: #ff6b6b !important;
+}
+
+/* Стили для react-datepicker */
+.react-datepicker-wrapper {
+  width: 100%;
+}
+
+.react-datepicker {
+  background-color: var(--cryptix-darker) !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+  font-family: 'Inter', sans-serif !important;
+  color: white !important;
+}
+
+.react-datepicker__triangle {
+  display: none !important;
+}
+
+.react-datepicker__header {
+  background-color: rgba(0, 255, 157, 0.1) !important;
+  border-bottom: 1px solid var(--glass-border) !important;
+  padding-top: 10px !important;
+}
+
+.react-datepicker__current-month {
+  color: white !important;
+  font-weight: 600 !important;
+  padding-bottom: 5px !important;
+}
+
+.react-datepicker__day-name {
+  color: var(--cryptix-green) !important;
+  font-weight: bold !important;
+  margin: 0.4rem !important;
+}
+
+.react-datepicker__day {
+  color: white !important;
+  margin: 0.4rem !important;
+  border-radius: 4px !important;
+  width: 2rem !important;
+  line-height: 2rem !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: rgba(0, 255, 157, 0.2) !important;
+}
+
+.react-datepicker__day--selected {
+  background-color: var(--cryptix-green) !important;
+  color: var(--cryptix-darker) !important;
+  font-weight: bold !important;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background-color: rgba(0, 255, 157, 0.3) !important;
+  color: white !important;
+}
+
+.react-datepicker__day--today {
+  border: 1px solid var(--cryptix-green) !important;
+  background-color: transparent !important;
+  color: white !important;
+  font-weight: bold !important;
+}
+
+.react-datepicker__day--outside-month {
+  color: rgba(255, 255, 255, 0.3) !important;
+}
+
+.react-datepicker__navigation {
+  top: 12px !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: var(--cryptix-green) !important;
+}
+
+.react-datepicker__year-read-view--down-arrow,
+.react-datepicker__month-read-view--down-arrow {
+  border-color: var(--cryptix-green) !important;
+}
+
+.react-datepicker__year-dropdown,
+.react-datepicker__month-dropdown {
+  background-color: var(--cryptix-darker) !important;
+  border: 1px solid var(--glass-border) !important;
+}
+
+.react-datepicker__year-option:hover,
+.react-datepicker__month-option:hover {
+  background-color: rgba(0, 255, 157, 0.2) !important;
+}
+
+.react-datepicker__year-option--selected,
+.react-datepicker__month-option--selected {
+  background-color: var(--cryptix-green) !important;
+  color: var(--cryptix-darker) !important;
+}
+
+.react-datepicker__year-option--selected .react-datepicker__year-option--selected_year,
+.react-datepicker__month-option--selected .react-datepicker__month-option--selected_month {
+  color: var(--cryptix-darker) !important;
+}
+
+.react-datepicker__time-container {
+  border-left: 1px solid var(--glass-border) !important;
+}
+
+.react-datepicker__time {
+  background-color: var(--cryptix-darker) !important;
+}
+
+.react-datepicker__time-list-item {
+  color: white !important;
+}
+
+.react-datepicker__time-list-item:hover {
+  background-color: rgba(0, 255, 157, 0.2) !important;
+}
+
+.react-datepicker__time-list-item--selected {
+  background-color: var(--cryptix-green) !important;
+  color: var(--cryptix-darker) !important;
+  font-weight: bold !important;
+}
+
+/* Стили для нативного календаря */
+
+/* Стилизация выпадающего календаря */
+input[type="date"]::-webkit-datetime-edit { padding: 0; }
+input[type="date"]::-webkit-inner-spin-button { display: none; }
+
+/* Стили для выпадающего календаря */
+::-webkit-calendar-picker {
+  background-color: var(--cryptix-darker) !important;
+  color: white !important;
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 8px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5) !important;
+  position: absolute !important;
+  right: 0 !important;
+  left: auto !important;
+}
+
+/* Стили для заголовка календаря */
+::-webkit-calendar-picker-indicator {
+  background-color: transparent !important;
+  color: var(--cryptix-green) !important;
+}
+
+/* Стили для дней недели */
+::-webkit-calendar-picker th {
+  color: var(--cryptix-green) !important;
+  font-weight: bold !important;
+}
+
+/* Стили для дней */
+::-webkit-calendar-picker td {
+  color: white !important;
+}
+
+/* Стили для выбранного дня */
+::-webkit-calendar-picker td[selected] {
+  background-color: var(--cryptix-green) !important;
+  color: var(--cryptix-darker) !important;
+  font-weight: bold !important;
+  border-radius: 4px !important;
+}
+
+/* Стили для выбранного дня в нативном календаре */
+::-webkit-calendar-picker-indicator::-webkit-calendar-picker-day-selected {
+  background-color: var(--cryptix-green) !important;
+  color: var(--cryptix-darker) !important;
+}
+
+/* Стили для выбранного дня в календаре */
+table.pika-table td.is-selected .pika-button {
+  background-color: var(--cryptix-green) !important;
+  color: var(--cryptix-darker) !important;
+  box-shadow: none !important;
+}
+
+/* Стили для текущего дня */
+::-webkit-calendar-picker td[today] {
+  border: 1px solid var(--cryptix-green) !important;
+  border-radius: 4px !important;
+}
+
+/* Стили для кнопок в календаре */
+::-webkit-calendar-picker button {
+  color: var(--cryptix-green) !important;
+  background-color: transparent !important;
+  border: none !important;
+}
+
+/* Стили для кнопки Сегодня */
+::-webkit-calendar-picker button.today-button {
+  color: var(--cryptix-green) !important;
+  font-weight: bold !important;
+}
+
+/* Стили для кнопки Удалить */
+::-webkit-calendar-picker button.clear-button {
+  color: #ff6b6b !important;
+}
+
+/* Стили для календаря в Chrome */
+input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+/* Стили для выравнивания календаря по правому краю */
+input[type="date"] {
+  position: relative;
+  padding-right: 30px; /* Место для иконки календаря */
+}
+
+/* Стили для выпадающего календаря */
+::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+  background-color: rgba(0, 255, 157, 0.1);
+}
+
+/* Стили для выбранной даты в календаре */
+.calendar-day-selected {
+  background-color: var(--cryptix-green) !important;
+  color: var(--cryptix-dark) !important;
+  font-weight: bold !important;
+  border-radius: 4px !important;
+}
+
+/* Стили для текущего дня в календаре */
+.calendar-day-today {
+  border: 1px solid var(--cryptix-green) !important;
+  border-radius: 4px !important;
+}
+
+/* Стили для выпадающего календаря в Firefox */
+input[type="date"]::-moz-calendar-picker-indicator {
+  filter: invert(1) sepia(100%) saturate(10000%) hue-rotate(110deg);
+  width: 20px;
+  height: 20px;
+  opacity: 0.7;
+  cursor: pointer;
+  position: absolute;
+  right: 8px;
+}
+
+input[type="date"]::-moz-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Стили для поля ввода даты в Firefox */
+input[type="date"]::-moz-datetime-edit {
+  color: white;
+  padding: 0;
+}
+
+input[type="date"]::-moz-datetime-edit-day-field,
+input[type="date"]::-moz-datetime-edit-month-field,
+input[type="date"]::-moz-datetime-edit-year-field,
+input[type="date"]::-moz-datetime-edit-text {
+  color: white;
+}
+
+/* Убираем точку внутри чекбокса */
+
+input[type="checkbox"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(0, 255, 157, 0.3);
+}
+
+/* Стили для скроллбара */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(4, 10, 15, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 255, 157, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 255, 157, 0.5);
+}

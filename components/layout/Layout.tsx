@@ -7,7 +7,7 @@ interface LayoutProps {
   title?: string;
 }
 
-const Layout: React.FC<LayoutProps> = ({ children, title = 'Управление проектами' }) => {
+const Layout: React.FC<LayoutProps> = ({ children, title = 'Digital Projects Tracker' }) => {
   // Добавляем декоративные элементы при загрузке
   useEffect(() => {
     // Создаем декоративные элементы
@@ -95,12 +95,12 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'Управление
     <>
       <Head>
         <title>{title}</title>
-        <meta name="description" content="Система управления цифровыми проектами" />
+        <meta name="description" content="Digital Projects Tracker - Manage your digital projects efficiently" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
       </Head>
-      <div className="flex flex-col min-h-screen h-screen relative overflow-hidden">
+      <div className="flex flex-col min-h-screen h-screen relative overflow-y-auto" style={{ scrollbarWidth: 'thin' }}>
         {/* Фоновый градиент */}
         <div className="fixed inset-0 z-[-1]">
           <div className="absolute inset-0 bg-gradient-to-b from-cryptix-dark to-cryptix-darker"></div>

@@ -52,7 +52,7 @@ const Navbar: React.FC = () => {
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center">
               <span className="text-xl font-bold text-white flex items-center">
-                <span className="text-cryptix-green mr-1">IT</span>Projects
+                <span className="text-cryptix-green mr-1">Digital</span>Projects<span className="text-cryptix-green ml-1">Tracker</span>
                 <div className="w-1.5 h-1.5 rounded-full bg-cryptix-green ml-1 animate-pulse"></div>
               </span>
             </Link>
