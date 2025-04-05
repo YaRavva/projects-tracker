@@ -13,50 +13,64 @@ export interface Database {
         Row: {
           id: string
           email: string
-          full_name?: string
-          avatar_url?: string
-          created_at?: string
-          updated_at?: string
+          full_name: string | null
+          avatar_url: string | null
+          created_at: string
+          updated_at: string
         }
         Insert: {
           id: string
           email: string
-          full_name?: string
-          avatar_url?: string
+          full_name?: string | null
+          avatar_url?: string | null
           created_at?: string
           updated_at?: string
         }
         Update: {
           id?: string
           email?: string
-          full_name?: string
-          avatar_url?: string
+          full_name?: string | null
+          avatar_url?: string | null
+          created_at?: string
           updated_at?: string
         }
       }
       projects: {
         Row: {
           id: string
-          name: string
-          description?: string
+          title: string
+          description: string | null
           owner_id: string
-          created_at?: string
-          updated_at?: string
+          created_at: string
+          updated_at: string
+          deadline: string | null
+          progress: number
+          repository_url: string | null
+          demo_url: string | null
         }
         Insert: {
           id?: string
-          name: string
-          description?: string
+          title: string
+          description?: string | null
           owner_id: string
           created_at?: string
           updated_at?: string
+          deadline?: string | null
+          progress?: number
+          repository_url?: string | null
+          demo_url?: string | null
         }
         Update: {
           id?: string
-          name?: string
-          description?: string
+          title?: string
+          description?: string | null
           owner_id?: string
+          created_at?: string
           updated_at?: string
+          deadline?: string | null
+          progress?: number
+          repository_url?: string | null
+          demo_url?: string | null
         }
       }
       project_members: {
@@ -65,8 +79,7 @@ export interface Database {
           project_id: string
           user_id: string
           role: string
-          created_at?: string
-          updated_at?: string
+          created_at: string
         }
         Insert: {
           id?: string
@@ -74,21 +87,21 @@ export interface Database {
           user_id: string
           role: string
           created_at?: string
-          updated_at?: string
         }
         Update: {
           id?: string
           project_id?: string
           user_id?: string
           role?: string
-          updated_at?: string
+          created_at?: string
         }
       }
       project_stages: {
         Row: {
           id: string
           project_id: string
-          title: string
+          name: string
+          description: string | null
           deadline: string | null
           completed: boolean
           created_at: string
@@ -97,7 +110,8 @@ export interface Database {
         Insert: {
           id?: string
           project_id: string
-          title: string
+          name: string
+          description?: string | null
           deadline?: string | null
           completed?: boolean
           created_at?: string
@@ -106,9 +120,36 @@ export interface Database {
         Update: {
           id?: string
           project_id?: string
-          title?: string
+          name?: string
+          description?: string | null
           deadline?: string | null
           completed?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      project_meta: {
+        Row: {
+          id: string
+          project_id: string
+          key: string
+          value: Json
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          key: string
+          value: Json
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          key?: string
+          value?: Json
           created_at?: string
           updated_at?: string
         }

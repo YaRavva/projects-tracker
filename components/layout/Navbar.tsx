@@ -1,57 +1,86 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useAuth } from '../../contexts/AuthContext';
 import { useRouter } from 'next/router';
+import { supabase } from '../../lib/supabase';
 
 const Navbar: React.FC = () => {
   const { user, signOut, loading } = useAuth();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  const handleSignOut = async () => {
-    const { error } = await signOut();
-    if (!error) {
-      router.push('/login');
-    }
-  };
+  const [userName, setUserName] = useState<string | null>(null);
+  const { pathname } = router;
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
+  const handleSignOut = async () => {
+    await signOut();
+    router.push('/');
+  };
+
+  // Получаем имя пользователя из профиля
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user) {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
+        
+        if (data && data.full_name) {
+          setUserName(data.full_name);
+        } else if (user.email) {
+          // Используем email как запасной вариант, если имя не найдено
+          setUserName(user.email);
+        } else {
+          // Если даже email отсутствует, устанавливаем пустую строку
+          setUserName('');
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
+
   return (
-    <nav className="bg-crypto-dark/80 backdrop-blur-md border-b border-glass-border">
-      <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center py-4">
-          <div className="flex items-center space-x-6">
-            <Link href="/" className="text-xl font-bold text-white flex items-center">
-              <svg className="w-6 h-6 mr-2 text-crypto-green-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 17L12 22L22 17" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                <path d="M2 12L12 17L22 12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-              Управление проектами
+    <nav className="bg-crypto-black-light/80 backdrop-blur-sm border-b border-glass-border">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between h-16">
+          <div className="flex items-center">
+            <Link href="/" className="flex-shrink-0 flex items-center">
+              <span className="text-xl font-bold text-white">
+                <span className="text-crypto-green-500">IT</span>Projects
+              </span>
             </Link>
-            {user && !loading && (
-              <div className="hidden md:flex items-center space-x-4">
-                <Link href="/projects" className={`nav-link ${router.pathname === '/projects' || router.pathname.startsWith('/projects/') ? 'active' : ''}`}>
-                  Проекты
-                </Link>
-                <Link href="/analytics" className={`nav-link ${router.pathname === '/analytics' ? 'active' : ''}`}>
-                  Аналитика
-                </Link>
-                <Link href="/settings" className={`nav-link ${router.pathname === '/settings' ? 'active' : ''}`}>
-                  Настройки
-                </Link>
-              </div>
-            )}
+            
+            <div className="hidden md:ml-6 md:flex md:space-x-4">
+              {user && !loading && (
+                <div className="hidden md:flex items-center space-x-4">
+                  <Link 
+                    href="/projects"
+                    className={`nav-link ${pathname === '/projects' ? 'active' : ''}`}
+                  >
+                    Проекты
+                  </Link>
+                  <Link href="/analytics" className={`nav-link ${router.pathname === '/analytics' ? 'active' : ''}`}>
+                    Аналитика
+                  </Link>
+                  <Link href="/settings" className={`nav-link ${router.pathname === '/settings' ? 'active' : ''}`}>
+                    Настройки
+                  </Link>
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex items-center space-x-4">
             {!loading && (
               <>
                 {user ? (
                   <div className="hidden md:flex items-center space-x-4">
-                    <span className="text-gray-300">{user.email}</span>
+                    <span className="text-gray-300">{userName || 'Пользователь'}</span>
                     <button
                       onClick={handleSignOut}
                       className="btn-danger-sm"
@@ -82,45 +111,48 @@ const Navbar: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       {/* Мобильное меню */}
-      <div className={`mobile-menu ${mobileMenuOpen ? '' : 'hidden'}`}>
-        <div className="container mx-auto px-4 py-4">
-          {user && !loading ? (
-            <>
-              <Link href="/projects" className="mobile-menu-link">
-                Проекты
-              </Link>
-              <Link href="/analytics" className="mobile-menu-link">
-                Аналитика
-              </Link>
-              <Link href="/settings" className="mobile-menu-link">
-                Настройки
-              </Link>
-              <div className="py-4 px-6 border-t border-glass-border mt-4">
-                <div className="text-sm text-gray-300 mb-2">
-                  {user.email}
+      {mobileMenuOpen && (
+        <div className="md:hidden">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-crypto-black border-b border-glass-border">
+            {user ? (
+              <>
+                <div className="px-3 py-2 text-gray-300 font-medium border-b border-glass-border mb-2">
+                  {userName || 'Пользователь'}
                 </div>
+                <Link 
+                  href="/projects"
+                  className={`mobile-nav-link ${pathname === '/projects' ? 'active' : ''}`}
+                >
+                  Проекты
+                </Link>
+                <Link href="/analytics" className="mobile-nav-link">
+                  Аналитика
+                </Link>
+                <Link href="/settings" className="mobile-nav-link">
+                  Настройки
+                </Link>
                 <button
                   onClick={handleSignOut}
-                  className="btn-danger w-full text-sm"
+                  className="w-full text-left mobile-nav-link text-red-400"
                 >
                   Выйти
                 </button>
-              </div>
-            </>
-          ) : (
-            <>
-              <Link href="/login" className="mobile-menu-link">
-                Войти
-              </Link>
-              <Link href="/register" className="mobile-menu-link">
-                Регистрация
-              </Link>
-            </>
-          )}
+              </>
+            ) : (
+              <>
+                <Link href="/login" className="mobile-nav-link">
+                  Войти
+                </Link>
+                <Link href="/register" className="mobile-nav-link">
+                  Регистрация
+                </Link>
+              </>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </nav>
   );
 };
