@@ -2,7 +2,6 @@
   "/_app": "pages/_app.js",
   "/_error": "pages/_error.js",
   "/_document": "pages/_document.js",
-  "/projects/new": "pages/projects/new.js",
-  "/projects/[id]": "pages/projects/[id].js",
-  "/projects": "pages/projects.js"
+  "/login": "pages/login.js",
+  "/register": "pages/register.js"
 }
