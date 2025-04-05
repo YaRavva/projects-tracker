@@ -39,7 +39,7 @@ const ProjectDetailPage: NextPage = () => {
   const { user } = useAuth();
   const router = useRouter();
   const { id } = router.query;
-  
+
   const [project, setProject] = useState<Project | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,10 +47,10 @@ const ProjectDetailPage: NextPage = () => {
   useEffect(() => {
     const fetchProject = async () => {
       if (!id || !user) return;
-      
+
       try {
         setLoading(true);
-        
+
         // Загружаем основные данные проекта
         const { data: projectData, error: projectError } = await supabase
           .from('projects')
@@ -58,19 +58,19 @@ const ProjectDetailPage: NextPage = () => {
           .eq('id', id)
           .eq('owner_id', user.id)
           .single();
-        
+
         if (projectError) throw projectError;
         if (!projectData) throw new Error('Проект не найден');
-        
+
         // Загружаем этапы проекта
         const { data: stagesData, error: stagesError } = await supabase
           .from('project_stages')
           .select('*')
           .eq('project_id', id)
           .order('created_at', { ascending: true });
-        
+
         if (stagesError) throw stagesError;
-        
+
         // Загружаем метаданные проекта (участники команды)
         const { data: metaData, error: metaError } = await supabase
           .from('project_meta')
@@ -78,14 +78,14 @@ const ProjectDetailPage: NextPage = () => {
           .eq('project_id', id)
           .eq('key', 'team_members')
           .single();
-        
+
         // Формируем полные данные проекта
         const fullProject: Project = {
           ...projectData,
           team_members: metaData?.value || [],
           stages: stagesData || []
         };
-        
+
         setProject(fullProject);
       } catch (err: any) {
         console.error('Ошибка при загрузке проекта:', err);
@@ -94,42 +94,42 @@ const ProjectDetailPage: NextPage = () => {
         setLoading(false);
       }
     };
-    
+
     fetchProject();
   }, [id, user]);
 
   const handleStageToggle = async (stageId: string, completed: boolean) => {
     if (!project) return;
-    
+
     try {
       // Обновляем статус этапа
       const { error: updateError } = await supabase
         .from('project_stages')
         .update({ completed })
         .eq('id', stageId);
-      
+
       if (updateError) throw updateError;
-      
+
       // Обновляем этапы в локальном состоянии
-      const updatedStages = project.stages.map(stage => 
+      const updatedStages = project.stages.map(stage =>
         stage.id === stageId ? { ...stage, completed } : stage
       );
-      
+
       // Рассчитываем новый прогресс
       const validStages = updatedStages.filter(stage => stage.name.trim());
       const completedStages = validStages.filter(stage => stage.completed);
-      const progress = validStages.length > 0 
-        ? Math.round((completedStages.length / validStages.length) * 100) 
+      const progress = validStages.length > 0
+        ? Math.round((completedStages.length / validStages.length) * 100)
         : 0;
-      
+
       // Обновляем прогресс проекта
       const { error: progressError } = await supabase
         .from('projects')
         .update({ progress })
         .eq('id', project.id);
-      
+
       if (progressError) throw progressError;
-      
+
       // Обновляем локальное состояние
       setProject({
         ...project,
@@ -183,7 +183,7 @@ const ProjectDetailPage: NextPage = () => {
         <Head>
           <title>{project.title} | IT Projects</title>
         </Head>
-        
+
         <div className="container mx-auto px-4 py-8">
           <div className="mb-6">
             <Link href="/projects" className="text-crypto-green-500 hover:underline flex items-center">
@@ -193,13 +193,13 @@ const ProjectDetailPage: NextPage = () => {
               Вернуться к списку проектов
             </Link>
           </div>
-          
+
           <div className="bg-crypto-black/30 border border-glass-border rounded-lg p-6 mb-8">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
               <h1 className="text-2xl font-bold text-white mb-2 md:mb-0">{project.title}</h1>
-              
+
               <div className="flex space-x-2">
-                <Link 
+                <Link
                   href={`/projects/${project.id}/edit`}
                   className="btn-secondary-sm"
                 >
@@ -207,7 +207,7 @@ const ProjectDetailPage: NextPage = () => {
                 </Link>
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div className="col-span-2">
                 <h3 className="text-sm font-medium text-gray-400 mb-2">Описание</h3>
@@ -215,17 +215,17 @@ const ProjectDetailPage: NextPage = () => {
                   {project.description || 'Описание отсутствует'}
                 </p>
               </div>
-              
+
               <div>
-                <div className="bg-crypto-black/50 border border-glass-border rounded-md p-4">
+                <div className="bg-glass-bg backdrop-blur-md border border-glass-border rounded-md p-4">
                   <h3 className="text-sm font-medium text-gray-400 mb-3">Информация о проекте</h3>
-                  
+
                   <div className="space-y-3">
                     <div>
                       <div className="text-xs text-gray-500">Создан</div>
                       <div className="text-white">{formatDate(project.created_at)}</div>
                     </div>
-                    
+
                     <div>
                       <div className="text-xs text-gray-500">Дедлайн</div>
                       {project.deadline ? (
@@ -233,10 +233,10 @@ const ProjectDetailPage: NextPage = () => {
                           {formatDate(project.deadline)}
                           {deadlineDays !== null && (
                             <span className={`ml-2 text-xs ${deadlineDays < 0 ? 'text-red-400' : deadlineDays <= 7 ? 'text-yellow-400' : 'text-gray-400'}`}>
-                              {deadlineDays < 0 
-                                ? `(просрочен на ${Math.abs(deadlineDays)} дн.)` 
-                                : deadlineDays === 0 
-                                  ? '(сегодня)' 
+                              {deadlineDays < 0
+                                ? `(просрочен на ${Math.abs(deadlineDays)} дн.)`
+                                : deadlineDays === 0
+                                  ? '(сегодня)'
                                   : `(осталось ${deadlineDays} дн.)`}
                             </span>
                           )}
@@ -245,26 +245,38 @@ const ProjectDetailPage: NextPage = () => {
                         <div className="text-gray-500 italic">Не указан</div>
                       )}
                     </div>
-                    
+
                     <div>
                       <div className="text-xs text-gray-500">Прогресс</div>
-                      <div className="flex items-center mt-1">
-                        <div className="w-full bg-crypto-black rounded-full h-2.5 mr-2">
-                          <div 
-                            className="bg-crypto-green-500 h-2.5 rounded-full" 
+                      <div className="mt-1">
+                        <div className="progress-bar">
+                          <div
+                            className="progress-bar-fill"
                             style={{ width: `${project.progress}%` }}
                           ></div>
+                          {/* Добавляем маркеры прогресса */}
+                          <div className="relative w-full h-0 -mt-2 flex justify-between px-[1px]">
+                            <div className="w-1 h-1 rounded-full bg-cryptix-green/30"></div>
+                            <div className="w-1 h-1 rounded-full bg-cryptix-green/30"></div>
+                            <div className="w-1 h-1 rounded-full bg-cryptix-green/30"></div>
+                            <div className="w-1 h-1 rounded-full bg-cryptix-green/30"></div>
+                            <div className="w-1 h-1 rounded-full bg-cryptix-green/30"></div>
+                          </div>
                         </div>
-                        <span className="text-xs text-white">{project.progress}%</span>
+                        <div className="flex justify-between mt-1">
+                          <span className="text-xs text-gray-400">0%</span>
+                          <span className="text-xs text-cryptix-green">{project.progress}%</span>
+                          <span className="text-xs text-gray-400">100%</span>
+                        </div>
                       </div>
                     </div>
-                    
+
                     {(project.repository_url || project.demo_url) && (
                       <div className="pt-2 border-t border-glass-border">
                         <div className="text-xs text-gray-500 mb-2">Ссылки</div>
                         <div className="flex flex-col space-y-2">
                           {project.repository_url && (
-                            <a 
+                            <a
                               href={project.repository_url}
                               target="_blank"
                               rel="noopener noreferrer"
@@ -277,7 +289,7 @@ const ProjectDetailPage: NextPage = () => {
                             </a>
                           )}
                           {project.demo_url && (
-                            <a 
+                            <a
                               href={project.demo_url}
                               target="_blank"
                               rel="noopener noreferrer"
@@ -296,18 +308,18 @@ const ProjectDetailPage: NextPage = () => {
                 </div>
               </div>
             </div>
-            
+
             {project.team_members && project.team_members.length > 0 && (
               <div className="mb-8">
                 <h3 className="text-lg font-medium text-white mb-4">Команда проекта</h3>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {project.team_members.map((member, index) => (
-                    <div 
-                      key={index} 
-                      className="bg-crypto-black/50 border border-glass-border rounded-md p-4"
+                    <div
+                      key={index}
+                      className="bg-glass-bg backdrop-blur-md border border-glass-border rounded-md p-4"
                     >
                       <div className="flex items-center mb-2">
-                        <div className="w-10 h-10 rounded-full bg-crypto-green-500/20 flex items-center justify-center text-crypto-green-500 mr-3">
+                        <div className="w-10 h-10 rounded-full bg-cryptix-green/20 flex items-center justify-center text-cryptix-green mr-3">
                           {member.name.split(' ').map(n => n[0]).join('').toUpperCase()}
                         </div>
                         <div>
@@ -315,7 +327,7 @@ const ProjectDetailPage: NextPage = () => {
                           <div className="text-xs text-gray-400">{member.class}</div>
                         </div>
                       </div>
-                      <div className="px-2 py-1 rounded-full text-xs font-medium bg-crypto-green-500/20 text-crypto-green-500 inline-block">
+                      <div className="px-2 py-1 rounded-full text-xs font-medium bg-cryptix-green/10 text-cryptix-green inline-block">
                         {member.role}
                       </div>
                     </div>
@@ -323,30 +335,30 @@ const ProjectDetailPage: NextPage = () => {
                 </div>
               </div>
             )}
-            
+
             <div>
               <h3 className="text-lg font-medium text-white mb-4">Этапы проекта</h3>
-              
+
               {project.stages.length === 0 ? (
                 <div className="text-gray-400 italic">Этапы не определены</div>
               ) : (
                 <div className="space-y-4">
                   {project.stages.map((stage, index) => (
-                    <div 
-                      key={stage.id} 
+                    <div
+                      key={stage.id}
                       className={`p-4 border rounded-md ${
-                        stage.completed 
-                          ? 'bg-crypto-green-500/10 border-crypto-green-500/30' 
-                          : 'bg-crypto-black/50 border-glass-border'
+                        stage.completed
+                          ? 'bg-cryptix-green/10 border-cryptix-green/30'
+                          : 'bg-glass-bg backdrop-blur-xs border-glass-border'
                       }`}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex items-center">
-                          <div 
+                          <div
                             className={`w-6 h-6 rounded-full flex items-center justify-center mr-3 ${
-                              stage.completed 
-                                ? 'bg-crypto-green-500 text-black' 
-                                : 'bg-crypto-black border border-glass-border text-gray-400'
+                              stage.completed
+                                ? 'bg-cryptix-green text-cryptix-darker'
+                                : 'bg-glass-bg border border-glass-border text-gray-400'
                             }`}
                           >
                             {stage.completed ? (
@@ -361,10 +373,10 @@ const ProjectDetailPage: NextPage = () => {
                             <h4 className="text-white font-medium">{stage.name}</h4>
                             {stage.deadline && (
                               <div className={`text-xs ${
-                                stage.completed 
-                                  ? 'text-gray-400' 
-                                  : isOverdue(stage.deadline) 
-                                    ? 'text-red-400' 
+                                stage.completed
+                                  ? 'text-gray-400'
+                                  : isOverdue(stage.deadline)
+                                    ? 'text-red-400'
                                     : 'text-gray-400'
                               }`}>
                                 Дедлайн: {formatDate(stage.deadline)}
@@ -375,7 +387,7 @@ const ProjectDetailPage: NextPage = () => {
                             )}
                           </div>
                         </div>
-                        
+
                         <label className="inline-flex items-center cursor-pointer">
                           <input
                             type="checkbox"
@@ -400,4 +412,4 @@ const ProjectDetailPage: NextPage = () => {
   );
 };
 
-export default ProjectDetailPage; 
+export default ProjectDetailPage;

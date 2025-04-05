@@ -3,24 +3,48 @@
 @tailwind utilities;
 
 :root {
-  --crypto-black: #0a0e17;
-  --crypto-dark: #0a0a0a;
-  --crypto-green-300: #4ade80;
-  --crypto-green-400: #22c55e;
-  --crypto-green-500: #00f5a0;
-  --crypto-green-600: #00d98e;
-  --crypto-green-700: #00b377;
-  --glass-bg: rgba(255, 255, 255, 0.05);
-  --glass-border: rgba(255, 255, 255, 0.1);
+  --cryptix-dark: #040a0f;
+  --cryptix-darker: #020507;
+  --cryptix-green: #00ff9d;
+  --cryptix-green-dark: #00cc7d;
+  --cryptix-green-light: #7dffcb;
+  --glass-bg: rgba(4, 10, 15, 0.3);
+  --glass-border: rgba(0, 255, 157, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.05);
+}
+
+html, body, #__next {
+  @apply overflow-x-hidden h-full;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  @apply bg-crypto-black text-white;
+  @apply bg-cryptix-darker text-white w-full h-full;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  background-image: 
-    radial-gradient(circle at 10% 20%, rgba(0, 245, 160, 0.15) 0%, rgba(10, 14, 23, 0) 80%),
-    radial-gradient(circle at 90% 80%, rgba(0, 245, 160, 0.1) 0%, rgba(10, 14, 23, 0) 70%);
+  background:
+    linear-gradient(to bottom, rgba(4, 10, 15, 1), rgba(2, 5, 7, 0.95)),
+    url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg stroke='%2300ff9d' stroke-width='0.5' stroke-opacity='0.1'%3E%3Cpath d='M0 0 L100 100 M100 0 L0 100' stroke-dasharray='3,3'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   background-attachment: fixed;
+  background-size: cover, 100px 100px;
+  max-width: 100vw;
+  position: relative;
+  overflow-y: auto;
+}
+
+/* Добавляем декоративные пунктирные линии */
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image:
+    url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2300ff9d' fill-opacity='0.05'%3E%3Ccircle cx='1' cy='1' r='1'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 20px 20px;
+  pointer-events: none;
+  z-index: -1;
 }
 
 /* Стили для аутентификации */
@@ -33,7 +57,8 @@ body {
 }
 
 .auth-form {
-  @apply bg-crypto-dark/80 backdrop-blur-md rounded-xl shadow-glass p-6 border border-glass-border;
+  @apply bg-glass-bg backdrop-blur-md rounded-xl shadow-glass p-6 border border-glass-border;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 1px var(--glass-highlight);
 }
 
 .auth-form h2 {
@@ -49,11 +74,11 @@ body {
 }
 
 .form-group input {
-  @apply w-full px-4 py-2 bg-crypto-black/50 border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-crypto-green-500/50;
+  @apply w-full px-4 py-2 bg-glass-bg backdrop-blur-md border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30;
 }
 
 .auth-form button {
-  @apply w-full py-2 px-4 bg-gradient-to-r from-crypto-green-600 to-crypto-green-500 text-crypto-black font-medium rounded-md hover:from-crypto-green-500 hover:to-crypto-green-400 transition-all duration-300 mt-6;
+  @apply w-full py-2 px-4 bg-gradient-to-r from-cryptix-green-dark to-cryptix-green text-cryptix-darker font-medium rounded-md hover:from-cryptix-green hover:to-cryptix-green-dark transition-all duration-300 mt-6 shadow-glow-sm;
 }
 
 .auth-form button:disabled {
@@ -65,7 +90,7 @@ body {
 }
 
 .auth-links a {
-  @apply text-crypto-green-500 hover:text-crypto-green-400 transition-colors;
+  @apply text-cryptix-green hover:text-cryptix-green-light transition-colors;
 }
 
 .error-message {
@@ -74,11 +99,25 @@ body {
 
 /* Стили для карточек */
 .glass-card {
-  @apply bg-crypto-dark/80 backdrop-blur-md border border-glass-border rounded-xl shadow-glass overflow-hidden transition-all duration-300 hover:shadow-glow;
+  @apply bg-glass-bg backdrop-blur-md border border-glass-border rounded-xl overflow-hidden transition-all duration-300;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2), inset 0 1px 1px var(--glass-highlight);
+  position: relative;
+}
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(0, 255, 157, 0.3), transparent);
+  opacity: 0.5;
+  z-index: 1;
 }
 
 .glass-card-header {
-  @apply p-4 border-b border-glass-border;
+  @apply p-4 border-b border-glass-border/50;
 }
 
 .glass-card-body {
@@ -86,16 +125,31 @@ body {
 }
 
 .glass-card-footer {
-  @apply p-4 border-t border-glass-border;
+  @apply p-4 border-t border-glass-border/50;
+}
+
+.glass-card:hover {
+  @apply shadow-glass-strong transform -translate-y-0.5;
+  box-shadow: 0 12px 32px rgba(0, 255, 157, 0.15), inset 0 1px 1px var(--glass-highlight);
 }
 
 /* Стили для кнопок */
 .btn-primary {
-  @apply px-4 py-2 bg-gradient-to-r from-crypto-green-600 to-crypto-green-500 text-crypto-black font-medium rounded-md hover:from-crypto-green-500 hover:to-crypto-green-400 transition-all duration-300;
+  @apply px-4 py-2 bg-gradient-to-r from-cryptix-green-dark to-cryptix-green text-cryptix-darker font-medium rounded-md hover:from-cryptix-green hover:to-cryptix-green-dark transition-all duration-300 shadow-glow-sm;
+}
+
+.btn-primary-sm {
+  @apply px-3 py-1 bg-gradient-to-r from-cryptix-green-dark to-cryptix-green text-cryptix-darker text-sm font-medium rounded-md hover:from-cryptix-green hover:to-cryptix-green-dark transition-all duration-300 shadow-glow-sm;
 }
 
 .btn-secondary {
-  @apply px-4 py-2 bg-glass-bg border border-glass-border text-white rounded-md hover:bg-glass-bg/80 transition-all duration-300;
+  @apply px-4 py-2 bg-glass-bg backdrop-blur-md border border-glass-border text-white rounded-md hover:border-cryptix-green/30 hover:shadow-glow-sm transition-all duration-300;
+  box-shadow: inset 0 1px 1px var(--glass-highlight);
+}
+
+.btn-secondary-sm {
+  @apply px-3 py-1 bg-glass-bg backdrop-blur-md border border-glass-border text-white text-sm rounded-md hover:border-cryptix-green/30 hover:shadow-glow-sm transition-all duration-300;
+  box-shadow: inset 0 1px 1px var(--glass-highlight);
 }
 
 .btn-danger {
@@ -104,28 +158,31 @@ body {
 
 /* Стили для прогресс-бара */
 .progress-bar {
-  @apply w-full bg-crypto-black/50 rounded-full h-2 overflow-hidden;
+  @apply w-full bg-glass-bg backdrop-blur-xs rounded-full h-2 overflow-hidden;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
 .progress-bar-fill {
-  @apply h-full bg-gradient-to-r from-crypto-green-600 to-crypto-green-500 rounded-full;
+  @apply h-full bg-gradient-to-r from-cryptix-green-dark to-cryptix-green rounded-full;
+  box-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
 }
 
 /* Стили для бейджей */
 .badge {
   @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .badge-success {
-  @apply bg-crypto-green-500/20 text-crypto-green-400 border border-crypto-green-500/30;
+  @apply bg-cryptix-green/10 text-cryptix-green border border-cryptix-green/30;
 }
 
 .badge-warning {
-  @apply bg-yellow-500/20 text-yellow-400 border border-yellow-500/30;
+  @apply bg-yellow-500/10 text-yellow-400 border border-yellow-500/20;
 }
 
 .badge-danger {
-  @apply bg-red-500/20 text-red-400 border border-red-500/30;
+  @apply bg-red-500/10 text-red-400 border border-red-500/20;
 }
 
 /* Стили для навигации */
@@ -139,7 +196,12 @@ body {
 
 .nav-link.active::after {
   content: '';
-  @apply absolute bottom-0 left-0 w-full h-0.5 bg-crypto-green-500 rounded-full;
+  @apply absolute bottom-0 left-0 w-full h-0.5 bg-cryptix-green rounded-full;
+  box-shadow: 0 0 8px rgba(0, 255, 157, 0.5);
+}
+
+.mobile-nav-link {
+  @apply block px-3 py-2 text-gray-300 hover:text-white hover:bg-glass-highlight rounded-md transition-colors;
 }
 
 /* Обрезка текста */
@@ -152,27 +214,30 @@ body {
 }
 
 .glass-button {
-  @apply px-6 py-3 bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg 
-    hover:bg-crypto-green-500/20 hover:border-crypto-green-500/30 hover:text-white 
+  @apply px-6 py-3 bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg
+    hover:bg-cryptix-green/10 hover:border-cryptix-green/30 hover:text-white hover:shadow-glow-sm
     transition-all duration-300 text-gray-300 flex items-center justify-center;
+  box-shadow: inset 0 1px 1px var(--glass-highlight);
 }
 
 .glass-button-sm {
-  @apply px-4 py-2 bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg 
-    hover:bg-crypto-green-500/20 hover:border-crypto-green-500/30 hover:text-white 
+  @apply px-4 py-2 bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg
+    hover:bg-cryptix-green/10 hover:border-cryptix-green/30 hover:text-white hover:shadow-glow-sm
     transition-all duration-300 text-gray-300 text-sm;
+  box-shadow: inset 0 1px 1px var(--glass-highlight);
 }
 
 .glass-input {
-  @apply bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg px-4 py-3 
-    focus:outline-none focus:ring-2 focus:ring-crypto-green-500/30 focus:border-crypto-green-500/50 
+  @apply bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg px-4 py-3
+    focus:outline-none focus:ring-2 focus:ring-cryptix-green/30 focus:border-cryptix-green/50
     text-white placeholder-gray-400;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .grid-bg {
-  background-image: 
-    radial-gradient(rgba(0, 245, 160, 0.1) 1px, transparent 1px),
-    radial-gradient(rgba(0, 245, 160, 0.05) 1px, transparent 1px);
+  background-image:
+    radial-gradient(rgba(0, 255, 157, 0.1) 1px, transparent 1px),
+    radial-gradient(rgba(0, 255, 157, 0.05) 1px, transparent 1px);
   background-size: 40px 40px;
   background-position: 0 0, 20px 20px;
   position: relative;
@@ -186,15 +251,15 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: 
-    radial-gradient(circle at 20% 35%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 10%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+  background:
+    radial-gradient(circle at 20% 35%, rgba(0, 255, 157, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 10%, rgba(0, 255, 157, 0.1) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
 }
 
 .crypto-icon {
-  @apply text-crypto-green-500;
+  @apply text-cryptix-green;
 }
 
 /* Анимация для элементов */
@@ -210,19 +275,19 @@ body {
 /* Стилизация скроллбара */
 /* Для Webkit (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-crypto-dark;
+  @apply bg-cryptix-darker;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-crypto-green-700 rounded-full;
+  @apply bg-cryptix-green/30 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-crypto-green-600;
+  @apply bg-cryptix-green/50;
 }
 
 /* Для Firefox */
@@ -231,55 +296,118 @@ body {
 /* Применяем к html или body или конкретному элементу со скроллом */
 html {
   scrollbar-width: thin; /* или 'auto' или 'none' */
-  scrollbar-color: var(--crypto-green-700) var(--crypto-dark); /* thumb track */
+  scrollbar-color: var(--cryptix-green) var(--cryptix-darker); /* thumb track */
 }
 
-/* Стеклянные компоненты */
-.glass-card:hover {
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
-}
+/* Дополнительные эффекты */
 
 /* Градиентный текст */
 .gradient-text {
   @apply text-transparent bg-clip-text;
-  background-image: linear-gradient(to right, var(--crypto-green-500), var(--crypto-green-300));
+  background-image: linear-gradient(to right, var(--cryptix-green), var(--cryptix-green-light));
 }
 
 /* Градиентная рамка */
 .gradient-border {
   @apply p-[1px] rounded-lg relative;
-  background: linear-gradient(to right, rgba(0, 245, 160, 0.5), rgba(74, 222, 128, 0.5));
+  background: linear-gradient(to right, rgba(0, 255, 157, 0.5), rgba(0, 204, 125, 0.5));
 }
 
 .gradient-border-content {
-  @apply bg-crypto-black rounded-lg p-6 relative z-10;
+  @apply bg-cryptix-darker rounded-lg p-6 relative z-10;
 }
 
 .glow-dot {
-  @apply w-2 h-2 rounded-full bg-crypto-green-500;
-  box-shadow: 0 0 10px 2px rgba(0, 245, 160, 0.7);
+  @apply w-2 h-2 rounded-full bg-cryptix-green;
+  box-shadow: 0 0 10px 2px rgba(0, 255, 157, 0.7);
 }
 
 /* Неоморфные элементы */
 .neomorphic-card {
-  background: linear-gradient(145deg, #0a0a0a, #0f0f0f);
+  background: linear-gradient(145deg, #030809, #050c11);
   border-radius: 12px;
-  box-shadow: 8px 8px 16px #070707, -8px -8px 16px #131313;
+  box-shadow: 8px 8px 16px #010304, -8px -8px 16px #070f16;
 }
 
 .neomorphic-button {
-  background: linear-gradient(145deg, #0a0a0a, #0f0f0f);
+  background: linear-gradient(145deg, #030809, #050c11);
   border-radius: 8px;
-  box-shadow: 4px 4px 8px #070707, -4px -4px 8px #131313;
+  box-shadow: 4px 4px 8px #010304, -4px -4px 8px #070f16;
   transition: all 0.3s ease;
 }
 
 .neomorphic-button:active {
-  box-shadow: inset 4px 4px 8px #070707, inset -4px -4px 8px #131313;
+  box-shadow: inset 4px 4px 8px #010304, inset -4px -4px 8px #070f16;
 }
 
 .shadow-glow {
-  box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+  box-shadow: 0 0 20px rgba(0, 255, 157, 0.2);
+}
+
+/* Добавляем новые эффекты для стеклянных карточек */
+.glass-panel {
+  @apply bg-glass-bg backdrop-blur-md border border-glass-border rounded-xl overflow-hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25), inset 0 1px 1px var(--glass-highlight);
+  position: relative;
+}
+
+.glass-panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(0, 255, 157, 0.3), transparent);
+  opacity: 0.5;
+}
+
+.glass-panel-header {
+  @apply p-5 border-b border-glass-border/50;
+  background: linear-gradient(to right, rgba(0, 255, 157, 0.03), transparent);
+}
+
+.glass-panel-body {
+  @apply p-5;
+}
+
+.glass-panel-footer {
+  @apply p-5 border-t border-glass-border/50;
+  background: linear-gradient(to right, transparent, rgba(0, 255, 157, 0.03));
+}
+
+/* Декоративные элементы сети */
+.network-node {
+  @apply fixed w-12 h-12 rounded-full pointer-events-none z-10;
+  background: rgba(0, 255, 157, 0.05);
+  box-shadow: 0 0 20px rgba(0, 255, 157, 0.2), inset 0 0 10px rgba(0, 255, 157, 0.1);
+  animation: glowPulse 4s ease-in-out infinite;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(0, 255, 157, 0.3);
+}
+
+.network-node-icon {
+  @apply w-full h-full flex items-center justify-center text-cryptix-green font-bold;
+  text-shadow: 0 0 10px rgba(0, 255, 157, 0.7);
+}
+
+.network-line {
+  @apply fixed h-px pointer-events-none z-0;
+  background: linear-gradient(to right, rgba(0, 255, 157, 0.2), rgba(0, 255, 157, 0.05));
+  transform: translate(-50%, -50%);
+  border-top: 1px dashed rgba(0, 255, 157, 0.2);
+}
+
+.network-dot {
+  @apply absolute w-1 h-1 rounded-full bg-cryptix-green;
+  opacity: 0.7;
+  box-shadow: 0 0 5px rgba(0, 255, 157, 0.7);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50% { opacity: 0.7; transform: scale(1.2); }
 }
 
 /* Стили для таблиц */
@@ -309,12 +437,12 @@ html {
 }
 
 .avatar-overlay {
-  @apply absolute inset-0 bg-crypto-black/70 flex items-center justify-center opacity-0 transition-opacity;
+  @apply absolute inset-0 bg-cryptix-darker/70 flex items-center justify-center opacity-0 transition-opacity;
 }
 
 /* Стили для мобильного меню */
 .mobile-menu {
-  @apply fixed inset-0 bg-crypto-black/95 backdrop-blur-lg z-50 transform transition-transform duration-300;
+  @apply fixed inset-0 bg-cryptix-darker/95 backdrop-blur-lg z-50 transform transition-transform duration-300;
 }
 
 .mobile-menu.hidden {
@@ -323,4 +451,4 @@ html {
 
 .mobile-menu-link {
   @apply block py-3 px-6 text-xl text-gray-300 hover:text-white border-b border-glass-border transition-colors;
-} 
+}

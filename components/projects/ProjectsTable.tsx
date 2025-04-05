@@ -22,7 +22,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects }) => {
     <div className="overflow-x-auto">
       <table className="w-full border-collapse">
         <thead>
-          <tr className="bg-crypto-black-light/50 border-b border-glass-border">
+          <tr className="bg-glass-bg backdrop-blur-md border-b border-glass-border">
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Название</th>
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden md:table-cell">Описание</th>
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden lg:table-cell">Создан</th>
@@ -33,14 +33,14 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects }) => {
         </thead>
         <tbody>
           {projects.map((project) => (
-            <tr 
-              key={project.id} 
-              className="border-b border-glass-border hover:bg-crypto-black-light/30 transition-colors"
+            <tr
+              key={project.id}
+              className="border-b border-glass-border hover:bg-glass-highlight transition-colors"
             >
               <td className="px-4 py-4">
-                <Link 
+                <Link
                   href={`/projects/${project.id}`}
-                  className="text-white hover:text-crypto-green-500 font-medium transition-colors"
+                  className="text-white hover:text-cryptix-green font-medium transition-colors"
                 >
                   {project.title}
                 </Link>
@@ -60,8 +60,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects }) => {
               <td className="px-4 py-4 hidden lg:table-cell">
                 {project.deadline ? (
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    new Date(project.deadline) < new Date() 
-                      ? 'bg-red-500/20 text-red-400' 
+                    new Date(project.deadline) < new Date()
+                      ? 'bg-red-500/20 text-red-400'
                       : 'bg-yellow-500/20 text-yellow-400'
                   }`}>
                     {formatDate(project.deadline)}
@@ -71,19 +71,27 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects }) => {
                 )}
               </td>
               <td className="px-4 py-4">
-                <div className="flex items-center">
-                  <div className="w-full bg-crypto-black/50 rounded-full h-2.5 mr-2">
-                    <div 
-                      className="bg-crypto-green-500 h-2.5 rounded-full" 
+                <div>
+                  <div className="progress-bar w-full max-w-[150px]">
+                    <div
+                      className="progress-bar-fill"
                       style={{ width: `${project.progress}%` }}
                     ></div>
+                    {/* Добавляем маркеры прогресса */}
+                    <div className="relative w-full h-0 -mt-2 flex justify-between px-[1px]">
+                      <div className="w-1 h-1 rounded-full bg-cryptix-green/30"></div>
+                      <div className="w-1 h-1 rounded-full bg-cryptix-green/30"></div>
+                      <div className="w-1 h-1 rounded-full bg-cryptix-green/30"></div>
+                    </div>
                   </div>
-                  <span className="text-xs text-gray-400">{project.progress}%</span>
+                  <div className="flex justify-between mt-1">
+                    <span className="text-xs text-cryptix-green">{project.progress}%</span>
+                  </div>
                 </div>
               </td>
               <td className="px-4 py-4 text-right">
                 <div className="flex justify-end space-x-2">
-                  <Link 
+                  <Link
                     href={`/projects/${project.id}`}
                     className="p-1.5 text-gray-400 hover:text-white transition-colors"
                     title="Просмотр"
@@ -93,7 +101,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects }) => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                   </Link>
-                  <Link 
+                  <Link
                     href={`/projects/${project.id}/edit`}
                     className="p-1.5 text-gray-400 hover:text-white transition-colors"
                     title="Редактировать"
@@ -103,7 +111,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects }) => {
                     </svg>
                   </Link>
                   {project.repository_url && (
-                    <a 
+                    <a
                       href={project.repository_url}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -116,7 +124,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects }) => {
                     </a>
                   )}
                   {project.demo_url && (
-                    <a 
+                    <a
                       href={project.demo_url}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -138,4 +146,4 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects }) => {
   );
 };
 
-export default ProjectsTable; 
+export default ProjectsTable;

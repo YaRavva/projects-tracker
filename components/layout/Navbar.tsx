@@ -29,7 +29,7 @@ const Navbar: React.FC = () => {
           .select('full_name')
           .eq('id', user.id)
           .single();
-        
+
         if (data && data.full_name) {
           setUserName(data.full_name);
         } else if (user.email) {
@@ -46,20 +46,21 @@ const Navbar: React.FC = () => {
   }, [user]);
 
   return (
-    <nav className="bg-crypto-black-light/80 backdrop-blur-sm border-b border-glass-border">
+    <nav className="bg-glass-bg backdrop-blur-md border-b border-glass-border sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link href="/" className="flex-shrink-0 flex items-center">
-              <span className="text-xl font-bold text-white">
-                <span className="text-crypto-green-500">IT</span>Projects
+              <span className="text-xl font-bold text-white flex items-center">
+                <span className="text-cryptix-green mr-1">IT</span>Projects
+                <div className="w-1.5 h-1.5 rounded-full bg-cryptix-green ml-1 animate-pulse"></div>
               </span>
             </Link>
-            
+
             <div className="hidden md:ml-6 md:flex md:space-x-4">
               {user && !loading && (
                 <div className="hidden md:flex items-center space-x-4">
-                  <Link 
+                  <Link
                     href="/projects"
                     className={`nav-link ${pathname === '/projects' ? 'active' : ''}`}
                   >
@@ -80,17 +81,20 @@ const Navbar: React.FC = () => {
               <>
                 {user ? (
                   <div className="hidden md:flex items-center space-x-4">
-                    <span className="text-gray-300">{userName || 'Пользователь'}</span>
+                    <div className="flex items-center space-x-2 px-3 py-1.5 bg-glass-bg backdrop-blur-md border border-glass-border rounded-full">
+                      <div className="w-2 h-2 rounded-full bg-cryptix-green"></div>
+                      <span className="text-gray-300">{userName || 'Пользователь'}</span>
+                    </div>
                     <button
                       onClick={handleSignOut}
-                      className="btn-danger-sm"
+                      className="btn-secondary-sm hover:text-red-400"
                     >
                       Выйти
                     </button>
                   </div>
                 ) : (
                   <div className="hidden md:flex items-center space-x-4">
-                    <Link href="/login" className="text-gray-300 hover:text-white transition-colors">
+                    <Link href="/login" className="glass-button-sm">
                       Войти
                     </Link>
                     <Link href="/register" className="btn-primary-sm">
@@ -115,13 +119,13 @@ const Navbar: React.FC = () => {
       {/* Мобильное меню */}
       {mobileMenuOpen && (
         <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-crypto-black border-b border-glass-border">
+          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-glass-bg backdrop-blur-md border-b border-glass-border">
             {user ? (
               <>
                 <div className="px-3 py-2 text-gray-300 font-medium border-b border-glass-border mb-2">
                   {userName || 'Пользователь'}
                 </div>
-                <Link 
+                <Link
                   href="/projects"
                   className={`mobile-nav-link ${pathname === '/projects' ? 'active' : ''}`}
                 >
@@ -157,4 +161,4 @@ const Navbar: React.FC = () => {
   );
 };
 
-export default Navbar; 
+export default Navbar;
