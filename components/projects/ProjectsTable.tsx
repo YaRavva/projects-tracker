@@ -11,13 +11,23 @@ interface Project {
   progress: number;
   repository_url: string | null;
   demo_url: string | null;
+  profiles: {
+    full_name: string;
+  };
+  team_members?: {
+    name: string;
+    class: string;
+    isLeader: boolean;
+  }[];
 }
 
 interface ProjectsTableProps {
   projects: Project[];
+  onEdit?: (projectId: string) => void;
 }
 
-const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects }) => {
+const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit }) => {
+  console.log('ProjectsTable received projects:', projects);
   return (
     <div className="overflow-x-auto">
       <table className="w-full border-collapse">
@@ -25,9 +35,11 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects }) => {
           <tr className="bg-glass-bg backdrop-blur-md border-b border-glass-border">
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Название</th>
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden md:table-cell">Описание</th>
-            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden lg:table-cell">Создан</th>
+            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden md:table-cell">Участники</th>
+            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden lg:table-cell">Добавлен</th>
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden lg:table-cell">Дедлайн</th>
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Прогресс</th>
+            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden lg:table-cell">Добавил</th>
             <th className="px-4 py-3 text-right text-sm font-medium text-gray-300">Действия</th>
           </tr>
         </thead>
@@ -35,9 +47,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects }) => {
           {projects.map((project) => (
             <tr
               key={project.id}
-              className="border-b border-glass-border hover:bg-glass-highlight transition-colors"
+              className="border-b border-glass-border hover:bg-glass-highlight transition-colors h-24"
             >
-              <td className="px-4 py-4">
+              <td className="px-4 py-4 align-top">
                 <Link
                   href={`/projects/${project.id}`}
                   className="text-white hover:text-cryptix-green font-medium transition-colors"
@@ -45,19 +57,34 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects }) => {
                   {project.title}
                 </Link>
               </td>
-              <td className="px-4 py-4 text-gray-400 hidden md:table-cell">
+              <td className="px-4 py-4 text-gray-400 hidden md:table-cell align-top">
                 {project.description ? (
-                  <div className="truncate max-w-xs">
+                  <div className="line-clamp-3 max-w-xs">
                     {project.description}
                   </div>
                 ) : (
                   <span className="text-gray-500 italic">Нет описания</span>
                 )}
               </td>
-              <td className="px-4 py-4 text-gray-400 hidden lg:table-cell">
+              <td className="px-4 py-4 hidden md:table-cell align-top">
+                {project.team_members && project.team_members.length > 0 ? (
+                  <div className="flex flex-col space-y-1">
+                    {project.team_members.map((member, idx) => (
+                      <div key={idx} className="flex items-center">
+                        <span className={`text-sm ${member.isLeader ? 'text-cryptix-green font-medium' : 'text-gray-400'}`}>
+                          {member.name}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-gray-500 italic">Не указаны</span>
+                )}
+              </td>
+              <td className="px-4 py-4 text-gray-400 hidden lg:table-cell align-top">
                 {formatDate(project.created_at)}
               </td>
-              <td className="px-4 py-4 hidden lg:table-cell">
+              <td className="px-4 py-4 hidden lg:table-cell align-top">
                 {project.deadline ? (
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                     new Date(project.deadline) < new Date()
@@ -70,7 +97,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects }) => {
                   <span className="text-gray-500 italic">Не указан</span>
                 )}
               </td>
-              <td className="px-4 py-4">
+              <td className="px-4 py-4 align-top">
                 <div>
                   <div className="progress-bar w-full max-w-[150px]">
                     <div
@@ -89,7 +116,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects }) => {
                   </div>
                 </div>
               </td>
-              <td className="px-4 py-4 text-right">
+              <td className="px-4 py-4 text-gray-400 hidden lg:table-cell align-top">
+                {project.profiles?.full_name || 'Не указан'}
+              </td>
+              <td className="px-4 py-4 text-right align-top">
                 <div className="flex justify-end space-x-2">
                   <Link
                     href={`/projects/${project.id}`}
@@ -101,15 +131,15 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects }) => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                     </svg>
                   </Link>
-                  <Link
-                    href={`/projects/${project.id}/edit`}
+                  <button
+                    onClick={() => onEdit && onEdit(project.id)}
                     className="p-1.5 text-gray-400 hover:text-white transition-colors"
                     title="Редактировать"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                     </svg>
-                  </Link>
+                  </button>
                   {project.repository_url && (
                     <a
                       href={project.repository_url}

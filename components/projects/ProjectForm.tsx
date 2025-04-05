@@ -56,6 +56,7 @@ interface TeamMember {
 }
 
 interface Stage {
+  id?: string; // Для редактирования существующих этапов
   name: string;
   deadline: string;
   completed: boolean;
@@ -63,6 +64,7 @@ interface Stage {
 }
 
 interface FormData {
+  id?: string; // Для редактирования существующего проекта
   title: string;
   description: string;
   deadline: string;
@@ -73,12 +75,23 @@ interface FormData {
   stages: Stage[];
 }
 
-const ProjectForm: React.FC = () => {
+interface ProjectFormProps {
+  initialData?: FormData;
+  mode?: 'create' | 'edit';
+  onSuccess?: () => void;
+}
+
+const ProjectForm: React.FC<ProjectFormProps> = ({
+  initialData,
+  mode = 'create',
+  onSuccess
+}) => {
   const { user } = useAuth();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [formData, setFormData] = useState<FormData>({
+  // Инициализируем форму с данными из initialData или пустыми значениями
+  const [formData, setFormData] = useState<FormData>(initialData || {
     title: '',
     description: '',
     deadline: '',
@@ -90,8 +103,12 @@ const ProjectForm: React.FC = () => {
   });
 
   // Состояние для хранения дат в формате Date
-  const [deadlineDate, setDeadlineDate] = useState<Date | null>(null);
-  const [stageDates, setStageDates] = useState<(Date | null)[]>([null]);
+  const [deadlineDate, setDeadlineDate] = useState<Date | null>(
+    formData.deadline ? new Date(formData.deadline) : null
+  );
+  const [stageDates, setStageDates] = useState<(Date | null)[]>(
+    formData.stages.map(stage => stage.deadline ? new Date(stage.deadline) : null)
+  );
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -317,26 +334,63 @@ const ProjectForm: React.FC = () => {
         ? Math.round((completedStages.length / validStages.length) * 100)
         : 0;
 
-      // Создаем проект
-      const { data: project, error: projectError } = await supabase
-        .from('projects')
-        .insert({
-          title: formData.title,
-          description: formData.description,
-          owner_id: user.id,
-          deadline: formData.deadline || null,
-          progress: progress,
-          repository_url: formData.repository_url || null,
-          demo_url: formData.demo_url || null
-        })
-        .select()
-        .single();
+      // Создаем или обновляем проект
+      let project;
+      let projectError;
+
+      if (mode === 'edit' && formData.id) {
+        // Режим редактирования
+        const { data, error } = await supabase
+          .from('projects')
+          .update({
+            title: formData.title,
+            description: formData.description,
+            deadline: formData.deadline || null,
+            progress: progress,
+            repository_url: formData.repository_url || null,
+            demo_url: formData.demo_url || null
+          })
+          .eq('id', formData.id)
+          .select()
+          .single();
+
+        project = data;
+        projectError = error;
+      } else {
+        // Режим создания
+        const { data, error } = await supabase
+          .from('projects')
+          .insert({
+            title: formData.title,
+            description: formData.description,
+            owner_id: user.id,
+            deadline: formData.deadline || null,
+            progress: progress,
+            repository_url: formData.repository_url || null,
+            demo_url: formData.demo_url || null
+          })
+          .select()
+          .single();
+
+        project = data;
+        projectError = error;
+      }
 
       if (projectError) throw projectError;
 
       // Сохраняем информацию об участниках в метаданных проекта
       const validTeamMembers = formData.team_members.filter(member => member.name.trim());
       if (validTeamMembers.length > 0) {
+        if (mode === 'edit' && formData.id) {
+          // Сначала удаляем существующие метаданные
+          await supabase
+            .from('project_meta')
+            .delete()
+            .eq('project_id', formData.id)
+            .eq('key', 'team_members');
+        }
+
+        // Затем добавляем новые
         const { error: metaError } = await supabase
           .from('project_meta')
           .insert([
@@ -351,24 +405,79 @@ const ProjectForm: React.FC = () => {
       }
 
       // Сохраняем этапы проекта
-      const stagesToInsert = validStages.map(stage => ({
-        project_id: project.id,
-        name: stage.name,
-        deadline: stage.deadline || null,
-        completed: stage.completed
-      }));
+      if (mode === 'edit' && formData.id) {
+        // В режиме редактирования обрабатываем каждый этап отдельно
 
-      const { error: stagesError } = await supabase
-        .from('project_stages')
-        .insert(stagesToInsert);
+        // Сначала удаляем этапы, которых нет в форме
+        const existingStageIds = validStages
+          .filter(stage => stage.id)
+          .map(stage => stage.id);
 
-      if (stagesError) console.error('Ошибка при сохранении этапов:', stagesError);
+        // Удаляем этапы, которых нет в форме
+        if (existingStageIds.length > 0) {
+          await supabase
+            .from('project_stages')
+            .delete()
+            .eq('project_id', formData.id)
+            .not('id', 'in', `(${existingStageIds.join(',')})`);
+        } else {
+          // Если нет существующих этапов, удаляем все
+          await supabase
+            .from('project_stages')
+            .delete()
+            .eq('project_id', formData.id);
+        }
 
-      // Перенаправляем на страницу проекта
-      router.push(`/projects/${project.id}`);
+        // Обновляем существующие этапы
+        for (const stage of validStages) {
+          if (stage.id) {
+            // Обновляем существующий этап
+            await supabase
+              .from('project_stages')
+              .update({
+                name: stage.name,
+                deadline: stage.deadline || null,
+                completed: stage.completed
+              })
+              .eq('id', stage.id);
+          } else {
+            // Добавляем новый этап
+            await supabase
+              .from('project_stages')
+              .insert({
+                project_id: formData.id,
+                name: stage.name,
+                deadline: stage.deadline || null,
+                completed: stage.completed
+              });
+          }
+        }
+      } else {
+        // В режиме создания просто добавляем все этапы
+        const stagesToInsert = validStages.map(stage => ({
+          project_id: project.id,
+          name: stage.name,
+          deadline: stage.deadline || null,
+          completed: stage.completed
+        }));
+
+        const { error: stagesError } = await supabase
+          .from('project_stages')
+          .insert(stagesToInsert);
+
+        if (stagesError) console.error('Ошибка при сохранении этапов:', stagesError);
+      }
+
+      // Вызываем коллбэк успешного завершения или перенаправляем на страницу проекта
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push(`/projects/${project.id}`);
+      }
     } catch (err: any) {
-      console.error('Ошибка при создании проекта:', err);
-      setError(err.message || 'Произошла ошибка при создании проекта');
+      const actionText = mode === 'edit' ? 'редактировании' : 'создании';
+      console.error(`Ошибка при ${actionText} проекта:`, err);
+      setError(err.message || `Произошла ошибка при ${actionText} проекта`);
     } finally {
       setLoading(false);
     }
@@ -639,14 +748,20 @@ const ProjectForm: React.FC = () => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Добавление...
+                {mode === 'edit' ? 'Сохранение...' : 'Добавление...'}
               </>
             ) : (
               <>
-                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-                Добавить проект
+                {mode === 'edit' ? (
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                )}
+                {mode === 'edit' ? 'Сохранить изменения' : 'Добавить проект'}
               </>
             )}
           </button>
