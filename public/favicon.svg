@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="32px" height="32px" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <title>Projects Tracker Favicon</title>
+    <g stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g transform="translate(2, 2)" stroke="#32BC7C" stroke-width="2">
+            <path d="M22,28 L4,28 C1.791,28 0,26.209 0,24 L0,4 C0,1.791 1.791,0 4,0 L24,0 C26.209,0 28,1.791 28,4 L28,24 C28,26.209 26.209,28 24,28 L22,28 Z" fill="#0A0A0A"></path>
+            <path d="M8,0 L20,0 C21.105,0 22,0.895 22,2 L22,4 C22,5.105 21.105,6 20,6 L8,6 C6.895,6 6,5.105 6,4 L6,2 C6,0.895 6.895,0 8,0 Z" fill="#0A0A0A"></path>
+            <circle cx="14" cy="3" r="1" fill="#32BC7C"></circle>
+            <line x1="8" y1="12" x2="20" y2="12" stroke-linecap="round"></line>
+            <line x1="8" y1="16" x2="18" y2="16" stroke-linecap="round"></line>
+            <line x1="8" y1="20" x2="16" y2="20" stroke-linecap="round"></line>
+            <line x1="8" y1="24" x2="14" y2="24" stroke-linecap="round"></line>
+            <circle cx="21" cy="22" r="6" fill="#0A0A0A" stroke="#32BC7C"></circle>
+            <polyline points="18 22 20 24 24 20" stroke-linecap="round" stroke-linejoin="round"></polyline>
+        </g>
+    </g>
+</svg>

@@ -1,0 +1,326 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --crypto-black: #0a0e17;
+  --crypto-dark: #0a0a0a;
+  --crypto-green-300: #4ade80;
+  --crypto-green-400: #22c55e;
+  --crypto-green-500: #00f5a0;
+  --crypto-green-600: #00d98e;
+  --crypto-green-700: #00b377;
+  --glass-bg: rgba(255, 255, 255, 0.05);
+  --glass-border: rgba(255, 255, 255, 0.1);
+}
+
+body {
+  @apply bg-crypto-black text-white;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(0, 245, 160, 0.15) 0%, rgba(10, 14, 23, 0) 80%),
+    radial-gradient(circle at 90% 80%, rgba(0, 245, 160, 0.1) 0%, rgba(10, 14, 23, 0) 70%);
+  background-attachment: fixed;
+}
+
+/* Стили для аутентификации */
+.auth-page {
+  @apply flex justify-center items-center min-h-screen;
+}
+
+.auth-container {
+  @apply w-full max-w-md p-6;
+}
+
+.auth-form {
+  @apply bg-crypto-dark/80 backdrop-blur-md rounded-xl shadow-glass p-6 border border-glass-border;
+}
+
+.auth-form h2 {
+  @apply text-2xl font-bold mb-6 text-center text-white;
+}
+
+.form-group {
+  @apply mb-4;
+}
+
+.form-group label {
+  @apply block text-sm font-medium text-gray-300 mb-1;
+}
+
+.form-group input {
+  @apply w-full px-4 py-2 bg-crypto-black/50 border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-crypto-green-500/50;
+}
+
+.auth-form button {
+  @apply w-full py-2 px-4 bg-gradient-to-r from-crypto-green-600 to-crypto-green-500 text-crypto-black font-medium rounded-md hover:from-crypto-green-500 hover:to-crypto-green-400 transition-all duration-300 mt-6;
+}
+
+.auth-form button:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.auth-links {
+  @apply mt-6 flex justify-between text-sm;
+}
+
+.auth-links a {
+  @apply text-crypto-green-500 hover:text-crypto-green-400 transition-colors;
+}
+
+.error-message {
+  @apply bg-red-900/30 border border-red-800 text-red-200 px-4 py-2 rounded-md mb-4 text-sm;
+}
+
+/* Стили для карточек */
+.glass-card {
+  @apply bg-crypto-dark/80 backdrop-blur-md border border-glass-border rounded-xl shadow-glass overflow-hidden transition-all duration-300 hover:shadow-glow;
+}
+
+.glass-card-header {
+  @apply p-4 border-b border-glass-border;
+}
+
+.glass-card-body {
+  @apply p-4;
+}
+
+.glass-card-footer {
+  @apply p-4 border-t border-glass-border;
+}
+
+/* Стили для кнопок */
+.btn-primary {
+  @apply px-4 py-2 bg-gradient-to-r from-crypto-green-600 to-crypto-green-500 text-crypto-black font-medium rounded-md hover:from-crypto-green-500 hover:to-crypto-green-400 transition-all duration-300;
+}
+
+.btn-secondary {
+  @apply px-4 py-2 bg-glass-bg border border-glass-border text-white rounded-md hover:bg-glass-bg/80 transition-all duration-300;
+}
+
+.btn-danger {
+  @apply px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-all duration-300;
+}
+
+/* Стили для прогресс-бара */
+.progress-bar {
+  @apply w-full bg-crypto-black/50 rounded-full h-2 overflow-hidden;
+}
+
+.progress-bar-fill {
+  @apply h-full bg-gradient-to-r from-crypto-green-600 to-crypto-green-500 rounded-full;
+}
+
+/* Стили для бейджей */
+.badge {
+  @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
+}
+
+.badge-success {
+  @apply bg-crypto-green-500/20 text-crypto-green-400 border border-crypto-green-500/30;
+}
+
+.badge-warning {
+  @apply bg-yellow-500/20 text-yellow-400 border border-yellow-500/30;
+}
+
+.badge-danger {
+  @apply bg-red-500/20 text-red-400 border border-red-500/30;
+}
+
+/* Стили для навигации */
+.nav-link {
+  @apply text-gray-300 hover:text-white transition-colors relative px-4 py-2;
+}
+
+.nav-link.active {
+  @apply text-white;
+}
+
+.nav-link.active::after {
+  content: '';
+  @apply absolute bottom-0 left-0 w-full h-0.5 bg-crypto-green-500 rounded-full;
+}
+
+/* Обрезка текста */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-clamp: 2;
+}
+
+.glass-button {
+  @apply px-6 py-3 bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg 
+    hover:bg-crypto-green-500/20 hover:border-crypto-green-500/30 hover:text-white 
+    transition-all duration-300 text-gray-300 flex items-center justify-center;
+}
+
+.glass-button-sm {
+  @apply px-4 py-2 bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg 
+    hover:bg-crypto-green-500/20 hover:border-crypto-green-500/30 hover:text-white 
+    transition-all duration-300 text-gray-300 text-sm;
+}
+
+.glass-input {
+  @apply bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg px-4 py-3 
+    focus:outline-none focus:ring-2 focus:ring-crypto-green-500/30 focus:border-crypto-green-500/50 
+    text-white placeholder-gray-400;
+}
+
+.grid-bg {
+  background-image: 
+    radial-gradient(rgba(0, 245, 160, 0.1) 1px, transparent 1px),
+    radial-gradient(rgba(0, 245, 160, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: 0 0, 20px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.grid-bg::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 35%, rgba(16, 185, 129, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 80% 10%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.crypto-icon {
+  @apply text-crypto-green-500;
+}
+
+/* Анимация для элементов */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+/* Стилизация скроллбара */
+/* Для Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-crypto-dark;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-crypto-green-700 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-crypto-green-600;
+}
+
+/* Для Firefox */
+/* Обратите внимание: Firefox поддерживает только scrollbar-color и scrollbar-width */
+/* Мы не можем точно воспроизвести закругленный ползунок Webkit */
+/* Применяем к html или body или конкретному элементу со скроллом */
+html {
+  scrollbar-width: thin; /* или 'auto' или 'none' */
+  scrollbar-color: var(--crypto-green-700) var(--crypto-dark); /* thumb track */
+}
+
+/* Стеклянные компоненты */
+.glass-card:hover {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+}
+
+/* Градиентный текст */
+.gradient-text {
+  @apply text-transparent bg-clip-text;
+  background-image: linear-gradient(to right, var(--crypto-green-500), var(--crypto-green-300));
+}
+
+/* Градиентная рамка */
+.gradient-border {
+  @apply p-[1px] rounded-lg relative;
+  background: linear-gradient(to right, rgba(0, 245, 160, 0.5), rgba(74, 222, 128, 0.5));
+}
+
+.gradient-border-content {
+  @apply bg-crypto-black rounded-lg p-6 relative z-10;
+}
+
+.glow-dot {
+  @apply w-2 h-2 rounded-full bg-crypto-green-500;
+  box-shadow: 0 0 10px 2px rgba(0, 245, 160, 0.7);
+}
+
+/* Неоморфные элементы */
+.neomorphic-card {
+  background: linear-gradient(145deg, #0a0a0a, #0f0f0f);
+  border-radius: 12px;
+  box-shadow: 8px 8px 16px #070707, -8px -8px 16px #131313;
+}
+
+.neomorphic-button {
+  background: linear-gradient(145deg, #0a0a0a, #0f0f0f);
+  border-radius: 8px;
+  box-shadow: 4px 4px 8px #070707, -4px -4px 8px #131313;
+  transition: all 0.3s ease;
+}
+
+.neomorphic-button:active {
+  box-shadow: inset 4px 4px 8px #070707, inset -4px -4px 8px #131313;
+}
+
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.2);
+}
+
+/* Стили для таблиц */
+.crypto-table {
+  @apply w-full border-collapse;
+}
+
+.crypto-table th {
+  @apply px-4 py-3 text-left text-sm font-medium text-gray-300 border-b border-glass-border;
+}
+
+.crypto-table td {
+  @apply px-4 py-3 border-b border-glass-border;
+}
+
+.crypto-table tr:hover {
+  @apply bg-glass-bg/50;
+}
+
+/* Стили для аватара */
+.avatar-upload {
+  @apply relative w-24 h-24 rounded-full overflow-hidden border-2 border-glass-border cursor-pointer;
+}
+
+.avatar-upload:hover .avatar-overlay {
+  @apply opacity-100;
+}
+
+.avatar-overlay {
+  @apply absolute inset-0 bg-crypto-black/70 flex items-center justify-center opacity-0 transition-opacity;
+}
+
+/* Стили для мобильного меню */
+.mobile-menu {
+  @apply fixed inset-0 bg-crypto-black/95 backdrop-blur-lg z-50 transform transition-transform duration-300;
+}
+
+.mobile-menu.hidden {
+  @apply translate-x-full;
+}
+
+.mobile-menu-link {
+  @apply block py-3 px-6 text-xl text-gray-300 hover:text-white border-b border-glass-border transition-colors;
+} 

@@ -1,0 +1,42 @@
+[
+  {
+    "tablename": "projects",
+    "indexname": "projects_pkey",
+    "indexdef": "CREATE UNIQUE INDEX projects_pkey ON public.projects USING btree (id)"
+  },
+  {
+    "tablename": "projects",
+    "indexname": "projects_owner_id_idx",
+    "indexdef": "CREATE INDEX projects_owner_id_idx ON public.projects USING btree (owner_id)"
+  },
+  {
+    "tablename": "project_members",
+    "indexname": "project_members_pkey",
+    "indexdef": "CREATE UNIQUE INDEX project_members_pkey ON public.project_members USING btree (id)"
+  },
+  {
+    "tablename": "project_members",
+    "indexname": "project_members_project_id_user_id_key",
+    "indexdef": "CREATE UNIQUE INDEX project_members_project_id_user_id_key ON public.project_members USING btree (project_id, user_id)"
+  },
+  {
+    "tablename": "project_members",
+    "indexname": "project_members_project_id_idx",
+    "indexdef": "CREATE INDEX project_members_project_id_idx ON public.project_members USING btree (project_id)"
+  },
+  {
+    "tablename": "project_members",
+    "indexname": "project_members_user_id_idx",
+    "indexdef": "CREATE INDEX project_members_user_id_idx ON public.project_members USING btree (user_id)"
+  },
+  {
+    "tablename": "profiles",
+    "indexname": "profiles_pkey",
+    "indexdef": "CREATE UNIQUE INDEX profiles_pkey ON public.profiles USING btree (id)"
+  },
+  {
+    "tablename": "profiles",
+    "indexname": "profiles_email_idx",
+    "indexdef": "CREATE INDEX profiles_email_idx ON public.profiles USING btree (email)"
+  }
+]
