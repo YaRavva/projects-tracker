@@ -9,7 +9,7 @@ const NewProjectPage: React.FC = () => {
       <Layout title="New Project | Digital Projects Tracker">
         <div className="max-w-4xl mx-auto px-4 py-6">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-white">Создание нового проекта</h1>
+            <h1 className="text-3xl font-bold text-white">Добавление нового проекта</h1>
             <p className="text-gray-300 mt-2">
               Заполните форму или импортируйте данные из PRD.md файла
             </p>
@@ -23,5 +23,12 @@ const NewProjectPage: React.FC = () => {
     </ProtectedRoute>
   );
 };
+
+// Добавляем getServerSideProps, чтобы Next.js не пытался использовать getStaticPaths
+export async function getServerSideProps() {
+  return {
+    props: {}, // Будет передано в компонент NewProjectPage
+  };
+}
 
 export default NewProjectPage;

@@ -29,23 +29,23 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
     ({ value, onClick }, ref) => (
       <button
         type="button"
-        className={`w-full px-3 py-2 bg-glass-bg backdrop-blur-xs border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30 text-left flex justify-between items-center ${className}`}
+        className={`w-full px-3 py-2 bg-glass-bg backdrop-blur-xs border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30 text-left flex justify-between items-center hover:border-cryptix-green/50 transition-colors ${className}`}
         onClick={onClick}
         ref={ref}
       >
-        <span>{value || placeholder}</span>
-        <svg 
-          className="w-5 h-5 text-cryptix-green" 
-          fill="none" 
-          stroke="currentColor" 
-          viewBox="0 0 24 24" 
+        <span className="text-sm">{value || placeholder}</span>
+        <svg
+          className="w-5 h-5 text-cryptix-green"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth={2} 
-            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" 
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
           />
         </svg>
       </button>
@@ -69,30 +69,28 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
         customInput={<CustomInput />}
         dateFormat="dd.MM.yyyy"
         locale={ru}
-        popperPlacement="bottom-end"
-        popperModifiers={[
-          {
-            name: 'offset',
-            options: {
-              offset: [0, 5],
-            },
+        popperModifiers={{
+          offset: {
+            enabled: true,
+            offset: '0, 5'
           },
-          {
-            name: 'preventOverflow',
-            options: {
-              rootBoundary: 'viewport',
-              tether: false,
-              altAxis: true,
-            },
-          },
-        ]}
+          preventOverflow: {
+            enabled: true,
+            escapeWithReference: false,
+            boundariesElement: 'viewport'
+          }
+        }}
+
+        popperContainer={({ children }) => (
+          <div className="datepicker-popper-container">{children}</div>
+        )}
         onCalendarOpen={() => setIsOpen(true)}
         onCalendarClose={() => setIsOpen(false)}
         className="react-datepicker-cryptix"
         calendarClassName="bg-cryptix-darker border-glass-border rounded-md shadow-lg"
-        dayClassName={date => 
-          date.getDate() === new Date().getDate() && 
-          date.getMonth() === new Date().getMonth() && 
+        dayClassName={date =>
+          date.getDate() === new Date().getDate() &&
+          date.getMonth() === new Date().getMonth() &&
           date.getFullYear() === new Date().getFullYear()
             ? 'react-datepicker__day--today'
             : undefined
@@ -101,11 +99,18 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
         name={name}
         required={required}
         showPopperArrow={false}
+        monthsShown={1}
+        showMonthDropdown
+        showYearDropdown
+        dropdownMode="select"
+        fixedHeight
+        todayButton="Сегодня"
+        isClearable
       />
-      <input 
-        type="hidden" 
-        name={name} 
-        value={selectedDate ? formatDate(selectedDate) : ''} 
+      <input
+        type="hidden"
+        name={name}
+        value={selectedDate ? formatDate(selectedDate) : ''}
         required={required}
       />
     </div>

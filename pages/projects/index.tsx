@@ -71,7 +71,7 @@ const ProjectsPage: NextPage = () => {
               onClick={handleCreateProject}
               className="btn-primary"
             >
-              Создать проект
+              Добавить проект
             </button>
           </div>
 
@@ -104,5 +104,12 @@ const ProjectsPage: NextPage = () => {
     </ProtectedRoute>
   );
 };
+
+// Добавляем getServerSideProps, чтобы Next.js не пытался использовать getStaticPaths
+export async function getServerSideProps() {
+  return {
+    props: {}, // Будет передано в компонент ProjectsPage
+  };
+}
 
 export default ProjectsPage;

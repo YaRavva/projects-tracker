@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { parsePRDFile } from '../../lib/prdParser';
 import CustomDatePicker from '../ui/DatePicker';
+import SimpleDatePicker from '../ui/SimpleDatePicker';
 
 // Функция для форматирования даты в формат дд.мм.гг
 const formatDate = (dateString: string): string => {
@@ -582,7 +583,7 @@ const ProjectForm: React.FC = () => {
                     <span className="text-cryptix-green font-medium">Этап {index + 1}</span>
                   </div>
                   <div className="grid grid-cols-12 gap-2 items-center">
-                    <div className="col-span-6">
+                    <div className="col-span-5">
                       <input
                         type="text"
                         value={stage.name}
@@ -591,7 +592,7 @@ const ProjectForm: React.FC = () => {
                         placeholder="Название этапа"
                       />
                     </div>
-                    <div className="col-span-2">
+                    <div className="col-span-3">
                       <CustomDatePicker
                         selectedDate={stageDates[index]}
                         onChange={(date) => handleStageDeadlineChange(index, date)}
@@ -600,13 +601,11 @@ const ProjectForm: React.FC = () => {
                     </div>
                     <div className="col-span-4 flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <div className="flex items-center justify-center" style={{ width: '20px', height: '20px' }}>
-                          <input
-                            type="checkbox"
-                            checked={stage.completed}
-                            onChange={(e) => handleStageChange(index, 'completed', e.target.checked)}
-                          />
-                        </div>
+                        <input
+                          type="checkbox"
+                          checked={stage.completed}
+                          onChange={(e) => handleStageChange(index, 'completed', e.target.checked)}
+                        />
                         <span className="text-white text-sm">Завершен</span>
                       </div>
                       {formData.stages.length > 1 && (
@@ -631,23 +630,23 @@ const ProjectForm: React.FC = () => {
         <div className="mt-6 flex justify-center">
           <button
             type="submit"
-            className="px-6 py-3 bg-gradient-to-r from-cryptix-green/80 to-cryptix-green text-white font-medium rounded-md shadow-lg hover:shadow-cryptix-green/20 transition-all duration-300 flex items-center justify-center min-w-[200px]"
+            className="px-6 py-3 bg-gradient-to-r from-cryptix-green/80 to-cryptix-green text-black font-medium rounded-md shadow-lg hover:shadow-cryptix-green/20 transition-all duration-300 flex items-center justify-center min-w-[200px]"
             disabled={loading}
           >
             {loading ? (
               <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Создание...
+                Добавление...
               </>
             ) : (
               <>
                 <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                Создать проект
+                Добавить проект
               </>
             )}
           </button>
