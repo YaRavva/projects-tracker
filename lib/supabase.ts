@@ -1,10 +1,22 @@
 import { createClient } from '@supabase/supabase-js';
 import { Database } from '../types/database.types';
 
+// Проверяем, что переменные окружения определены
+if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  console.error('Missing Supabase environment variables');
+}
+
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+// Создаем клиент Supabase с дополнительными опциями
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    autoRefreshToken: true,
+    persistSession: true,
+    detectSessionInUrl: true
+  }
+});
 
 // Вспомогательные функции для аутентификации
 export const signUp = async (email: string, password: string, fullName: string) => {
@@ -27,6 +39,7 @@ export const signUp = async (email: string, password: string, fullName: string) 
           id: data.user.id,
           email: email,
           full_name: fullName,
+          roles: 'student' // Устанавливаем роль по умолчанию
         }
       ]);
 

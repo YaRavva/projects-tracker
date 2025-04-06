@@ -18,6 +18,8 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
   const [loading, setLoading] = useState(false);
   const [nameSuccess, setNameSuccess] = useState(false);
   const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalProjects: 0,
@@ -32,17 +34,45 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
   const [showUsersList, setShowUsersList] = useState(false);
   const [userName, setUserName] = useState('');
 
-  // Загружаем данные пользователя при открытии модального окна
+  // Сбрасываем данные при открытии/закрытии модального окна
   useEffect(() => {
     if (isOpen && user) {
+      // При открытии модального окна сбрасываем все данные
+      setSelectedUserId(null);
+      setFullName('');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setUserRole('student');
+      setError(null);
+      setNameSuccess(false);
+      setPasswordSuccess(false);
+
+      // Загружаем данные текущего пользователя
       fetchUserProfile();
       fetchUserStats();
       checkAdminRole();
-      if (selectedUserId) {
-        fetchSelectedUserProfile();
-      }
+    } else if (!isOpen) {
+      // При закрытии модального окна также сбрасываем данные
+      setSelectedUserId(null);
+      setFullName('');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setUserRole('student');
+      setError(null);
+      setNameSuccess(false);
+      setPasswordSuccess(false);
     }
-  }, [isOpen, user, selectedUserId]);
+  }, [isOpen, user]);
+
+  // Загружаем данные выбранного пользователя
+  useEffect(() => {
+    if (isOpen && user && selectedUserId) {
+      fetchSelectedUserProfile();
+      fetchUserStats();
+    }
+  }, [selectedUserId]);
 
   // Получаем имя пользователя из профиля
   useEffect(() => {
@@ -127,15 +157,38 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
   // Получаем профиль пользователя
   const fetchUserProfile = async () => {
     try {
+      // Проверяем, что пользователь авторизован
+      if (!user?.id) {
+        console.log('Пользователь не авторизован');
+        return;
+      }
+
+      console.log('Загрузка профиля пользователя:', user.id);
+
       const { data, error } = await supabase
         .from('profiles')
-        .select('full_name')
-        .eq('id', selectedUserId || user?.id)
+        .select('full_name, roles')
+        .eq('id', user.id)
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Ошибка при загрузке профиля:', error);
+        throw error;
+      }
+
+      console.log('Получены данные профиля:', data);
+
       if (data) {
         setFullName(data.full_name || '');
+        if (!selectedUserId) { // Устанавливаем роль только если не выбран другой пользователь
+          setUserRole(data.roles || 'student');
+        }
+      } else {
+        console.log('Профиль не найден, сбрасываем данные');
+        setFullName('');
+        if (!selectedUserId) {
+          setUserRole('student');
+        }
       }
     } catch (error) {
       console.error('Ошибка при загрузке профиля:', error);
@@ -145,11 +198,15 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
   // Получаем статистику пользователя
   const fetchUserStats = async () => {
     try {
+      // Определяем ID пользователя для запроса
+      const userId = selectedUserId || user?.id;
+      if (!userId) return;
+
       // Получаем дату регистрации
       const { data: userData, error: userError } = await supabase
         .from('profiles')
         .select('created_at')
-        .eq('id', user?.id)
+        .eq('id', userId)
         .single();
 
       if (userError) throw userError;
@@ -163,7 +220,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
       const { data: projectsData, error: projectsError } = await supabase
         .from('projects')
         .select('id, progress')
-        .eq('owner_id', user?.id);
+        .eq('owner_id', userId);
 
       if (projectsError) throw projectsError;
 
@@ -192,6 +249,14 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
     setPasswordSuccess(false);
 
     try {
+      // Определяем ID пользователя для обновления
+      const userId = selectedUserId || user?.id;
+      if (!userId) {
+        throw new Error('Не удалось определить ID пользователя');
+      }
+
+      console.log('Обновление профиля пользователя:', userId);
+
       const updateData: any = { full_name: fullName };
 
       // Если это администратор и выбран другой пользователь, обновляем также роль
@@ -199,12 +264,57 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
         updateData.roles = userRole;
       }
 
-      const { error } = await supabase
+      console.log('Данные для обновления:', updateData);
+
+      // Проверяем, существует ли профиль
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('id', userId)
+        .single();
+
+      if (profileError) {
+        console.error('Ошибка при проверке профиля:', profileError);
+        throw profileError;
+      }
+
+      // Обновляем профиль
+      console.log('Отправка запроса на обновление профиля:', {
+        table: 'profiles',
+        data: updateData,
+        userId
+      });
+
+      // Добавляем дополнительные параметры для отладки
+      const { data, error } = await supabase
         .from('profiles')
         .update(updateData)
-        .eq('id', selectedUserId || user?.id);
+        .eq('id', userId)
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Ошибка при обновлении профиля:', error);
+        throw error;
+      }
+
+      console.log('Профиль успешно обновлен:', data);
+
+      // Проверяем, что данные действительно обновились
+      const { data: verifyData, error: verifyError } = await supabase
+        .from('profiles')
+        .select('full_name, roles')
+        .eq('id', userId)
+        .single();
+
+      if (verifyError) {
+        console.error('Ошибка при проверке обновления:', verifyError);
+      } else {
+        console.log('Проверка обновления:', {
+          expected: updateData,
+          actual: verifyData
+        });
+      }
+
       setNameSuccess(true);
 
       // Обновляем список пользователей, если это администратор
@@ -212,9 +322,14 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
         fetchAllUsers();
       }
 
+      // Обновляем данные профиля и статистику
+      fetchSelectedUserProfile();
+      fetchUserStats();
+
       // Сбрасываем сообщение об успехе через 3 секунды
       setTimeout(() => setNameSuccess(false), 3000);
     } catch (error: any) {
+      console.error('Ошибка при обновлении данных:', error);
       setError(error.message || 'Ошибка при обновлении данных');
     } finally {
       setLoading(false);
@@ -272,38 +387,88 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
     setNameSuccess(false);
     setPasswordSuccess(false);
 
-    if (!newPassword || !confirmPassword) {
-      // Если пароль не введен, обновляем только имя
-      await handleUpdateName(e);
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      setError('Пароли не совпадают');
+    // Определяем ID пользователя для обновления
+    const userId = selectedUserId || user?.id;
+    if (!userId) {
+      setError('Не удалось определить ID пользователя');
       setLoading(false);
       return;
     }
 
     try {
-      // Сначала обновляем имя, если оно изменилось
-      if (fullName !== userName) {
-        const { error: nameError } = await supabase
-          .from('profiles')
-          .update({ full_name: fullName })
-          .eq('id', user?.id);
+      // Сначала обновляем имя и другие данные профиля
+      console.log('Обновление профиля пользователя:', userId);
 
-        if (nameError) throw nameError;
-        setNameSuccess(true);
+      const updateData: any = { full_name: fullName };
+
+      // Если это администратор и выбран другой пользователь, обновляем также роль
+      if (isAdmin && selectedUserId) {
+        updateData.roles = userRole;
       }
 
-      // Затем обновляем пароль
-      const { error } = await updateUserPassword(newPassword);
-      if (error) throw error;
+      console.log('Данные для обновления профиля:', updateData);
 
-      setPasswordSuccess(true);
-      setCurrentPassword('');
-      setNewPassword('');
-      setConfirmPassword('');
+      // Обновляем профиль
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('id', userId)
+        .select();
+
+      if (profileError) {
+        console.error('Ошибка при обновлении профиля:', profileError);
+        throw profileError;
+      }
+
+      console.log('Профиль успешно обновлен:', profileData);
+      setNameSuccess(true);
+
+      // Проверяем, что пароль введен и совпадает
+      if (newPassword && confirmPassword) {
+        if (newPassword !== confirmPassword) {
+          setError('Пароли не совпадают');
+          return;
+        }
+
+        // Обновляем пароль только для текущего пользователя
+        if (!selectedUserId || selectedUserId === user?.id) {
+          console.log('Обновление пароля пользователя');
+
+          console.log('Вызываем updateUserPassword с паролем:', newPassword.length, 'символов');
+
+          // Проверяем, что пароль соответствует требованиям
+          if (newPassword.length < 6) {
+            console.error('Пароль слишком короткий');
+            setError('Пароль должен быть не менее 6 символов');
+            return;
+          }
+
+          // Вызываем функцию обновления пароля
+          const { error } = await updateUserPassword(newPassword);
+
+          if (error) {
+            console.error('Ошибка при обновлении пароля:', error);
+            throw error;
+          }
+
+          console.log('Пароль успешно обновлен');
+          setPasswordSuccess(true);
+          setCurrentPassword('');
+          setNewPassword('');
+          setConfirmPassword('');
+        } else {
+          console.log('Пропускаем обновление пароля для другого пользователя');
+        }
+      }
+
+      // Обновляем список пользователей, если это администратор
+      if (isAdmin) {
+        fetchAllUsers();
+      }
+
+      // Обновляем данные профиля и статистику
+      fetchSelectedUserProfile();
+      fetchUserStats();
 
       // Сбрасываем сообщение об успехе через 3 секунды
       setTimeout(() => {
@@ -311,6 +476,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
         setPasswordSuccess(false);
       }, 3000);
     } catch (error: any) {
+      console.error('Ошибка при обновлении данных:', error);
       setError(error.message || 'Ошибка при обновлении данных');
     } finally {
       setLoading(false);
@@ -393,6 +559,7 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                               setSelectedUserId(user.id);
                               setShowUsersList(false);
                               fetchSelectedUserProfile();
+                              fetchUserStats(); // Обновляем статистику при смене пользователя
                             }}
                           >
                             <div className="flex items-center justify-between">
@@ -471,11 +638,8 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
 
             <form onSubmit={(e) => {
               e.preventDefault();
-              if (newPassword && confirmPassword) {
-                handleUpdatePassword(e);
-              } else {
-                handleUpdateName(e);
-              }
+              // Всегда используем handleUpdatePassword, который обрабатывает и обновление профиля, и обновление пароля
+              handleUpdatePassword(e);
             }}>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 {/* Форма изменения имени */}
@@ -498,39 +662,28 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                   {/* Выбор роли для администратора */}
                   {isAdmin && selectedUserId && (
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-300 mb-1">
-                        Роль пользователя
-                      </label>
-                      <div className="flex space-x-4">
-                        <label className="flex items-center space-x-2 cursor-pointer">
-                          <input
-                            type="radio"
-                            name="userRole"
-                            value="student"
-                            checked={userRole === 'student'}
-                            onChange={() => setUserRole('student')}
-                            className="w-4 h-4 text-cryptix-green focus:ring-cryptix-green/30"
-                          />
-                          <span className="text-gray-300">Student</span>
-                        </label>
-                        <label className="flex items-center space-x-2 cursor-pointer">
-                          <input
-                            type="radio"
-                            name="userRole"
-                            value="admin"
-                            checked={userRole === 'admin'}
-                            onChange={() => setUserRole('admin')}
-                            className="w-4 h-4 text-cryptix-green focus:ring-cryptix-green/30"
-                          />
-                          <span className="text-gray-300">Admin</span>
-                        </label>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="flex items-center justify-center" style={{ width: '20px', height: '20px' }}>
+                            <input
+                              id="adminRole"
+                              type="checkbox"
+                              checked={userRole === 'admin'}
+                              onChange={() => setUserRole(userRole === 'admin' ? 'student' : 'admin')}
+                            />
+                          </div>
+                          <span className="text-white text-sm">Admin</span>
+                        </div>
+                        <div className={`px-2 py-1 rounded-md text-xs font-medium ${userRole === 'admin' ? 'bg-cryptix-green/20 text-cryptix-green' : 'bg-blue-500/20 text-blue-400'}`}>
+                          {userRole === 'admin' ? 'Admin' : 'Student'}
+                        </div>
                       </div>
                     </div>
                   )}
 
                   {nameSuccess && (
                     <div className="text-sm text-cryptix-green">
-                      {selectedUserId ? 'Пользователь успешно удален!' : 'Данные успешно обновлены!'}
+                      Данные успешно обновлены!
                     </div>
                   )}
                 </div>
@@ -542,29 +695,65 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                     <label htmlFor="newPassword" className="block text-sm font-medium text-gray-300 mb-1">
                       Новый пароль
                     </label>
-                    <input
-                      id="newPassword"
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full px-3 py-2 bg-cryptix-dark border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30"
-                      placeholder="Минимум 6 символов"
-                      minLength={6}
-                    />
+                    <div className="relative">
+                      <input
+                        id="newPassword"
+                        type={showPassword ? "text" : "password"}
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full px-3 py-2 bg-cryptix-dark border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30"
+                        placeholder="Минимум 6 символов"
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <svg className="h-5 w-5 text-cryptix-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        ) : (
+                          <svg className="h-5 w-5 text-cryptix-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
                   </div>
                   <div className="mb-4">
                     <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300 mb-1">
                       Подтвердите пароль
                     </label>
-                    <input
-                      id="confirmPassword"
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full px-3 py-2 bg-cryptix-dark border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30"
-                      placeholder="Повторите пароль"
-                      minLength={6}
-                    />
+                    <div className="relative">
+                      <input
+                        id="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full px-3 py-2 bg-cryptix-dark border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30"
+                        placeholder="Повторите пароль"
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? (
+                          <svg className="h-5 w-5 text-cryptix-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                        ) : (
+                          <svg className="h-5 w-5 text-cryptix-green" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
                   </div>
                   {passwordSuccess && (
                     <div className="text-sm text-cryptix-green">
@@ -579,9 +768,16 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
                 <button
                   type="button"
                   onClick={() => {
-                    setFullName(userName || '');
+                    // Полный сброс всех данных при закрытии модального окна
+                    setSelectedUserId(null);
+                    setFullName('');
+                    setCurrentPassword('');
                     setNewPassword('');
                     setConfirmPassword('');
+                    setUserRole('student');
+                    setError(null);
+                    setNameSuccess(false);
+                    setPasswordSuccess(false);
                     onClose();
                   }}
                   className="px-6 py-2 bg-cryptix-dark border border-glass-border rounded-md text-gray-300 hover:text-white hover:border-white/30 transition-all duration-300"

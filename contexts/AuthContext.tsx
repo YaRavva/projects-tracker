@@ -128,8 +128,25 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }
 
   const updateUserPassword = async (password: string) => {
-    const { error } = await updatePassword(password)
-    return { error }
+    try {
+      console.log('Обновление пароля пользователя в AuthContext');
+
+      // Используем напрямую supabase.auth.updateUser вместо функции updatePassword
+      const { data, error } = await supabase.auth.updateUser({
+        password: password
+      });
+
+      if (error) {
+        console.error('Ошибка при обновлении пароля:', error);
+      } else {
+        console.log('Пароль успешно обновлен:', data);
+      }
+
+      return { error };
+    } catch (e) {
+      console.error('Исключение при обновлении пароля:', e);
+      return { error: e };
+    }
   }
 
 
