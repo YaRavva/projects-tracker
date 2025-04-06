@@ -13,7 +13,7 @@ interface SimpleDatePickerProps {
 const SimpleDatePicker: React.FC<SimpleDatePickerProps> = ({
   value,
   onChange,
-  placeholder = 'ДД.ММ.ГГГГ',
+  placeholder = 'дд.мм.гг',
   className = '',
   id,
   name,

@@ -34,9 +34,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit }) => {
         <thead>
           <tr className="bg-glass-bg backdrop-blur-md border-b border-glass-border">
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Название</th>
-            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden md:table-cell">Описание</th>
+            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden md:table-cell w-1/3">Описание</th>
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden md:table-cell">Участники</th>
-            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden lg:table-cell">Добавлен</th>
+            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden lg:table-cell">Класс</th>
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden lg:table-cell">Дедлайн</th>
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Прогресс</th>
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden lg:table-cell">Добавил</th>
@@ -47,7 +47,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit }) => {
           {projects.map((project) => (
             <tr
               key={project.id}
-              className="border-b border-glass-border hover:bg-glass-highlight transition-colors h-24"
+              className="border-b border-glass-border hover:bg-glass-highlight transition-colors h-28"
             >
               <td className="px-4 py-4 align-top">
                 <Link
@@ -59,7 +59,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit }) => {
               </td>
               <td className="px-4 py-4 text-gray-400 hidden md:table-cell align-top">
                 {project.description ? (
-                  <div className="line-clamp-3 max-w-xs">
+                  <div className="line-clamp-4 max-w-md">
                     {project.description}
                   </div>
                 ) : (
@@ -82,7 +82,19 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit }) => {
                 )}
               </td>
               <td className="px-4 py-4 text-gray-400 hidden lg:table-cell align-top">
-                {formatDate(project.created_at)}
+                {project.team_members && project.team_members.length > 0 ? (
+                  <div className="flex flex-col space-y-1">
+                    {project.team_members.map((member, idx) => (
+                      <div key={idx} className="flex items-center">
+                        <span className={`text-sm ${member.isLeader ? 'text-cryptix-green font-medium' : 'text-gray-400'}`}>
+                          {member.class}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <span className="text-gray-500 italic">Не указан</span>
+                )}
               </td>
               <td className="px-4 py-4 hidden lg:table-cell align-top">
                 {project.deadline ? (
@@ -120,17 +132,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit }) => {
                 {project.profiles?.full_name || 'Не указан'}
               </td>
               <td className="px-4 py-4 text-right align-top">
-                <div className="flex justify-end space-x-2">
-                  <Link
-                    href={`/projects/${project.id}`}
-                    className="p-1.5 text-gray-400 hover:text-white transition-colors"
-                    title="Просмотр"
-                  >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  </Link>
+                <div className="flex justify-end space-x-1">
                   <button
                     onClick={() => onEdit && onEdit(project.id)}
                     className="p-1.5 text-gray-400 hover:text-white transition-colors"

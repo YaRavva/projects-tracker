@@ -689,6 +689,87 @@ input[type="date"]::-webkit-inner-spin-button {
   font-size: 0.9rem !important;
 }
 
+/* Фиксируем иконку календаря */
+.calendar-icon-wrapper {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 20px !important;
+  min-height: 20px !important;
+  margin-left: 10px !important;
+}
+
+.calendar-icon {
+  color: var(--cryptix-green) !important;
+  width: 20px !important;
+  height: 20px !important;
+  stroke: currentColor !important;
+  fill: none !important;
+}
+
+/* Переопределяем стили react-datepicker для кнопки */
+.react-datepicker__input-container button {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+/* Стили для кнопки очистки */
+.react-datepicker__close-icon {
+  position: absolute !important;
+  right: 30px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  height: 20px !important;
+  width: 20px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 2 !important; /* Увеличиваем z-index, чтобы иконка была над иконкой календаря */
+  cursor: pointer !important;
+  transition: all 0.2s ease-in-out !important;
+}
+
+.react-datepicker__close-icon:hover::after {
+  background-color: rgba(0, 255, 157, 0.4) !important;
+  box-shadow: 0 0 8px rgba(0, 255, 157, 0.5) !important;
+}
+
+.react-datepicker__close-icon::after {
+  background-color: rgba(0, 255, 157, 0.2) !important;
+  color: var(--cryptix-green) !important;
+  font-size: 12px !important;
+  height: 18px !important;
+  width: 18px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border: 1px solid var(--cryptix-green) !important;
+  border-radius: 50% !important;
+  box-shadow: 0 0 5px rgba(0, 255, 157, 0.3) !important;
+}
+
+/* Дополнительные стили для кнопки очистки */
+.datepicker-clear-button.react-datepicker__close-icon {
+  right: 50px !important;
+}
+
+/* Стили для контейнера ввода */
+.react-datepicker__input-container {
+  position: relative !important;
+}
+
+/* Убедимся, что иконка календаря всегда видна */
+.react-datepicker__input-container .calendar-icon-wrapper {
+  position: absolute !important;
+  right: 10px !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  z-index: 1 !important;
+}
+
 .react-datepicker__day:hover {
   background-color: rgba(0, 255, 157, 0.2) !important;
   color: white !important;

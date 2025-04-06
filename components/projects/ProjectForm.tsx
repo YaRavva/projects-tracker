@@ -4,7 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { parsePRDFile } from '../../lib/prdParser';
 import CustomDatePicker from '../ui/DatePicker';
-import SimpleDatePicker from '../ui/SimpleDatePicker';
+// import SimpleDatePicker from '../ui/SimpleDatePicker'; // Не используется
 
 // Функция для форматирования даты в формат дд.мм.гг
 const formatDate = (dateString: string): string => {
@@ -146,7 +146,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     // Если меняем статус лидера, обновляем всех участников
     if (field === 'isLeader' && value === true) {
       // Снимаем статус лидера со всех других участников
-      newTeamMembers.forEach((member, i) => {
+      newTeamMembers.forEach((_, i) => {
         if (i !== index) {
           newTeamMembers[i].isLeader = false;
         }
@@ -519,23 +519,38 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
       </div>
 
       <div className="space-y-3">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div className="form-group">
-            <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-1">
-              Название проекта *
-            </label>
-            <input
-              id="title"
-              name="title"
-              type="text"
-              value={formData.title}
-              onChange={handleChange}
-              required
-              className="w-full px-3 py-2 bg-glass-bg backdrop-blur-xs border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30"
-              placeholder="Введите название проекта"
-            />
+        <div className="flex flex-wrap -mx-2">
+          <div className="w-full md:w-3/5 px-2">
+            <div className="form-group">
+              <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-1">
+                Название проекта *
+              </label>
+              <input
+                id="title"
+                name="title"
+                type="text"
+                value={formData.title}
+                onChange={handleChange}
+                required
+                className="w-full px-3 py-2 bg-glass-bg backdrop-blur-xs border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30"
+                placeholder="Введите название проекта"
+              />
+            </div>
           </div>
-
+          <div className="w-full md:w-2/5 px-2">
+            <div className="form-group">
+              <label htmlFor="deadline" className="block text-sm font-medium text-gray-300 mb-1">
+                Дедлайн проекта
+              </label>
+              <CustomDatePicker
+                id="deadline"
+                name="deadline"
+                selectedDate={deadlineDate}
+                onChange={handleDeadlineChange}
+                required={false}
+              />
+            </div>
+          </div>
         </div>
         <div className="grid grid-cols-1 gap-4">
           <div className="form-group">
@@ -553,47 +568,39 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
             />
           </div>
 
-          <div className="form-group">
-            <label htmlFor="deadline" className="block text-sm font-medium text-gray-300 mb-1">
-              Дедлайн проекта
-            </label>
-            <CustomDatePicker
-              id="deadline"
-              name="deadline"
-              selectedDate={deadlineDate}
-              onChange={handleDeadlineChange}
-              required={false}
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="repository_url" className="block text-sm font-medium text-gray-300 mb-1">
-              URL репозитория
-            </label>
-            <input
-              id="repository_url"
-              name="repository_url"
-              type="url"
-              value={formData.repository_url}
-              onChange={handleChange}
-              className="w-full px-3 py-2 bg-glass-bg backdrop-blur-xs border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30"
-              placeholder="https://github.com/username/repo"
-            />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="demo_url" className="block text-sm font-medium text-gray-300 mb-1">
-              URL демо
-            </label>
-            <input
-              id="demo_url"
-              name="demo_url"
-              type="url"
-              value={formData.demo_url}
-              onChange={handleChange}
-              className="w-full px-3 py-2 bg-glass-bg backdrop-blur-xs border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30"
-              placeholder="https://your-demo-site.com"
-            />
+          <div className="flex flex-wrap -mx-2">
+            <div className="w-full md:w-1/2 px-2">
+              <div className="form-group">
+                <label htmlFor="repository_url" className="block text-sm font-medium text-gray-300 mb-1">
+                  URL репозитория
+                </label>
+                <input
+                  id="repository_url"
+                  name="repository_url"
+                  type="url"
+                  value={formData.repository_url}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 bg-glass-bg backdrop-blur-xs border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30"
+                  placeholder="https://github.com/username/repo"
+                />
+              </div>
+            </div>
+            <div className="w-full md:w-1/2 px-2">
+              <div className="form-group">
+                <label htmlFor="demo_url" className="block text-sm font-medium text-gray-300 mb-1">
+                  URL демо
+                </label>
+                <input
+                  id="demo_url"
+                  name="demo_url"
+                  type="url"
+                  value={formData.demo_url}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 bg-glass-bg backdrop-blur-xs border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30"
+                  placeholder="https://your-demo-site.vercel.app"
+                />
+              </div>
+            </div>
           </div>
 
           <div className="form-group">

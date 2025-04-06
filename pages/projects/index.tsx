@@ -149,13 +149,8 @@ const ProjectsPage: NextPage = () => {
         const userFullName = profileData?.full_name || '';
         console.log('Имя пользователя из профиля:', userFullName);
 
-        // Фильтруем проекты, где пользователь является добавившим или участником
+        // Фильтруем проекты, где пользователь является участником
         const myProjects = projects.filter(project => {
-          // Проверяем, является ли пользователь добавившим проект
-          if (project.owner_id === user.id) {
-            console.log(`Пользователь добавил проект ${project.title}`);
-            return true;
-          }
 
           // Проверяем, есть ли участники в проекте
           if (!project.team_members || project.team_members.length === 0) {
@@ -167,14 +162,24 @@ const ProjectsPage: NextPage = () => {
             console.log(`Проект ${project.title} - участники:`, project.team_members);
 
             if (Array.isArray(project.team_members)) {
+              // Выводим всех участников проекта для отладки
+              console.log(`Участники проекта ${project.title}:`);
+              project.team_members.forEach((member, index) => {
+                if (member && typeof member === 'object' && 'name' in member) {
+                  console.log(`Участник ${index}: ${member.name}`);
+                }
+              });
+
               // Проверяем, есть ли имя пользователя среди имен участников
+              console.log(`Ищем пользователя ${userFullName} среди участников...`);
+
               const isUserInTeam = project.team_members.some(member => {
                 if (member && typeof member === 'object' && 'name' in member) {
                   const memberName = member.name || '';
                   const isMatch = memberName === userFullName;
 
                   if (isMatch) {
-                    console.log(`Найдено совпадение: участник ${memberName} = пользователь ${userFullName}`);
+                    console.log(`НАЙДЕНО СОВПАДЕНИЕ: участник "${memberName}" = пользователь "${userFullName}"`);
                   }
 
                   return isMatch;
