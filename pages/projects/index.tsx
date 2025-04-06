@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import Head from 'next/head';
-import { useRouter } from 'next/router';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout from '../../components/layout/Layout';
 import ProjectsTable from '../../components/projects/ProjectsTable';
 import ProtectedRoute from '../../components/auth/ProtectedRoute';
 import EditProjectModal from '../../components/projects/EditProjectModal';
+import AddProjectModal from '../../components/projects/AddProjectModal';
 
 interface Project {
   id: string;
@@ -18,6 +18,7 @@ interface Project {
   progress: number;
   repository_url: string | null;
   demo_url: string | null;
+  owner_id: string; // Добавляем поле owner_id
   profiles: {
     full_name: string;
   };
@@ -30,76 +31,181 @@ interface Project {
 
 const ProjectsPage: NextPage = () => {
   const { user } = useAuth();
-  const router = useRouter();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Состояние для модального окна редактирования
+  // Состояние для модальных окон
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
 
+  // Состояние для фильтра "Показывать только мои проекты"
+  const [showOnlyMyProjects, setShowOnlyMyProjects] = useState(false);
+  const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
+
+  // Функция для загрузки проектов
+  const fetchProjects = async () => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+      // Запрашиваем все проекты и связанные профили
+      const { data: projectsData, error: projectsError } = await supabase
+        .from('projects')
+        .select('*');
+
+      if (projectsError) throw projectsError;
+
+      // Запрашиваем все профили
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name');
+
+      if (profilesError) throw profilesError;
+
+      // Запрашиваем информацию об участниках проектов
+      const { data: teamMembersData, error: teamMembersError } = await supabase
+        .from('project_meta')
+        .select('project_id, key, value')
+        .eq('key', 'team_members');
+
+      if (teamMembersError) throw teamMembersError;
+
+      // Объединяем данные проектов и профилей
+      console.log('Projects data:', projectsData);
+      console.log('Profiles data:', profilesData);
+      console.log('Team members data:', teamMembersData);
+
+      // Дополнительная отладочная информация о структуре данных участников
+      if (teamMembersData && teamMembersData.length > 0) {
+        console.log('Пример данных участников:', teamMembersData[0]);
+        console.log('Тип данных value:', typeof teamMembersData[0].value);
+        console.log('Структура value:', JSON.stringify(teamMembersData[0].value, null, 2));
+      }
+
+      // Добавляем информацию о пользователях и участниках в проекты
+      const projectsWithProfiles = (projectsData || []).map(project => {
+        // Находим профиль добавившего проект
+        const ownerProfile = profilesData?.find(profile => profile.id === project.owner_id);
+
+        // Находим участников проекта
+        const teamMembersEntry = teamMembersData?.find(entry => entry.project_id === project.id);
+
+        // Дополнительная отладочная информация о структуре данных участников конкретного проекта
+        if (teamMembersEntry) {
+          console.log(`Участники проекта ${project.title}:`, teamMembersEntry);
+          console.log(`Тип данных value для проекта ${project.title}:`, typeof teamMembersEntry.value);
+          console.log(`Структура value для проекта ${project.title}:`, JSON.stringify(teamMembersEntry.value, null, 2));
+        }
+
+        const teamMembers = teamMembersEntry ? teamMembersEntry.value : [];
+
+        return {
+          ...project,
+          profiles: ownerProfile || { full_name: 'Не указан' },
+          team_members: teamMembers
+        };
+      });
+
+      console.log('Projects with profiles:', projectsWithProfiles);
+      setProjects(projectsWithProfiles);
+    } catch (err: any) {
+      console.error('Ошибка при загрузке проектов:', err);
+      setError(err.message || 'Не удалось загрузить проекты');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchProjects = async () => {
-      if (!user) return;
+    fetchProjects();
+  }, [user]);
 
+  // Фильтрация проектов при изменении фильтра или списка проектов
+  useEffect(() => {
+    // Если фильтр выключен, показываем все проекты
+    if (!showOnlyMyProjects || !user) {
+      setFilteredProjects(projects);
+      return;
+    }
+
+    // Получаем имя пользователя из профиля
+    const fetchUserProfile = async () => {
       try {
-        setLoading(true);
-        // Запрашиваем все проекты и связанные профили
-        const { data: projectsData, error: projectsError } = await supabase
-          .from('projects')
-          .select('*');
-
-        if (projectsError) throw projectsError;
-
-        // Запрашиваем все профили
-        const { data: profilesData, error: profilesError } = await supabase
+        // Получаем профиль пользователя
+        const { data: profileData, error: profileError } = await supabase
           .from('profiles')
-          .select('id, full_name');
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
 
-        if (profilesError) throw profilesError;
+        if (profileError) {
+          console.error('Ошибка при получении профиля пользователя:', profileError);
+          setFilteredProjects(projects);
+          return;
+        }
 
-        // Запрашиваем информацию об участниках проектов
-        const { data: teamMembersData, error: teamMembersError } = await supabase
-          .from('project_meta')
-          .select('project_id, key, value')
-          .eq('key', 'team_members');
+        const userFullName = profileData?.full_name || '';
+        console.log('Имя пользователя из профиля:', userFullName);
 
-        if (teamMembersError) throw teamMembersError;
+        // Фильтруем проекты, где пользователь является добавившим или участником
+        const myProjects = projects.filter(project => {
+          // Проверяем, является ли пользователь добавившим проект
+          if (project.owner_id === user.id) {
+            console.log(`Пользователь добавил проект ${project.title}`);
+            return true;
+          }
 
-        // Объединяем данные проектов и профилей
-        console.log('Projects data:', projectsData);
-        console.log('Profiles data:', profilesData);
-        console.log('Team members data:', teamMembersData);
+          // Проверяем, есть ли участники в проекте
+          if (!project.team_members || project.team_members.length === 0) {
+            return false;
+          }
 
-        // Добавляем информацию о пользователях и участниках в проекты
-        const projectsWithProfiles = (projectsData || []).map(project => {
-          // Находим профиль владельца
-          const ownerProfile = profilesData?.find(profile => profile.id === project.owner_id);
+          // Проверяем, есть ли имя пользователя среди участников проекта
+          try {
+            console.log(`Проект ${project.title} - участники:`, project.team_members);
 
-          // Находим участников проекта
-          const teamMembersEntry = teamMembersData?.find(entry => entry.project_id === project.id);
-          const teamMembers = teamMembersEntry ? teamMembersEntry.value : [];
+            if (Array.isArray(project.team_members)) {
+              // Проверяем, есть ли имя пользователя среди имен участников
+              const isUserInTeam = project.team_members.some(member => {
+                if (member && typeof member === 'object' && 'name' in member) {
+                  const memberName = member.name || '';
+                  const isMatch = memberName === userFullName;
 
-          return {
-            ...project,
-            profiles: ownerProfile || { full_name: 'Не указан' },
-            team_members: teamMembers
-          };
+                  if (isMatch) {
+                    console.log(`Найдено совпадение: участник ${memberName} = пользователь ${userFullName}`);
+                  }
+
+                  return isMatch;
+                }
+                return false;
+              });
+
+              if (isUserInTeam) {
+                console.log(`Пользователь найден в команде проекта ${project.title}`);
+                return true;
+              }
+            }
+
+            console.log(`Пользователь не найден в команде проекта ${project.title}`);
+            return false;
+          } catch (err) {
+            console.error(`Ошибка при проверке участников проекта ${project.title}:`, err);
+            return false;
+          }
         });
 
-        console.log('Projects with profiles:', projectsWithProfiles);
-        setProjects(projectsWithProfiles);
-      } catch (err: any) {
-        console.error('Ошибка при загрузке проектов:', err);
-        setError(err.message || 'Не удалось загрузить проекты');
-      } finally {
-        setLoading(false);
+        console.log('Отфильтрованные проекты:', myProjects.length);
+        setFilteredProjects(myProjects);
+      } catch (error) {
+        console.error('Ошибка при фильтрации проектов:', error);
+        setFilteredProjects(projects);
       }
     };
 
-    fetchProjects();
-  }, [user]);
+    fetchUserProfile();
+  }, [showOnlyMyProjects, projects, user, supabase]);
 
   // Функция для открытия модального окна редактирования
   const handleEditProject = (projectId: string) => {
@@ -115,70 +221,26 @@ const ProjectsPage: NextPage = () => {
 
   // Функция для обновления списка проектов после редактирования
   const handleProjectUpdated = () => {
-    // Запускаем функцию загрузки проектов
-    const fetchProjects = async () => {
-      if (!user) return;
+    fetchProjects();
+  };
 
-      try {
-        setLoading(true);
-        // Запрашиваем все проекты и связанные профили
-        const { data: projectsData, error: projectsError } = await supabase
-          .from('projects')
-          .select('*');
-
-        if (projectsError) throw projectsError;
-
-        // Запрашиваем все профили
-        const { data: profilesData, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, full_name');
-
-        if (profilesError) throw profilesError;
-
-        // Запрашиваем информацию об участниках проектов
-        const { data: teamMembersData, error: teamMembersError } = await supabase
-          .from('project_meta')
-          .select('project_id, key, value')
-          .eq('key', 'team_members');
-
-        if (teamMembersError) throw teamMembersError;
-
-        // Объединяем данные проектов и профилей
-        console.log('Projects data:', projectsData);
-        console.log('Profiles data:', profilesData);
-        console.log('Team members data:', teamMembersData);
-
-        // Добавляем информацию о пользователях в проекты
-        const projectsWithProfiles = (projectsData || []).map(project => {
-          // Находим профиль владельца
-          const ownerProfile = profilesData?.find(profile => profile.id === project.owner_id);
-
-          // Находим участников проекта
-          const teamMembersEntry = teamMembersData?.find(entry => entry.project_id === project.id);
-          const teamMembers = teamMembersEntry ? teamMembersEntry.value : [];
-
-          return {
-            ...project,
-            profiles: ownerProfile || { full_name: 'Не указан' },
-            team_members: teamMembers
-          };
-        });
-
-        console.log('Projects with profiles:', projectsWithProfiles);
-        setProjects(projectsWithProfiles);
-      } catch (err: any) {
-        console.error('Ошибка при загрузке проектов:', err);
-        setError(err.message || 'Не удалось загрузить проекты');
-      } finally {
-        setLoading(false);
-      }
-    };
-
+  // Функция для обновления списка проектов после добавления
+  const handleProjectAdded = () => {
     fetchProjects();
   };
 
   const handleCreateProject = () => {
-    router.push('/projects/new');
+    setIsAddModalOpen(true);
+  };
+
+  // Функция для закрытия модального окна добавления
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false);
+  };
+
+  // Функция для переключения фильтра "Показывать только мои проекты"
+  const handleToggleMyProjects = () => {
+    setShowOnlyMyProjects(!showOnlyMyProjects);
   };
 
   return (
@@ -212,8 +274,21 @@ const ProjectsPage: NextPage = () => {
             </div>
           ) : (
             <>
-              <ProjectsTable projects={projects} onEdit={handleEditProject} />
-              <div className="mt-8 flex justify-center">
+              <div className="mb-6 flex justify-between items-center">
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      id="showMyProjects"
+                      checked={showOnlyMyProjects}
+                      onChange={handleToggleMyProjects}
+                      className="cursor-pointer"
+                    />
+                    <label htmlFor="showMyProjects" className="text-white text-sm cursor-pointer">
+                      Показывать только мои проекты
+                    </label>
+                  </div>
+                </div>
                 <button
                   onClick={handleCreateProject}
                   className="btn-primary"
@@ -221,6 +296,7 @@ const ProjectsPage: NextPage = () => {
                   Добавить проект
                 </button>
               </div>
+              <ProjectsTable projects={filteredProjects} onEdit={handleEditProject} />
             </>
           )}
         </div>
@@ -231,6 +307,13 @@ const ProjectsPage: NextPage = () => {
           onClose={handleCloseModal}
           projectId={editingProjectId}
           onProjectUpdated={handleProjectUpdated}
+        />
+
+        {/* Модальное окно добавления проекта */}
+        <AddProjectModal
+          isOpen={isAddModalOpen}
+          onClose={handleCloseAddModal}
+          onProjectAdded={handleProjectAdded}
         />
       </Layout>
     </ProtectedRoute>

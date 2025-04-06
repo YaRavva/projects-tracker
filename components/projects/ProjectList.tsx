@@ -7,6 +7,7 @@ type Project = Database['public']['Tables']['projects']['Row'] & {
     email: string;
     full_name?: string;
   };
+  name: string; // Добавляем поле name для совместимости с ProjectCard
   progress: number;
   deadline?: string;
   members_count: number;
@@ -44,7 +45,7 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects, isLoading }) => {
           key={project.id}
           id={project.id}
           name={project.name}
-          description={project.description}
+          description={project.description || undefined}
           owner={project.owner}
           progress={project.progress}
           deadline={project.deadline}
@@ -55,4 +56,4 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects, isLoading }) => {
   );
 };
 
-export default ProjectList; 
+export default ProjectList;

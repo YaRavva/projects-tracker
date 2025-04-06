@@ -13,7 +13,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'Digital Projects Tra
     // Создаем декоративные элементы
     const createDecorations = () => {
       // Создаем светящиеся узлы с иконками
-      const nodes = [];
+      const nodes: HTMLDivElement[] = [];
       const nodePositions = [
         { left: '20%', top: '25%', icon: 'X' },
         { left: '80%', top: '30%', icon: 'S' },
@@ -32,7 +32,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'Digital Projects Tra
       });
 
       // Создаем пунктирные линии между узлами
-      const lines = [];
+      const lines: HTMLDivElement[] = [];
       const lineConnections = [
         { from: 0, to: 1 },
         { from: 0, to: 2 },

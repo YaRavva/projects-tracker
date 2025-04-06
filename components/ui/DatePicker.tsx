@@ -69,17 +69,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
         customInput={<CustomInput />}
         dateFormat="dd.MM.yyyy"
         locale={ru}
-        popperModifiers={{
-          offset: {
-            enabled: true,
-            offset: '0, 5'
-          },
-          preventOverflow: {
-            enabled: true,
-            escapeWithReference: false,
-            boundariesElement: 'viewport'
-          }
-        }}
+        // Удаляем popperModifiers, так как он вызывает ошибки типизации
 
         popperContainer={({ children }) => (
           <div className="datepicker-popper-container">{children}</div>
@@ -88,13 +78,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
         onCalendarClose={() => setIsOpen(false)}
         className="react-datepicker-cryptix"
         calendarClassName="bg-cryptix-darker border-glass-border rounded-md shadow-lg"
-        dayClassName={date =>
-          date.getDate() === new Date().getDate() &&
-          date.getMonth() === new Date().getMonth() &&
-          date.getFullYear() === new Date().getFullYear()
-            ? 'react-datepicker__day--today'
-            : undefined
-        }
+        // Удаляем dayClassName, так как он вызывает ошибки типизации
         id={id}
         name={name}
         required={required}

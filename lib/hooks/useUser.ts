@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
-import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/router';
-import { supabase } from '@/lib/supabase';
-import { Profile } from '@/types/project';
+import { supabase } from '../../lib/supabase';
+import { Profile } from '../../types/project';
 
 export function useUser() {
   const [user, setUser] = useState<Profile | null>(null);
@@ -16,30 +14,30 @@ export function useUser() {
     const fetchUser = async () => {
       try {
         setIsLoading(true);
-        
+
         // Получаем текущую сессию
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
+
         if (sessionError) {
           throw sessionError;
         }
-        
+
         if (!session) {
           setUser(null);
           return;
         }
-        
+
         // Получаем профиль пользователя
         const { data: profile, error: profileError } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', session.user.id)
           .single();
-        
+
         if (profileError) {
           throw profileError;
         }
-        
+
         setUser(profile);
       } catch (err) {
         console.error('Error fetching user:', err);
@@ -49,9 +47,9 @@ export function useUser() {
         setIsLoading(false);
       }
     };
-    
+
     fetchUser();
-    
+
     // Подписываемся на изменения аутентификации
     const { data: authListener } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
@@ -62,7 +60,7 @@ export function useUser() {
             .select('*')
             .eq('id', session.user.id)
             .single();
-          
+
           if (profileError) {
             console.error('Error fetching user profile:', profileError);
             setUser(null);
@@ -73,10 +71,10 @@ export function useUser() {
       } else if (event === 'SIGNED_OUT') {
         setUser(null);
       }
-      
+
       setIsLoading(false);
     });
-    
+
     // Отписываемся при размонтировании компонента
     return () => {
       authListener.subscription.unsubscribe();
@@ -99,4 +97,4 @@ export function useUser() {
   };
 
   return { user, isLoading, error, logout };
-} 
+}
