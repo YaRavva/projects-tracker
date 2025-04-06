@@ -76,7 +76,7 @@ const LoginForm: React.FC = () => {
         {loading ? 'Вход...' : 'Войти'}
       </button>
 
-      <OAuthButtons className="mt-6" />
+      <OAuthButtons className="mt-4" />
 
       <div className="mt-4 text-center text-sm text-gray-400">
         Нет аккаунта?{' '}

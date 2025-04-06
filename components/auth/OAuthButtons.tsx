@@ -22,7 +22,7 @@ const OAuthButtons: React.FC<OAuthButtonsProps> = ({ className = '' }) => {
   };
 
   return (
-    <div className={`flex flex-col space-y-3 ${className}`}>
+    <div className={`flex flex-col space-y-4 ${className}`}>
       <div className="relative flex items-center justify-center">
         <hr className="w-full border-t border-glass-border" />
         <span className="absolute bg-cryptix-darker px-3 text-sm text-gray-400">или</span>

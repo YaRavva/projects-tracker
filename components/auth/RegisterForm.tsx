@@ -46,7 +46,7 @@ const RegisterForm: React.FC = () => {
           onChange={(e) => setFullName(e.target.value)}
           required
           className="form-input"
-          placeholder="Иван Иванов"
+          placeholder="Базылев Дмитрий "
         />
       </div>
 
@@ -85,7 +85,7 @@ const RegisterForm: React.FC = () => {
         {loading ? 'Регистрация...' : 'Зарегистрироваться'}
       </button>
 
-      <OAuthButtons className="mt-6" />
+      <OAuthButtons className="mt-4" />
 
       <div className="mt-4 text-center text-sm text-gray-400">
         Уже есть аккаунт?{' '}

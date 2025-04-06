@@ -6,34 +6,35 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[]
 
-export interface Database {
+export type Database = {
   public: {
     Tables: {
       profiles: {
         Row: {
-          id: string
-          email: string
+          created_at: string | null
+          email: string | null
           full_name: string | null
-          avatar_url: string | null
-          created_at: string
-          updated_at: string
+          id: string
+          roles: string | null
+          updated_at: string | null
         }
         Insert: {
-          id: string
-          email: string
+          created_at?: string | null
+          email?: string | null
           full_name?: string | null
-          avatar_url?: string | null
-          created_at?: string
-          updated_at?: string
+          id: string
+          roles?: string | null
+          updated_at?: string | null
         }
         Update: {
-          id?: string
-          email?: string
+          created_at?: string | null
+          email?: string | null
           full_name?: string | null
-          avatar_url?: string | null
-          created_at?: string
-          updated_at?: string
+          id?: string
+          roles?: string | null
+          updated_at?: string | null
         }
+        Relationships: []
       }
       projects: {
         Row: {
@@ -188,4 +189,4 @@ export interface Database {
       [_ in never]: never
     }
   }
-} 
+}

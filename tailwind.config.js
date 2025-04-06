@@ -37,6 +37,7 @@ module.exports = {
         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
         'float': 'float 6s ease-in-out infinite',
         'glow-pulse': 'glowPulse 3s ease-in-out infinite',
+        'fadeIn': 'fadeIn 0.2s ease-out',
       },
       keyframes: {
         float: {
@@ -46,6 +47,10 @@ module.exports = {
         glowPulse: {
           '0%, 100%': { opacity: 0.7 },
           '50%': { opacity: 1 },
+        },
+        fadeIn: {
+          '0%': { opacity: 0, transform: 'translateY(-10px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' },
         },
       },
       backdropBlur: {

@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import Navbar from './Navbar';
 import Head from 'next/head';
+import ProfileModal from '../profile/ProfileModal';
+import { useProfileModal } from '../../contexts/ProfileModalContext';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -8,6 +10,7 @@ interface LayoutProps {
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, title = 'Digital Projects Tracker' }) => {
+  const { isProfileModalOpen, closeProfileModal } = useProfileModal();
   // Добавляем декоративные элементы при загрузке
   useEffect(() => {
     // Создаем декоративные элементы
@@ -112,6 +115,9 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'Digital Projects Tra
         <main className="flex-grow container mx-auto px-4 py-8 relative z-10">
           {children}
         </main>
+
+        {/* Модальное окно профиля пользователя */}
+        <ProfileModal isOpen={isProfileModalOpen} onClose={closeProfileModal} />
       </div>
     </>
   );
