@@ -23,22 +23,22 @@ const ImportPRDForm: React.FC = () => {
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setError(null);
     const selectedFile = e.target.files?.[0];
-    
+
     if (!selectedFile) {
       setFile(null);
       setPreview(null);
       return;
     }
-    
+
     if (selectedFile.type !== 'text/markdown' && !selectedFile.name.endsWith('.md')) {
       setError('Пожалуйста, загрузите файл в формате Markdown (.md)');
       setFile(null);
       setPreview(null);
       return;
     }
-    
+
     setFile(selectedFile);
-    
+
     try {
       const fileContent = await selectedFile.text();
       const parsedData = parsePRDFile(fileContent);
@@ -52,17 +52,17 @@ const ImportPRDForm: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    
+
     if (!file || !preview) {
       setError('Пожалуйста, загрузите PRD.md файл');
       return;
     }
-    
+
     setLoading(true);
-    
+
     try {
       if (!user) throw new Error('Пользователь не авторизован');
-      
+
       // Создаем новый проект
       const { data: project, error: projectError } = await supabase
         .from('projects')
@@ -78,10 +78,10 @@ const ImportPRDForm: React.FC = () => {
         ])
         .select()
         .single();
-      
+
       if (projectError) throw projectError;
       if (!project) throw new Error('Ошибка при создании проекта');
-      
+
       // Добавляем владельца как участника проекта
       const { error: memberError } = await supabase
         .from('project_members')
@@ -92,9 +92,9 @@ const ImportPRDForm: React.FC = () => {
             role: 'owner',
           }
         ]);
-      
+
       if (memberError) throw memberError;
-      
+
       // Добавляем этапы проекта
       if (preview.stages && preview.stages.length > 0) {
         const stagesData = preview.stages.map(stage => ({
@@ -103,16 +103,16 @@ const ImportPRDForm: React.FC = () => {
           deadline: stage.deadline || null,
           completed: stage.completed || false,
         }));
-        
+
         const { error: stagesError } = await supabase
           .from('project_stages')
           .insert(stagesData);
-        
+
         if (stagesError) throw stagesError;
       }
-      
-      // Перенаправляем на страницу проекта
-      router.push(`/projects/${project.id}`);
+
+      // Перенаправляем на страницу проектов
+      router.push('/projects');
     } catch (err: any) {
       setError(err.message || 'Ошибка при создании проекта');
     } finally {
@@ -128,7 +128,7 @@ const ImportPRDForm: React.FC = () => {
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       if (fileInputRef.current) {
         fileInputRef.current.files = e.dataTransfer.files;
@@ -142,15 +142,15 @@ const ImportPRDForm: React.FC = () => {
     <div className="glass-card">
       <div className="glass-card-body">
         <h2 className="text-2xl font-bold text-white mb-6">Импорт из PRD.md</h2>
-        
+
         {error && (
           <div className="bg-red-900/30 border border-red-800 text-red-200 px-4 py-3 rounded-md mb-6">
             {error}
           </div>
         )}
-        
+
         <form onSubmit={handleSubmit}>
-          <div 
+          <div
             className="border-2 border-dashed border-glass-border rounded-lg p-8 text-center mb-6 cursor-pointer hover:border-crypto-green-500/50 transition-colors"
             onDragOver={handleDragOver}
             onDrop={handleDrop}
@@ -163,11 +163,11 @@ const ImportPRDForm: React.FC = () => {
               accept=".md"
               className="hidden"
             />
-            
+
             <svg className="w-12 h-12 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
             </svg>
-            
+
             <p className="text-gray-300 mb-2">
               {file ? file.name : 'Перетащите PRD.md файл сюда или нажмите для выбора'}
             </p>
@@ -175,40 +175,40 @@ const ImportPRDForm: React.FC = () => {
               Поддерживаются только файлы в формате Markdown (.md)
             </p>
           </div>
-          
+
           {preview && (
             <div className="mb-6 p-4 bg-crypto-black/30 rounded-lg border border-glass-border">
               <h3 className="text-xl font-semibold text-white mb-2">Предпросмотр проекта</h3>
-              
+
               <div className="grid grid-cols-1 gap-4 text-gray-300">
                 <div>
                   <span className="font-medium text-crypto-green-500">Название:</span> {preview.name}
                 </div>
-                
+
                 {preview.description && (
                   <div>
                     <span className="font-medium text-crypto-green-500">Описание:</span> {preview.description}
                   </div>
                 )}
-                
+
                 {preview.repository_url && (
                   <div>
                     <span className="font-medium text-crypto-green-500">Репозиторий:</span> {preview.repository_url}
                   </div>
                 )}
-                
+
                 {preview.demo_url && (
                   <div>
                     <span className="font-medium text-crypto-green-500">Демо:</span> {preview.demo_url}
                   </div>
                 )}
-                
+
                 {preview.team_members && preview.team_members.length > 0 && (
                   <div>
                     <span className="font-medium text-crypto-green-500">Участники:</span> {preview.team_members.join(', ')}
                   </div>
                 )}
-                
+
                 {preview.stages && preview.stages.length > 0 && (
                   <div>
                     <span className="font-medium text-crypto-green-500">Этапы:</span>
@@ -224,7 +224,7 @@ const ImportPRDForm: React.FC = () => {
               </div>
             </div>
           )}
-          
+
           <button
             type="submit"
             className="btn-primary w-full"
@@ -238,4 +238,4 @@ const ImportPRDForm: React.FC = () => {
   );
 };
 
-export default ImportPRDForm; 
+export default ImportPRDForm;

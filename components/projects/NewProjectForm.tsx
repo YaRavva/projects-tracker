@@ -70,8 +70,8 @@ const NewProjectForm: React.FC = () => {
 
       if (memberError) throw memberError;
 
-      // Перенаправляем на страницу проекта
-      router.push(`/projects/${project.id}`);
+      // Перенаправляем на страницу проектов
+      router.push('/projects');
     } catch (err: any) {
       setError(err.message || 'Ошибка при создании проекта');
     } finally {
@@ -83,13 +83,13 @@ const NewProjectForm: React.FC = () => {
     <form onSubmit={handleSubmit} className="glass-card">
       <div className="glass-card-body">
         <h2 className="text-2xl font-bold text-white mb-6">Создание нового проекта</h2>
-        
+
         {error && (
           <div className="bg-red-900/30 border border-red-800 text-red-200 px-4 py-3 rounded-md mb-6">
             {error}
           </div>
         )}
-        
+
         <div className="grid grid-cols-1 gap-6">
           <div className="form-group">
             <label htmlFor="name" className="block text-sm font-medium text-gray-300 mb-1">
@@ -106,7 +106,7 @@ const NewProjectForm: React.FC = () => {
               placeholder="Введите название проекта"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-1">
               Описание проекта
@@ -121,7 +121,7 @@ const NewProjectForm: React.FC = () => {
               placeholder="Опишите ваш проект"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="deadline" className="block text-sm font-medium text-gray-300 mb-1">
               Дедлайн
@@ -135,7 +135,7 @@ const NewProjectForm: React.FC = () => {
               className="w-full px-3 py-2 bg-crypto-black/50 border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-crypto-green-500/50"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="repository_url" className="block text-sm font-medium text-gray-300 mb-1">
               URL репозитория
@@ -150,7 +150,7 @@ const NewProjectForm: React.FC = () => {
               placeholder="https://github.com/username/repo"
             />
           </div>
-          
+
           <div className="form-group">
             <label htmlFor="demo_url" className="block text-sm font-medium text-gray-300 mb-1">
               URL демо
@@ -166,7 +166,7 @@ const NewProjectForm: React.FC = () => {
             />
           </div>
         </div>
-        
+
         <div className="mt-6">
           <button
             type="submit"
@@ -181,4 +181,4 @@ const NewProjectForm: React.FC = () => {
   );
 };
 
-export default NewProjectForm; 
+export default NewProjectForm;

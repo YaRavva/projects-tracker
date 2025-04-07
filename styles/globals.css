@@ -1154,3 +1154,82 @@ input[type="checkbox"]:focus {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 255, 157, 0.5);
 }
+
+/* Стили для графиков и аналитики */
+.recharts-default-tooltip {
+  background-color: rgba(4, 10, 15, 0.8) !important;
+  border: 1px solid rgba(0, 255, 157, 0.2) !important;
+  border-radius: 4px !important;
+  box-shadow: 0 4px 30px rgba(0, 255, 157, 0.1) !important;
+}
+
+.recharts-tooltip-label {
+  color: var(--cryptix-green) !important;
+  font-weight: bold !important;
+  margin-bottom: 5px !important;
+}
+
+.recharts-tooltip-item-name,
+.recharts-tooltip-item-value {
+  color: white !important;
+}
+
+.recharts-cartesian-axis-tick-value {
+  fill: #8892b0 !important;
+}
+
+.recharts-legend-item-text {
+  color: #8892b0 !important;
+}
+
+.recharts-active-dot {
+  filter: drop-shadow(0 0 4px rgba(0, 255, 157, 0.7)) !important;
+}
+
+.recharts-pie-label-text {
+  fill: white !important;
+  font-weight: 500 !important;
+}
+
+.recharts-sector:hover {
+  filter: brightness(1.2) !important;
+  transition: filter 0.3s ease !important;
+}
+
+.recharts-bar-rectangle:hover {
+  filter: brightness(1.2) !important;
+  transition: filter 0.3s ease !important;
+}
+
+.recharts-radial-bar-background-sector {
+  fill: rgba(0, 255, 157, 0.05) !important;
+  stroke: rgba(0, 255, 157, 0.1) !important;
+}
+
+.recharts-radial-bar-sector {
+  transition: filter 0.3s ease !important;
+}
+
+.recharts-radial-bar-sector:hover {
+  filter: brightness(1.2) drop-shadow(0 0 5px rgba(0, 255, 157, 0.5)) !important;
+}
+
+/* Стили для улучшенной круговой диаграммы */
+.recharts-pie-sector {
+  transition: transform 0.3s ease, filter 0.3s ease !important;
+}
+
+.recharts-pie-sector:hover {
+  transform: scale(1.03) !important;
+  filter: drop-shadow(0 0 8px rgba(0, 255, 157, 0.6)) !important;
+}
+
+.sector-highlight {
+  filter: drop-shadow(0 0 10px rgba(0, 255, 157, 0.7)) !important;
+  animation: pulse-glow 2s infinite ease-in-out !important;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { filter: drop-shadow(0 0 5px rgba(0, 255, 157, 0.5)) !important; }
+  50% { filter: drop-shadow(0 0 15px rgba(0, 255, 157, 0.8)) !important; }
+}

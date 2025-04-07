@@ -12,6 +12,7 @@ const Index = () => {
   useEffect(() => {
     if (!loading && user) {
       // Если пользователь авторизован, перенаправляем на страницу проектов
+      // Используем относительный путь, чтобы учесть текущий хост и порт
       router.push('/projects');
     }
   }, [user, loading, router]);
@@ -20,4 +21,4 @@ const Index = () => {
   return <HomePage />;
 };
 
-export default Index; 
+export default Index;

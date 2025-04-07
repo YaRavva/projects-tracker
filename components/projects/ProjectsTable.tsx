@@ -1,5 +1,4 @@
 import React from 'react';
-import Link from 'next/link';
 import { formatDate } from '../../lib/dateUtils';
 
 interface Project {
@@ -50,12 +49,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit }) => {
               className="border-b border-glass-border hover:bg-glass-highlight transition-colors h-28"
             >
               <td className="px-4 py-4 align-top">
-                <Link
-                  href={`/projects/${project.id}`}
-                  className="text-white hover:text-cryptix-green font-medium transition-colors"
-                >
+                <span className="text-white font-medium">
                   {project.title}
-                </Link>
+                </span>
               </td>
               <td className="px-4 py-4 text-gray-400 hidden md:table-cell align-top">
                 {project.description ? (

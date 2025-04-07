@@ -1,5 +1,4 @@
 import React from 'react';
-import Link from 'next/link';
 import { calculateDaysLeft, getDaysLeftText } from '../../lib/utils';
 
 interface ProjectCardProps {
@@ -39,10 +38,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
     <div className="glass-card group">
       <div className="glass-card-body">
         <div className="flex justify-between items-start mb-3">
-          <h3 className="text-xl font-semibold text-white truncate group-hover:text-cryptix-green transition-colors">
-            <Link href={`/projects/${id}`}>
-              {name}
-            </Link>
+          <h3 className="text-xl font-semibold text-white truncate">
+            {name}
           </h3>
           {daysLeftText && (
             <span className={getDeadlineBadgeClass()}>

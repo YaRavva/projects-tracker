@@ -67,6 +67,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     if (!error) {
       // Редирект на страницу проектов после успешного входа
+      // Используем относительный путь, чтобы учесть текущий хост и порт
       router.push('/projects')
     }
 
@@ -101,6 +102,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         console.error('Ошибка при создании профиля:', profileError)
       } else {
         // Редирект на страницу проектов после успешной регистрации
+        // Используем относительный путь, чтобы учесть текущий хост и порт
         router.push('/projects')
       }
     }

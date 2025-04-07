@@ -468,11 +468,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         if (stagesError) console.error('Ошибка при сохранении этапов:', stagesError);
       }
 
-      // Вызываем коллбэк успешного завершения или перенаправляем на страницу проекта
+      // Вызываем коллбэк успешного завершения или перенаправляем на страницу проектов
       if (onSuccess) {
         onSuccess();
       } else {
-        router.push(`/projects/${project.id}`);
+        router.push('/projects');
       }
     } catch (err: any) {
       const actionText = mode === 'edit' ? 'редактировании' : 'создании';
