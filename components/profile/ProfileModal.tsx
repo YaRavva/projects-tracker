@@ -8,7 +8,7 @@ interface ProfileModalProps {
 }
 
 const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
-  const { user, updateUserPassword } = useAuth();
+  const { user } = useAuth();
   const [fullName, setFullName] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -430,11 +430,10 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
           return;
         }
 
-        // Обновляем пароль только для текущего пользователя
+        // Обратите внимание, что обновление пароля работает только для текущего пользователя.
+        // Администратор не может изменить пароль другого пользователя, так как это ограничение API Supabase.
         if (!selectedUserId || selectedUserId === user?.id) {
           console.log('Обновление пароля пользователя');
-
-          console.log('Вызываем updateUserPassword с паролем:', newPassword.length, 'символов');
 
           // Проверяем, что пароль соответствует требованиям
           if (newPassword.length < 6) {
@@ -443,8 +442,10 @@ const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
             return;
           }
 
-          // Вызываем функцию обновления пароля
-          const { error } = await updateUserPassword(newPassword);
+          // Вызываем функцию обновления пароля напрямую через Supabase API
+          const { data, error } = await supabase.auth.updateUser({
+            password: newPassword
+          });
 
           if (error) {
             console.error('Ошибка при обновлении пароля:', error);

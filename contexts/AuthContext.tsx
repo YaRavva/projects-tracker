@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import { supabase, signIn, signUp, signOut, resetPassword, updatePassword, signInWithGoogle, signInWithGithub } from '../lib/supabase'
+import { supabase, signIn, signUp, signOut, updatePassword, signInWithGoogle, signInWithGithub } from '../lib/supabase'
 import { Session, User } from '@supabase/supabase-js'
 import { useRouter } from 'next/router'
 
@@ -10,7 +10,6 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any, data: any }>
   signOut: () => Promise<{ error: any }>
-  resetPassword: (email: string) => Promise<{ error: any }>
   updateUserPassword: (password: string) => Promise<{ error: any }>
   signInWithGoogle: () => Promise<{ error: any, data: any }>
   signInWithGithub: () => Promise<{ error: any, data: any }>
@@ -23,7 +22,6 @@ const AuthContext = createContext<AuthContextType>({
   signIn: async () => ({ error: null }),
   signUp: async () => ({ error: null, data: null }),
   signOut: async () => ({ error: null }),
-  resetPassword: async () => ({ error: null }),
   updateUserPassword: async () => ({ error: null }),
   signInWithGoogle: async () => ({ error: null, data: null }),
   signInWithGithub: async () => ({ error: null, data: null }),
@@ -115,18 +113,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return { error }
   }
 
-  const resetPassword = async (email: string) => {
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      })
-      return { error }
-    } catch (e) {
-      console.error('Error during password reset:', e)
-      return { error: e }
-    }
-  }
-
   const updateUserPassword = async (password: string) => {
     try {
       console.log('Обновление пароля пользователя в AuthContext');
@@ -158,7 +144,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     signIn,
     signUp,
     signOut,
-    resetPassword,
     updateUserPassword,
     signInWithGoogle,
     signInWithGithub,

@@ -63,11 +63,7 @@ const LoginForm: React.FC = () => {
         />
       </div>
 
-      <div className="text-right mb-4">
-        <Link href="/reset-password" className="text-sm text-crypto-green-500 hover:text-crypto-green-400">
-          Забыли пароль?
-        </Link>
-      </div>
+      {/* Удалена ссылка "Забыли пароль?" */}
 
       <button
         type="submit"
