@@ -8,6 +8,7 @@ const LoginForm: React.FC = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Удалена неиспользуемая переменная showPassword
   const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -58,7 +59,7 @@ const LoginForm: React.FC = () => {
           onChange={(e) => setPassword(e.target.value)}
           required
           className="form-input"
-          placeholder="••••••••"
+          placeholder="Ваш пароль"
         />
       </div>
 

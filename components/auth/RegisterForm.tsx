@@ -9,6 +9,7 @@ const RegisterForm: React.FC = () => {
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Удалена неиспользуемая переменная showPassword
   const { signUp } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
