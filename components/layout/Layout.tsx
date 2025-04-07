@@ -15,13 +15,13 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'Digital Projects Tra
   useEffect(() => {
     // Создаем декоративные элементы
     const createDecorations = () => {
-      // Создаем светящиеся узлы с иконками
+      // Создаем светящиеся узлы с логотипами технологий
       const nodes: HTMLDivElement[] = [];
       const nodePositions = [
-        { left: '20%', top: '25%', icon: 'X' },
-        { left: '80%', top: '30%', icon: 'S' },
-        { left: '30%', top: '60%', icon: 'C' },
-        { left: '70%', top: '65%', icon: 'D' },
+        { left: '20%', top: '25%', icon: '/images/typescript-logo-styled.svg', alt: 'TypeScript' },
+        { left: '80%', top: '30%', icon: '/images/javascript-logo-styled.svg', alt: 'JavaScript' },
+        { left: '30%', top: '60%', icon: '/images/nextjs-logo-styled.svg', alt: 'Next.js' },
+        { left: '70%', top: '65%', icon: '/images/react-logo-styled.svg', alt: 'React' },
       ];
 
       nodePositions.forEach(pos => {
@@ -29,7 +29,7 @@ const Layout: React.FC<LayoutProps> = ({ children, title = 'Digital Projects Tra
         node.className = 'network-node';
         node.style.left = pos.left;
         node.style.top = pos.top;
-        node.innerHTML = `<div class="network-node-icon">${pos.icon}</div>`;
+        node.innerHTML = `<img src="${pos.icon}" alt="${pos.alt}" class="w-full h-full object-contain" />`;
         document.body.appendChild(node);
         nodes.push(node);
       });
