@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatDate } from '../../lib/dateUtils';
+import { formatDate, parseDate } from '../../lib/dateUtils';
 
 interface Project {
   id: string;
@@ -95,11 +95,30 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit }) => {
               <td className="px-4 py-4 hidden lg:table-cell align-top">
                 {project.deadline ? (
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    new Date(project.deadline) < new Date()
+                    // Проверяем, что дедлайн прошел
+                    (() => {
+                      try {
+                        // Если дата в формате дд.мм.гг, преобразуем в ISO
+                        const parts = project.deadline.split('.');
+                        if (parts.length === 3) {
+                          // Если год двухзначный, добавляем '20' впереди
+                          let year = parts[2];
+                          if (year.length === 2) {
+                            year = '20' + year;
+                          }
+                          const isoDate = `${year}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                          return new Date(isoDate) < new Date();
+                        }
+                        // Если дата в другом формате, пробуем прямое преобразование
+                        return new Date(project.deadline) < new Date();
+                      } catch (e) {
+                        return false;
+                      }
+                    })()
                       ? 'bg-red-500/20 text-red-400'
                       : 'bg-yellow-500/20 text-yellow-400'
                   }`}>
-                    {formatDate(project.deadline)}
+                    {project.deadline}
                   </span>
                 ) : (
                   <span className="text-gray-500 italic">Не указан</span>

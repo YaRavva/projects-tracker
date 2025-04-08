@@ -24,27 +24,41 @@ const formatDate = (dateString: string): string => {
 
 // Функция для преобразования даты из формата дд.мм.гг в формат ISO для input type="date"
 const parseDate = (dateString: string): string => {
-  if (!dateString) return '';
+  console.log('parseDate called with:', dateString);
+  if (!dateString) {
+    console.log('Empty date string, returning empty string');
+    return '';
+  }
 
   // Если дата уже в формате ISO, возвращаем её
   if (dateString.includes('-') && dateString.length === 10) {
+    console.log('Date already in ISO format, returning as is:', dateString);
     return dateString;
   }
 
   try {
     // Парсим дату в формате дд.мм.гг или дд.мм.гггг
     const parts = dateString.split('.');
-    if (parts.length !== 3) return '';
+    console.log('Date parts:', parts);
+
+    if (parts.length !== 3) {
+      console.log('Invalid date format, parts.length !== 3');
+      return '';
+    }
 
     let year = parts[2];
     // Если год двузначный, добавляем 20 в начало
     if (year.length === 2) {
       year = `20${year}`;
+      console.log('Converted 2-digit year to 4-digit:', year);
     }
 
     // Формируем дату в формате ISO (YYYY-MM-DD)
-    return `${year}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+    const isoDate = `${year}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+    console.log('Converted to ISO format:', isoDate);
+    return isoDate;
   } catch (e) {
+    console.error('Error parsing date:', e);
     return '';
   }
 };
@@ -103,9 +117,21 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
   });
 
   // Состояние для хранения дат в формате Date
-  const [deadlineDate, setDeadlineDate] = useState<Date | null>(
-    formData.deadline ? new Date(formData.deadline) : null
-  );
+  console.log('Initializing deadlineDate with formData.deadline:', formData.deadline);
+  const [deadlineDate, setDeadlineDate] = useState<Date | null>(() => {
+    if (formData.deadline) {
+      try {
+        const date = new Date(formData.deadline);
+        console.log('Created Date object from deadline:', date);
+        return date;
+      } catch (e) {
+        console.error('Error creating Date from deadline:', e);
+        return null;
+      }
+    }
+    return null;
+  });
+
   const [stageDates, setStageDates] = useState<(Date | null)[]>(
     formData.stages.map(stage => stage.deadline ? new Date(stage.deadline) : null)
   );
@@ -121,16 +147,19 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
 
   // Обработчик изменения даты дедлайна
   const handleDeadlineChange = (date: Date | null) => {
+    console.log('handleDeadlineChange called with date:', date);
     setDeadlineDate(date);
     if (date) {
       const isoDate = date.toISOString().split('T')[0]; // Формат YYYY-MM-DD
       const displayDate = formatDate(isoDate);
+      console.log('Setting deadline in form data:', isoDate, 'display:', displayDate);
       setFormData(prev => ({
         ...prev,
         deadline: isoDate,
         display_deadline: displayDate
       }));
     } else {
+      console.log('Clearing deadline in form data');
       setFormData(prev => ({
         ...prev,
         deadline: '',
@@ -283,12 +312,35 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         };
       });
 
+      // Обрабатываем дедлайн проекта
+      console.log('Parsed deadline from PRD:', parsedData.deadline);
+      let projectDeadline = '';
+      let projectDisplayDeadline = '';
+      let deadlineDateObj: Date | null = null;
+
+      if (parsedData.deadline) {
+        // Преобразуем дату из формата дд.мм.гг в ISO для input type="date"
+        projectDeadline = parseDate(parsedData.deadline);
+        projectDisplayDeadline = parsedData.deadline; // Сохраняем оригинальную дату для отображения
+        console.log('Converted deadline to ISO:', projectDeadline);
+
+        // Создаем объект Date для компонента DatePicker
+        if (projectDeadline) {
+          try {
+            deadlineDateObj = new Date(projectDeadline);
+            console.log('Created Date object for DatePicker:', deadlineDateObj);
+          } catch (e) {
+            console.error('Error creating Date object:', e);
+          }
+        }
+      }
+
       // Обновляем состояние формы
       setFormData({
         title: parsedData.name,
         description: parsedData.description,
-        deadline: '', // Дедлайн проекта нужно будет установить вручную
-        display_deadline: '',
+        deadline: projectDeadline, // Устанавливаем дедлайн из PRD
+        display_deadline: projectDisplayDeadline,
         repository_url: parsedData.repository_url,
         demo_url: parsedData.demo_url,
         team_members: teamMembers,
@@ -296,7 +348,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
       });
 
       // Обновляем состояние дат
-      setDeadlineDate(null);
+      console.log('Setting deadlineDate state to:', deadlineDateObj);
+      setDeadlineDate(deadlineDateObj);
       setStageDates(stages.length > 0 ? stages.map(stage => stage.deadline ? new Date(stage.deadline) : null) : [null]);
 
       setImportSuccess(true);

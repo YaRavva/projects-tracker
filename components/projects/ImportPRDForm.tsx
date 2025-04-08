@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import { parsePRDFile } from '../../lib/prdParser';
+import { parseDate } from '../../lib/dateUtils';
 
 const ImportPRDForm: React.FC = () => {
   const { user } = useAuth();
@@ -18,6 +19,7 @@ const ImportPRDForm: React.FC = () => {
     demo_url: string;
     team_members: string[];
     stages: { name: string; deadline: string; completed: boolean }[];
+    deadline: string; // Добавляем поле дедлайна
   } | null>(null);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -41,9 +43,24 @@ const ImportPRDForm: React.FC = () => {
 
     try {
       const fileContent = await selectedFile.text();
+      console.log('File content loaded, length:', fileContent.length);
+
+      // Прямая проверка на наличие дедлайна
+      const deadlineMatch = fileContent.match(/# Дедлайн[^\n]*\n(?:[^\n]*\n)*?\[([^\]]+)\]/i);
+      console.log('Direct deadline match:', deadlineMatch ? deadlineMatch[1] : 'not found');
+
       const parsedData = parsePRDFile(fileContent);
+      console.log('Parsed data:', parsedData);
+
+      // Если дедлайн не найден в парсере, но найден прямым поиском
+      if (!parsedData.deadline && deadlineMatch && deadlineMatch[1]) {
+        parsedData.deadline = deadlineMatch[1].trim();
+        console.log('Setting deadline from direct match:', parsedData.deadline);
+      }
+
       setPreview(parsedData);
     } catch (err: any) {
+      console.error('Error parsing PRD file:', err);
       setError(err.message || 'Ошибка при чтении файла');
       setPreview(null);
     }
@@ -64,6 +81,7 @@ const ImportPRDForm: React.FC = () => {
       if (!user) throw new Error('Пользователь не авторизован');
 
       // Создаем новый проект
+      console.log('Creating project with deadline:', preview.deadline);
       const { data: project, error: projectError } = await supabase
         .from('projects')
         .insert([
@@ -74,13 +92,19 @@ const ImportPRDForm: React.FC = () => {
             demo_url: preview.demo_url || null,
             owner_id: user.id,
             progress: 0,
+            deadline: preview.deadline ? preview.deadline : null
           }
         ])
         .select()
         .single();
 
-      if (projectError) throw projectError;
+      if (projectError) {
+        console.error('Project creation error:', projectError);
+        throw projectError;
+      }
       if (!project) throw new Error('Ошибка при создании проекта');
+
+      console.log('Project created successfully:', project);
 
       // Добавляем владельца как участника проекта
       const { error: memberError } = await supabase
@@ -206,6 +230,13 @@ const ImportPRDForm: React.FC = () => {
                 {preview.team_members && preview.team_members.length > 0 && (
                   <div>
                     <span className="font-medium text-crypto-green-500">Участники:</span> {preview.team_members.join(', ')}
+                  </div>
+                )}
+
+                {preview.deadline && (
+                  <div>
+                    <span className="font-medium text-crypto-green-500">Дедлайн:</span> {preview.deadline}
+                    <span className="ml-2 text-xs text-gray-400">(Проверено: {preview.deadline.split('.').length === 3 ? 'Да' : 'Нет'})</span>
                   </div>
                 )}
 

@@ -24,6 +24,9 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Логируем выбранную дату при рендере
+  console.log('CustomDatePicker rendering with selectedDate:', selectedDate);
+
   // Кастомный инпут для календаря
   const CustomInput = forwardRef<HTMLButtonElement, { value?: string; onClick?: () => void }>(
     ({ value, onClick }, ref) => (
@@ -69,7 +72,10 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
     <div className="relative">
       <DatePicker
         selected={selectedDate}
-        onChange={onChange}
+        onChange={(date) => {
+          console.log('DatePicker onChange called with date:', date);
+          onChange(date);
+        }}
         customInput={<CustomInput />}
         dateFormat="dd.MM.yy"
         locale={ru}
