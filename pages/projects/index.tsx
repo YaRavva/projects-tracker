@@ -6,10 +6,9 @@ import { useAuth } from '../../contexts/AuthContext';
 import Layout from '../../components/layout/Layout';
 import ProjectsTable from '../../components/projects/ProjectsTable';
 import ProtectedRoute from '../../components/auth/ProtectedRoute';
-import EditProjectModal from '../../components/projects/EditProjectModal';
 import AddProjectModal from '../../components/projects/AddProjectModal';
 import ProjectFilters from '../../components/projects/ProjectFilters';
-import ProjectViewModal from '../../components/projects/ProjectViewModal';
+import ProjectModal from '../../components/projects/ProjectModal';
 import { useProjects } from '../../hooks/useProjects';
 
 interface Project {
@@ -41,11 +40,10 @@ const ProjectsPage: NextPage = () => {
   const [loading, setLoading] = useState(true);
 
   // Состояние для модальных окон
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
-  const [viewingProjectId, setViewingProjectId] = useState<string | null>(null);
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
+  const [projectModalTab, setProjectModalTab] = useState<'view' | 'edit'>('view');
 
   // Состояние для фильтров
   const [showOnlyMyProjects, setShowOnlyMyProjects] = useState(false);
@@ -162,28 +160,22 @@ const ProjectsPage: NextPage = () => {
 
   // Функция для открытия модального окна редактирования
   const handleEditProject = (projectId: string) => {
-    setEditingProjectId(projectId);
-    setIsEditModalOpen(true);
-    // Закрываем модальное окно просмотра, если оно открыто
-    setIsViewModalOpen(false);
+    setCurrentProjectId(projectId);
+    setProjectModalTab('edit');
+    setIsProjectModalOpen(true);
   };
 
   // Функция для открытия модального окна просмотра
   const handleViewProject = (projectId: string) => {
-    setViewingProjectId(projectId);
-    setIsViewModalOpen(true);
+    setCurrentProjectId(projectId);
+    setProjectModalTab('view');
+    setIsProjectModalOpen(true);
   };
 
-  // Функция для закрытия модального окна редактирования
-  const handleCloseModal = () => {
-    setIsEditModalOpen(false);
-    setEditingProjectId(null);
-  };
-
-  // Функция для закрытия модального окна просмотра
-  const handleCloseViewModal = () => {
-    setIsViewModalOpen(false);
-    setViewingProjectId(null);
+  // Функция для закрытия модального окна проекта
+  const handleCloseProjectModal = () => {
+    setIsProjectModalOpen(false);
+    setCurrentProjectId(null);
   };
 
   // Функция для обновления списка проектов после редактирования
@@ -290,21 +282,13 @@ const ProjectsPage: NextPage = () => {
           )}
         </div>
 
-        {/* Модальное окно редактирования проекта */}
-        <EditProjectModal
-          isOpen={isEditModalOpen}
-          onClose={handleCloseModal}
-          projectId={editingProjectId}
+        {/* Модальное окно проекта */}
+        <ProjectModal
+          isOpen={isProjectModalOpen}
+          onClose={handleCloseProjectModal}
+          projectId={currentProjectId}
           onProjectUpdated={handleProjectUpdated}
-        />
-
-        {/* Модальное окно просмотра проекта */}
-        <ProjectViewModal
-          isOpen={isViewModalOpen}
-          onClose={handleCloseViewModal}
-          projectId={viewingProjectId}
-          onEdit={handleEditProject}
-          onProjectUpdated={handleProjectUpdated}
+          defaultTab={projectModalTab}
         />
 
         {/* Модальное окно добавления проекта */}

@@ -10,56 +10,29 @@
 - **pending** - Проект на рассмотрении (статус по умолчанию при создании проекта студентом)
 - **returned** - Проект возвращен на доработку с комментариями
 - **rejected** - Проект отклонен с указанием причины
+- **completed** - Проект завершен
 
 ## Компоненты системы
 
 1. **ProjectStatusBadge** - Компонент для отображения статуса проекта
-2. **ProjectViewModal** - Модальное окно для просмотра информации о проекте, добавления комментариев и изменения статуса
+2. **ProjectModal** - Модальное окно с вкладками для просмотра и редактирования проекта, добавления комментариев и изменения статуса
 3. **ProjectsTable** - Таблица проектов с отображением статуса и возможностью перехода к просмотру
 
-## Применение миграции
+## Структура базы данных
 
-Или выполнить SQL-скрипт напрямую в базе данных:
+Для работы системы утверждения проектов используются следующие таблицы:
 
-```sql
--- Изменяем значение по умолчанию для поля status с 'active' на 'pending'
-ALTER TABLE public.projects ALTER COLUMN status SET DEFAULT 'pending';
+1. **projects** - Основная таблица с проектами
+   - Поле `status` хранит текущий статус проекта
+   - Значение по умолчанию для поля `status` - 'pending'
 
--- Добавляем поле review_comment для хранения комментариев при отклонении или возврате на доработку
-ALTER TABLE public.projects ADD COLUMN IF NOT EXISTS review_comment TEXT;
-
--- Создаем таблицу project_reviews для хранения истории рассмотрения проектов
-CREATE TABLE IF NOT EXISTS public.project_reviews (
-  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  project_id UUID REFERENCES public.projects(id) ON DELETE CASCADE,
-  reviewer_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
-  status TEXT NOT NULL,
-  comment TEXT,
-  created_at TIMESTAMP WITH TIME ZONE DEFAULT now()
-);
-
--- Создаем политики доступа для таблицы project_reviews
-CREATE POLICY "Пользователи могут видеть все записи истории рассмотрения" ON public.project_reviews
-  FOR SELECT USING (true);
-
-CREATE POLICY "Только администраторы могут создавать записи истории рассмотрения" ON public.project_reviews
-  FOR INSERT WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE id = auth.uid() AND roles = 'admin'
-    )
-  );
-
--- Обновляем политики доступа для таблицы projects
--- Разрешаем администраторам обновлять любые проекты
-CREATE POLICY "Администраторы могут обновлять любые проекты" ON public.projects
-  FOR UPDATE USING (
-    EXISTS (
-      SELECT 1 FROM public.profiles
-      WHERE id = auth.uid() AND roles = 'admin'
-    )
-  );
-```
+2. **project_reviews** - Таблица для хранения истории комментариев и изменений статуса
+   - `project_id` - Ссылка на проект
+   - `reviewer_id` - Ссылка на пользователя, оставившего комментарий
+   - `status` - Статус проекта на момент комментария
+   - `comment` - Текст комментария
+   - `created_at` - Дата и время создания комментария
+   - `status_changed` - Флаг, указывающий, был ли изменен статус в этом комментарии
 
 ## Логика работы
 
