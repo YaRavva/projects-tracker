@@ -6,21 +6,7 @@ import { parsePRDFile } from '../../lib/prdParser';
 import CustomDatePicker from '../ui/DatePicker';
 // import SimpleDatePicker from '../ui/SimpleDatePicker'; // Не используется
 
-// Функция для форматирования даты в формат дд.мм.гг
-const formatDate = (dateString: string): string => {
-  if (!dateString) return '';
-
-  try {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', {
-      day: '2-digit',
-      month: '2-digit',
-      year: '2-digit'
-    });
-  } catch (e) {
-    return dateString;
-  }
-};
+import { formatDate } from '../../lib/dateUtils';
 
 // Функция для преобразования даты из формата дд.мм.гг в формат ISO для input type="date"
 const parseDate = (dateString: string): string => {
@@ -400,6 +386,19 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     setLoading(true);
 
     try {
+      // Проверяем роль пользователя
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('roles')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        throw new Error('Ошибка при получении профиля пользователя');
+      }
+
+      const isAdmin = profileData?.roles === 'admin';
+
       // Рассчитываем прогресс проекта
       const validStages = formData.stages.filter(stage => stage.name.trim());
       const completedStages = validStages.filter(stage => stage.completed);
@@ -440,7 +439,8 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
             deadline: formData.deadline || null,
             progress: progress,
             repository_url: formData.repository_url || null,
-            demo_url: formData.demo_url || null
+            demo_url: formData.demo_url || null,
+            status: isAdmin ? 'active' : 'pending' // Устанавливаем статус в зависимости от роли
           })
           .select()
           .single();

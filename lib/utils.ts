@@ -1,43 +1,68 @@
 export function formatDate(dateString: string): string {
   const date = new Date(dateString);
   return date.toLocaleDateString('ru-RU', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+    day: '2-digit',
+    month: '2-digit',
+    year: '2-digit'
   });
 }
 
 export function calculateDaysLeft(deadlineString: string): number {
-  const deadline = new Date(deadlineString);
-  const today = new Date();
-  
-  // Сбрасываем время до 00:00:00
-  deadline.setHours(0, 0, 0, 0);
-  today.setHours(0, 0, 0, 0);
-  
-  const diffTime = deadline.getTime() - today.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-  return diffDays;
+  // Проверяем, что строка не пустая
+  if (!deadlineString) return 0;
+
+  try {
+    // Пробуем парсить дату в формате дд.мм.гг
+    let deadline: Date;
+
+    if (deadlineString.includes('.')) {
+      // Если дата в формате дд.мм.гг
+      const parts = deadlineString.split('.');
+      if (parts.length === 3) {
+        let year = parts[2];
+        if (year.length === 2) year = '20' + year;
+        deadline = new Date(`${year}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`);
+      } else {
+        deadline = new Date(deadlineString);
+      }
+    } else {
+      // Если дата в другом формате (ISO, и т.д.)
+      deadline = new Date(deadlineString);
+    }
+
+    const today = new Date();
+
+    // Сбрасываем время до 00:00:00
+    deadline.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+
+    const diffTime = deadline.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays;
+  } catch (e) {
+    console.error('Error calculating days left:', e);
+    return 0;
+  }
 }
 
 export function getDaysLeftText(daysLeft: number): string {
   if (daysLeft < 0) {
     return 'Просрочено';
   }
-  
+
   if (daysLeft === 0) {
     return 'Сегодня';
   }
-  
+
   if (daysLeft === 1) {
     return 'Завтра';
   }
-  
+
   // Склонение для русского языка
   const lastDigit = daysLeft % 10;
   const lastTwoDigits = daysLeft % 100;
-  
+
   if (lastDigit === 1 && lastTwoDigits !== 11) {
     return `${daysLeft} день`;
   } else if ([2, 3, 4].includes(lastDigit) && ![12, 13, 14].includes(lastTwoDigits)) {
@@ -90,4 +115,4 @@ export const getUserProjectRole = async (
   }
 
   return data.role;
-}; 
+};

@@ -14,11 +14,20 @@ export const useProjects = () => {
     sortBy?: string;
   }) => {
     if (!user) return;
-    
+
     setIsLoading(true);
     setError(null);
-    
+
     try {
+      // Проверяем роль пользователя
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('roles')
+        .eq('id', user.id)
+        .single();
+
+      const isAdmin = profileData?.roles === 'admin';
+
       // Получаем проекты, где пользователь является владельцем или участником
       let query = supabase
         .from('projects')
@@ -27,35 +36,43 @@ export const useProjects = () => {
           profiles:owner_id (email, full_name),
           project_members!project_id (id),
           project_stages!project_id (id, completed)
-        `)
-        .or(`owner_id.eq.${user.id},project_members.user_id.eq.${user.id}`);
-      
+        `);
+
+      // Если пользователь не админ, ограничиваем видимость проектов
+      if (!isAdmin) {
+        // Пользователь видит все активные проекты и свои проекты в любом статусе
+        query = query.or(`status.eq.active,owner_id.eq.${user.id}`);
+      }
+
+      // Дополнительно фильтруем по участию в проекте
+      // query = query.or(`owner_id.eq.${user.id},project_members.user_id.eq.${user.id}`);
+
       // Применяем фильтры
       if (filters?.search) {
         query = query.ilike('name', `%${filters.search}%`);
       }
-      
+
       if (filters?.status && filters.status !== 'all') {
         // Здесь нужно адаптировать под вашу структуру данных
         // Например, если у вас есть поле status в таблице projects
         query = query.eq('status', filters.status);
       }
-      
+
       // Получаем данные
       const { data, error } = await query;
-      
+
       if (error) throw error;
-      
+
       // Обрабатываем данные
       const processedProjects = data.map(project => {
         // Вычисляем прогресс на основе завершенных этапов
         const stages = project.project_stages || [];
         const completedStages = stages.filter((stage: any) => stage.completed).length;
         const progress = stages.length > 0 ? Math.round((completedStages / stages.length) * 100) : 0;
-        
+
         // Получаем количество участников
         const membersCount = (project.project_members || []).length;
-        
+
         return {
           ...project,
           owner: project.profiles,
@@ -63,7 +80,7 @@ export const useProjects = () => {
           members_count: membersCount
         };
       });
-      
+
       // Сортируем проекты
       if (filters?.sortBy) {
         processedProjects.sort((a, b) => {
@@ -90,7 +107,7 @@ export const useProjects = () => {
           }
         });
       }
-      
+
       setProjects(processedProjects);
     } catch (err: any) {
       console.error('Ошибка при загрузке проектов:', err);
@@ -107,4 +124,4 @@ export const useProjects = () => {
   }, [user]);
 
   return { projects, isLoading, error, fetchProjects };
-}; 
+};

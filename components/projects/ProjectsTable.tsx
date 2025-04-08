@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatDate, parseDate } from '../../lib/dateUtils';
+import ProjectStatusBadge, { ProjectStatus } from './ProjectStatusBadge';
 
 interface Project {
   id: string;
@@ -10,6 +11,8 @@ interface Project {
   progress: number;
   repository_url: string | null;
   demo_url: string | null;
+  status: ProjectStatus;
+  review_comment?: string | null;
   profiles: {
     full_name: string;
   };
@@ -39,6 +42,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit }) => {
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden lg:table-cell">Дедлайн</th>
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Прогресс</th>
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden lg:table-cell">Добавил</th>
+            <th className="px-4 py-3 text-center text-sm font-medium text-gray-300 w-[180px]">Статус</th>
             <th className="px-4 py-3 text-right text-sm font-medium text-gray-300">Действия</th>
           </tr>
         </thead>
@@ -118,7 +122,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit }) => {
                       ? 'bg-red-500/20 text-red-400'
                       : 'bg-yellow-500/20 text-yellow-400'
                   }`}>
-                    {project.deadline}
+                    {formatDate(project.deadline)}
                   </span>
                 ) : (
                   <span className="text-gray-500 italic">Не указан</span>
@@ -145,6 +149,16 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit }) => {
               </td>
               <td className="px-4 py-4 text-gray-400 hidden lg:table-cell align-top">
                 {project.profiles?.full_name || 'Не указан'}
+              </td>
+              <td className="px-4 py-4 align-top text-center">
+                <div className="flex flex-col items-center">
+                  <ProjectStatusBadge status={project.status} className="whitespace-nowrap" />
+                  {project.status === 'returned' && project.review_comment && (
+                    <div className="mt-1 text-xs text-gray-400 max-w-[150px] truncate" title={project.review_comment}>
+                      {project.review_comment}
+                    </div>
+                  )}
+                </div>
               </td>
               <td className="px-4 py-4 text-right align-top">
                 <div className="flex justify-end space-x-1">

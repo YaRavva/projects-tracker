@@ -80,6 +80,19 @@ const ImportPRDForm: React.FC = () => {
     try {
       if (!user) throw new Error('Пользователь не авторизован');
 
+      // Проверяем роль пользователя
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('roles')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) {
+        throw new Error('Ошибка при получении профиля пользователя');
+      }
+
+      const isAdmin = profileData?.roles === 'admin';
+
       // Создаем новый проект
       console.log('Creating project with deadline:', preview.deadline);
       const { data: project, error: projectError } = await supabase
@@ -92,7 +105,8 @@ const ImportPRDForm: React.FC = () => {
             demo_url: preview.demo_url || null,
             owner_id: user.id,
             progress: 0,
-            deadline: preview.deadline ? preview.deadline : null
+            deadline: preview.deadline ? preview.deadline : null,
+            status: isAdmin ? 'active' : 'pending' // Устанавливаем статус в зависимости от роли
           }
         ])
         .select()

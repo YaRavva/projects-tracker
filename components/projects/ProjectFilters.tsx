@@ -48,7 +48,7 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ onFilterChange }) => {
               onChange={handleSearchChange}
             />
           </div>
-          
+
           <div>
             <label htmlFor="status" className="block text-sm font-medium text-gray-300 mb-1">
               Статус
@@ -61,11 +61,12 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ onFilterChange }) => {
             >
               <option value="all">Все проекты</option>
               <option value="active">Активные</option>
-              <option value="completed">Завершенные</option>
               <option value="pending">На рассмотрении</option>
+              <option value="returned">Возвращены</option>
+              <option value="rejected">Отклонены</option>
             </select>
           </div>
-          
+
           <div>
             <label htmlFor="sortBy" className="block text-sm font-medium text-gray-300 mb-1">
               Сортировка
@@ -89,4 +90,4 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ onFilterChange }) => {
   );
 };
 
-export default ProjectFilters; 
+export default ProjectFilters;
