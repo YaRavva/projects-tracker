@@ -363,6 +363,26 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     }
   };
 
+  // Функция для скачивания шаблона PRD
+  const handleDownloadTemplate = async () => {
+    try {
+      // Создаем ссылку на файл шаблона
+      const a = document.createElement('a');
+      a.href = '/templates/PRD_template.md';
+      a.download = 'PRD_template.md';
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+
+      // Добавляем ссылку в DOM, кликаем по ней и удаляем
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Ошибка при скачивании шаблона:', error);
+      setError('Не удалось скачать шаблон PRD');
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -553,7 +573,20 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
       <div className="mb-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-medium text-cryptix-green">Данные проекта</h3>
-          <div>
+          <div className="flex space-x-2">
+            {/* Кнопка Скачать шаблон */}
+            <button
+              type="button"
+              onClick={handleDownloadTemplate}
+              className="inline-flex items-center px-3 py-1.5 bg-cryptix-green/20 text-cryptix-green text-sm font-medium rounded-md border border-cryptix-green/30 hover:bg-cryptix-green/30 transition-colors cursor-pointer"
+            >
+              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Скачать шаблон
+            </button>
+
+            {/* Кнопка Импорт из PRD.md */}
             <label className="inline-flex items-center px-3 py-1.5 bg-cryptix-green/20 text-cryptix-green text-sm font-medium rounded-md border border-cryptix-green/30 hover:bg-cryptix-green/30 transition-colors cursor-pointer">
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
