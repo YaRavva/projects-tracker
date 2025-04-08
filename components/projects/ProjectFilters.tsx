@@ -1,6 +1,11 @@
 import React, { useState } from 'react';
 
 interface ProjectFiltersProps {
+  initialFilters?: {
+    search: string;
+    status: string;
+    sortBy: string;
+  };
   onFilterChange: (filters: {
     search: string;
     status: string;
@@ -8,10 +13,10 @@ interface ProjectFiltersProps {
   }) => void;
 }
 
-const ProjectFilters: React.FC<ProjectFiltersProps> = ({ onFilterChange }) => {
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('all');
-  const [sortBy, setSortBy] = useState('newest');
+const ProjectFilters: React.FC<ProjectFiltersProps> = ({ initialFilters, onFilterChange }) => {
+  const [search, setSearch] = useState(initialFilters?.search || '');
+  const [status, setStatus] = useState(initialFilters?.status || 'all');
+  const [sortBy, setSortBy] = useState(initialFilters?.sortBy || 'newest');
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -32,7 +37,7 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ onFilterChange }) => {
   };
 
   return (
-    <div className="glass-card mb-6">
+    <div className="glass-card mb-6 mt-8">
       <div className="glass-card-body">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
@@ -43,7 +48,7 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ onFilterChange }) => {
               type="text"
               id="search"
               placeholder="Название проекта..."
-              className="w-full px-3 py-2 bg-crypto-black/50 border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-crypto-green-500/50"
+              className="glass-input w-full px-3 h-10 bg-cryptix-darker border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30 focus:border-cryptix-green/50"
               value={search}
               onChange={handleSearchChange}
             />
@@ -55,7 +60,7 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ onFilterChange }) => {
             </label>
             <select
               id="status"
-              className="w-full px-3 py-2 bg-crypto-black/50 border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-crypto-green-500/50"
+              className="w-full px-3 h-10 bg-cryptix-darker border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30 focus:border-cryptix-green/50"
               value={status}
               onChange={handleStatusChange}
             >
@@ -73,7 +78,7 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ onFilterChange }) => {
             </label>
             <select
               id="sortBy"
-              className="w-full px-3 py-2 bg-crypto-black/50 border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-crypto-green-500/50"
+              className="w-full px-3 h-10 bg-cryptix-darker border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30 focus:border-cryptix-green/50"
               value={sortBy}
               onChange={handleSortChange}
             >

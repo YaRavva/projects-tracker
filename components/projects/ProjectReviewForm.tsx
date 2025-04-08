@@ -53,7 +53,7 @@ const ProjectReviewForm: React.FC<ProjectReviewFormProps> = ({
         return;
       }
 
-      // Отправляем запрос на обновление статуса
+      // Отправляем запрос на обновление статуса через API
       const response = await fetch('/api/projects/update-status', {
         method: 'POST',
         headers: {
@@ -70,33 +70,6 @@ const ProjectReviewForm: React.FC<ProjectReviewFormProps> = ({
         const errorData = await response.json();
         throw new Error(errorData.message || 'Ошибка при обновлении статуса проекта');
       }
-
-      // Обновляем статус проекта напрямую в базе данных
-      // (это временное решение, пока не реализован API)
-      const { error: updateError } = await supabase
-        .from('projects')
-        .update({
-          status: newStatus,
-          review_comment: action !== 'approve' ? comment.trim() : null,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', projectId);
-
-      if (updateError) throw updateError;
-
-      // Добавляем запись в историю рассмотрения
-      const { error: reviewError } = await supabase
-        .from('project_reviews')
-        .insert([
-          {
-            project_id: projectId,
-            reviewer_id: (await supabase.auth.getUser()).data.user?.id,
-            status: newStatus,
-            comment: action !== 'approve' ? comment.trim() : null
-          }
-        ]);
-
-      if (reviewError) throw reviewError;
 
       setSuccess(`Проект успешно ${actionText}`);
       setComment('');

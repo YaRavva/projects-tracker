@@ -1,4 +1,4 @@
-export type ProjectStatus = 'pending' | 'approved' | 'rejected' | 'in_progress' | 'completed';
+export type ProjectStatus = 'active' | 'pending' | 'returned' | 'rejected';
 
 export type ProjectMemberRole = 'leader' | 'member';
 
@@ -7,9 +7,14 @@ export interface Project {
   title: string;
   description: string | null;
   status: ProjectStatus;
+  review_comment?: string | null;
   owner_id: string;
   created_at: string;
   updated_at: string;
+  deadline?: string | null;
+  progress?: number;
+  repository_url?: string | null;
+  demo_url?: string | null;
 }
 
 export interface ProjectMember {
@@ -54,4 +59,14 @@ export interface ProjectWithDetails extends Project {
   stages: ProjectStage[];
   links: ProjectLink[];
   progress: number; // Процент выполнения от 0 до 100
-} 
+}
+
+export interface ProjectReview {
+  id: string;
+  project_id: string;
+  reviewer_id: string;
+  status: ProjectStatus;
+  comment: string | null;
+  created_at: string;
+  reviewer?: Profile;
+}

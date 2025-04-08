@@ -62,7 +62,10 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
       if (stagesError) throw stagesError;
 
       // Обрабатываем метаданные
-      const teamMembers = metaData?.find(item => item.key === 'team_members')?.value || [];
+      console.log('Метаданные проекта:', metaData);
+      const teamMembersItem = metaData?.find(item => item.key === 'team_members');
+      console.log('Данные об участниках:', teamMembersItem);
+      const teamMembers = teamMembersItem?.value || [];
 
       // Формируем полные данные проекта
       const fullProjectData = {
@@ -105,9 +108,9 @@ const EditProjectModal: React.FC<EditProjectModalProps> = ({
           {error}
         </div>
       ) : projectData ? (
-        <ProjectForm 
-          initialData={projectData} 
-          mode="edit" 
+        <ProjectForm
+          initialData={projectData}
+          mode="edit"
           onSuccess={handleProjectUpdated}
         />
       ) : (

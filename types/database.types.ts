@@ -42,6 +42,8 @@ export type Database = {
           title: string
           description: string | null
           owner_id: string
+          status: string
+          review_comment: string | null
           created_at: string
           updated_at: string
           deadline: string | null
@@ -54,6 +56,8 @@ export type Database = {
           title: string
           description?: string | null
           owner_id: string
+          status?: string
+          review_comment?: string | null
           created_at?: string
           updated_at?: string
           deadline?: string | null
@@ -66,6 +70,8 @@ export type Database = {
           title?: string
           description?: string | null
           owner_id?: string
+          status?: string
+          review_comment?: string | null
           created_at?: string
           updated_at?: string
           deadline?: string | null
@@ -175,6 +181,32 @@ export type Database = {
           project_id?: string
           title?: string
           url?: string
+          created_at?: string
+        }
+      }
+      project_reviews: {
+        Row: {
+          id: string
+          project_id: string
+          reviewer_id: string
+          status: string
+          comment: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          reviewer_id: string
+          status: string
+          comment?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          reviewer_id?: string
+          status?: string
+          comment?: string | null
           created_at?: string
         }
       }

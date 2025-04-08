@@ -73,7 +73,7 @@ const ProjectStatusBadge: React.FC<ProjectStatusBadgeProps> = ({ status, classNa
   const { text, bgColor, textColor, borderColor, icon } = getStatusConfig();
 
   return (
-    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${bgColor} ${textColor} border ${borderColor} ${className}`}>
+    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${bgColor} ${textColor} border ${borderColor} ${className}`}>
       {icon}
       {text}
     </span>

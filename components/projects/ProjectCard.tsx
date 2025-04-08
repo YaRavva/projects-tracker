@@ -1,5 +1,6 @@
 import React from 'react';
 import { calculateDaysLeft, getDaysLeftText } from '../../lib/utils';
+import ProjectStatusBadge, { ProjectStatus } from './ProjectStatusBadge';
 
 interface ProjectCardProps {
   id: string;
@@ -12,6 +13,8 @@ interface ProjectCardProps {
   progress: number;
   deadline?: string;
   members: number;
+  status?: ProjectStatus;
+  review_comment?: string | null;
 }
 
 const ProjectCard: React.FC<ProjectCardProps> = ({
@@ -22,6 +25,8 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
   progress,
   deadline,
   members,
+  status = 'active',
+  review_comment,
 }) => {
   const daysLeft = deadline ? calculateDaysLeft(deadline) : null;
   const daysLeftText = daysLeft !== null ? getDaysLeftText(daysLeft) : null;
@@ -41,15 +46,31 @@ const ProjectCard: React.FC<ProjectCardProps> = ({
           <h3 className="text-xl font-semibold text-white truncate">
             {name}
           </h3>
-          {daysLeftText && (
-            <span className={getDeadlineBadgeClass()}>
-              {daysLeftText}
-            </span>
-          )}
+          <div className="flex items-center space-x-2">
+            <ProjectStatusBadge status={status} />
+            {daysLeftText && (
+              <span className={getDeadlineBadgeClass()}>
+                {daysLeftText}
+              </span>
+            )}
+          </div>
         </div>
 
         {description && (
           <p className="text-gray-300 mb-4 line-clamp-2">{description}</p>
+        )}
+
+        {/* Отображаем комментарий администратора для возвращенных и отклоненных проектов */}
+        {review_comment && (status === 'returned' || status === 'rejected') && (
+          <div className="mb-4 p-2 bg-crypto-black/30 border border-glass-border rounded-md">
+            <p className="text-sm text-gray-300 line-clamp-2">
+              <span className="text-xs font-medium text-gray-400">
+                {status === 'returned' ? 'Комментарий для доработки:' : 'Причина отклонения:'}
+              </span>
+              <br />
+              {review_comment}
+            </p>
+          </div>
         )}
 
         <div className="mb-4">

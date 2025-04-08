@@ -11,6 +11,8 @@ type Project = Database['public']['Tables']['projects']['Row'] & {
   progress: number;
   deadline?: string;
   members_count: number;
+  status: 'active' | 'pending' | 'returned' | 'rejected';
+  review_comment?: string | null;
 };
 
 interface ProjectListProps {
@@ -50,6 +52,8 @@ const ProjectList: React.FC<ProjectListProps> = ({ projects, isLoading }) => {
           progress={project.progress}
           deadline={project.deadline}
           members={project.members_count}
+          status={project.status}
+          review_comment={project.review_comment}
         />
       ))}
     </div>

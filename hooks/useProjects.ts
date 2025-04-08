@@ -10,7 +10,7 @@ export const useProjects = () => {
 
   const fetchProjects = async (filters?: {
     search?: string;
-    status?: string;
+    status?: 'all' | 'active' | 'pending' | 'returned' | 'rejected';
     sortBy?: string;
   }) => {
     if (!user) return;
@@ -44,24 +44,56 @@ export const useProjects = () => {
         query = query.or(`status.eq.active,owner_id.eq.${user.id}`);
       }
 
+      // Если администратор фильтрует по статусу 'pending', показываем только проекты на рассмотрении
+      if (isAdmin && filters?.status === 'pending') {
+        query = query.eq('status', 'pending');
+      }
+
+      // Если администратор фильтрует по статусу 'returned', показываем только возвращенные проекты
+      if (isAdmin && filters?.status === 'returned') {
+        query = query.eq('status', 'returned');
+      }
+
+      // Если администратор фильтрует по статусу 'rejected', показываем только отклоненные проекты
+      if (isAdmin && filters?.status === 'rejected') {
+        query = query.eq('status', 'rejected');
+      }
+
       // Дополнительно фильтруем по участию в проекте
       // query = query.or(`owner_id.eq.${user.id},project_members.user_id.eq.${user.id}`);
 
-      // Применяем фильтры
+      // Применяем фильтры поиска
       if (filters?.search) {
-        query = query.ilike('name', `%${filters.search}%`);
+        console.log('Применяем фильтр поиска:', filters.search);
+        query = query.ilike('title', `%${filters.search}%`);
       }
 
-      if (filters?.status && filters.status !== 'all') {
-        // Здесь нужно адаптировать под вашу структуру данных
-        // Например, если у вас есть поле status в таблице projects
-        query = query.eq('status', filters.status);
+      // Применяем фильтр по статусу, если он указан и не равен 'all'
+      // Для администраторов фильтрация уже применена выше
+      if (filters?.status && filters.status !== 'all' && !isAdmin) {
+        // Для обычных пользователей показываем только активные проекты или их собственные проекты с указанным статусом
+        if (filters.status === 'active') {
+          query = query.eq('status', 'active');
+        } else {
+          // Для других статусов показываем только собственные проекты пользователя
+          query = query.eq('status', filters.status).eq('owner_id', user.id);
+        }
       }
 
       // Получаем данные
       const { data, error } = await query;
 
       if (error) throw error;
+
+      // Загружаем информацию об участниках проектов из метаданных
+      const { data: teamMembersData, error: teamMembersError } = await supabase
+        .from('project_meta')
+        .select('project_id, key, value')
+        .eq('key', 'team_members');
+
+      if (teamMembersError) {
+        console.error('Ошибка при загрузке данных об участниках:', teamMembersError);
+      }
 
       // Обрабатываем данные
       const processedProjects = data.map(project => {
@@ -73,11 +105,16 @@ export const useProjects = () => {
         // Получаем количество участников
         const membersCount = (project.project_members || []).length;
 
+        // Находим участников проекта в метаданных
+        const teamMembersEntry = teamMembersData?.find(entry => entry.project_id === project.id);
+        const teamMembers = teamMembersEntry ? teamMembersEntry.value : [];
+
         return {
           ...project,
           owner: project.profiles,
           progress,
-          members_count: membersCount
+          members_count: membersCount,
+          team_members: teamMembers
         };
       });
 
@@ -90,7 +127,7 @@ export const useProjects = () => {
             case 'oldest':
               return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
             case 'name':
-              return a.name.localeCompare(b.name);
+              return a.title.localeCompare(b.title);
             case 'progress':
               return b.progress - a.progress;
             case 'deadline':
@@ -110,7 +147,6 @@ export const useProjects = () => {
 
       setProjects(processedProjects);
     } catch (err: any) {
-      console.error('Ошибка при загрузке проектов:', err);
       setError(err.message || 'Не удалось загрузить проекты');
     } finally {
       setIsLoading(false);

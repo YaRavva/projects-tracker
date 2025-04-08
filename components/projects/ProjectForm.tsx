@@ -452,29 +452,39 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
       if (projectError) throw projectError;
 
       // Сохраняем информацию об участниках в метаданных проекта
+      console.log('Участники из формы:', formData.team_members);
       const validTeamMembers = formData.team_members.filter(member => member.name.trim());
+      console.log('Валидные участники:', validTeamMembers);
+
       if (validTeamMembers.length > 0) {
         if (mode === 'edit' && formData.id) {
           // Сначала удаляем существующие метаданные
-          await supabase
+          console.log('Удаляем существующие метаданные для проекта:', formData.id);
+          const { error: deleteError } = await supabase
             .from('project_meta')
             .delete()
             .eq('project_id', formData.id)
             .eq('key', 'team_members');
+
+          if (deleteError) console.error('Ошибка при удалении существующих метаданных:', deleteError);
         }
 
         // Затем добавляем новые
+        console.log('Добавляем новые метаданные для проекта:', project.id);
+        const metaData = {
+          project_id: project.id,
+          key: 'team_members',
+          value: validTeamMembers
+        };
+        console.log('Данные для вставки:', metaData);
+
         const { error: metaError } = await supabase
           .from('project_meta')
-          .insert([
-            {
-              project_id: project.id,
-              key: 'team_members',
-              value: validTeamMembers
-            }
-          ]);
+          .insert([metaData]);
 
         if (metaError) console.error('Ошибка при сохранении участников:', metaError);
+      } else {
+        console.log('Нет валидных участников для сохранения');
       }
 
       // Сохраняем этапы проекта

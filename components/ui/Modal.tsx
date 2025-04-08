@@ -6,14 +6,16 @@ interface ModalProps {
   title: string;
   children: React.ReactNode;
   size?: 'sm' | 'md' | 'lg' | 'xl';
+  statusBadge?: React.ReactNode;
 }
 
-const Modal: React.FC<ModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  title, 
+const Modal: React.FC<ModalProps> = ({
+  isOpen,
+  onClose,
+  title,
   children,
-  size = 'md'
+  size = 'md',
+  statusBadge
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
 
@@ -54,17 +56,20 @@ const Modal: React.FC<ModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div 
+    <div
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
       onClick={handleBackdropClick}
     >
-      <div 
+      <div
         ref={modalRef}
         className={`w-full ${sizeClasses[size]} bg-cryptix-darker border border-glass-border rounded-lg shadow-xl transform transition-all`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-4 border-b border-glass-border">
-          <h3 className="text-xl font-medium text-white">{title}</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-xl font-medium text-white">{title}</h3>
+            {statusBadge && statusBadge}
+          </div>
           <button
             type="button"
             className="text-gray-400 hover:text-white transition-colors"
