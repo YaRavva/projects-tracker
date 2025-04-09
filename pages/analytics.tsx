@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import Layout from '../components/layout/Layout';
 import ProtectedRoute from '../components/auth/ProtectedRoute';
-import EnhancedPieChart from '../components/analytics/EnhancedPieChart';
+import StatusBarChart from '../components/analytics/StatusBarChart';
+import ProgressCards from '../components/analytics/ProgressCards';
+import ProjectHeatmap from '../components/analytics/ProjectHeatmap';
+import ProjectFunnel from '../components/analytics/ProjectFunnel';
+import RadialProgress from '../components/analytics/RadialProgress';
 import ActivityGraph from '../components/analytics/ActivityGraph';
 import ProjectStats from '../components/analytics/ProjectStats';
 import StatsCard from '../components/analytics/StatsCard';
@@ -68,7 +72,12 @@ const AnalyticsPage: React.FC = () => {
         const totalProjects = projects?.length || 0;
         const completedProjects = projects?.filter(p => p.progress === 100)?.length || 0;
         const inProgressProjects = projects?.filter(p => p.progress > 0 && p.progress < 100)?.length || 0;
-        const notStartedProjects = projects?.filter(p => p.progress === 0)?.length || 0;
+
+        // Рассчитываем количество проектов по статусам
+        const activeProjects = projects?.filter(p => p.status === 'active')?.length || 0;
+        const pendingProjects = projects?.filter(p => p.status === 'pending')?.length || 0;
+        const returnedProjects = projects?.filter(p => p.status === 'returned')?.length || 0;
+        const rejectedProjects = projects?.filter(p => p.status === 'rejected')?.length || 0;
 
         // Средний прогресс
         const totalProgress = projects?.reduce((acc, project) => acc + (project.progress || 0), 0) || 0;
@@ -105,11 +114,12 @@ const AnalyticsPage: React.FC = () => {
           projectsLastMonth
         });
 
-        // Данные для графика прогресса
+        // Данные для графика статусов проектов
         setProgressData([
-          { name: 'Завершено', value: completedProjects, color: '#00ff9d' },
-          { name: 'В процессе', value: inProgressProjects, color: '#7dffcb' },
-          { name: 'Не начато', value: notStartedProjects, color: '#8892b0' },
+          { name: 'Активный', value: activeProjects, color: '#00ff9d' },
+          { name: 'На рассмотрении', value: pendingProjects, color: '#7dffcb' },
+          { name: 'Возвращен', value: returnedProjects, color: '#ffcc00' },
+          { name: 'Отклонен', value: rejectedProjects, color: '#ff6b6b' },
         ]);
 
         // Данные для графика активности
@@ -184,7 +194,7 @@ const AnalyticsPage: React.FC = () => {
 
           {loading ? (
             <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-cryptix-green"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-cryptix-green shadow-glow"></div>
             </div>
           ) : (
             <>
@@ -239,19 +249,44 @@ const AnalyticsPage: React.FC = () => {
               {/* Графики */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div className="bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg p-6 shadow-glass">
-                  <h2 className="text-xl font-semibold text-white mb-4">Статус проектов</h2>
-                  <EnhancedPieChart data={progressData} />
+                  <h2 className="text-xl font-semibold text-white mb-4">Статусы проектов</h2>
+                  <StatusBarChart key={`status-chart-${Date.now()}`} data={progressData} />
                 </div>
                 <div className="bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg p-6 shadow-glass">
                   <h2 className="text-xl font-semibold text-white mb-4">Активность по месяцам</h2>
-                  <ActivityGraph data={activityData} />
+                  <ActivityGraph key={`activity-graph-${Date.now()}`} data={activityData} />
                 </div>
               </div>
 
               {/* Статистика проектов */}
               <div className="bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg p-6 shadow-glass mb-8">
                 <h2 className="text-xl font-semibold text-white mb-4">Проекты по месяцам</h2>
-                <ProjectStats data={projectStatsData} />
+                <ProjectStats key={`project-stats-${Date.now()}`} data={projectStatsData} />
+              </div>
+
+              {/* Альтернативные визуализации статусов проектов */}
+              <h2 className="text-2xl font-bold text-white mb-4">Альтернативные визуализации статусов проектов</h2>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div className="bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg p-6 shadow-glass">
+                  <h2 className="text-xl font-semibold text-white mb-4">Карточки статусов</h2>
+                  <ProgressCards key={`progress-cards-${Date.now()}`} data={progressData} />
+                </div>
+                <div className="bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg p-6 shadow-glass">
+                  <h2 className="text-xl font-semibold text-white mb-4">Тепловая карта проектов</h2>
+                  <ProjectHeatmap key={`project-heatmap-${Date.now()}`} data={progressData} />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                <div className="bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg p-6 shadow-glass">
+                  <h2 className="text-xl font-semibold text-white mb-4">Воронка статусов</h2>
+                  <ProjectFunnel key={`project-funnel-${Date.now()}`} data={progressData} />
+                </div>
+                <div className="bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg p-6 shadow-glass">
+                  <h2 className="text-xl font-semibold text-white mb-4">Радиальная диаграмма</h2>
+                  <RadialProgress key={`radial-progress-${Date.now()}`} data={progressData} />
+                </div>
               </div>
             </>
           )}

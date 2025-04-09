@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { NextPage } from 'next';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout from '../../components/layout/Layout';
@@ -9,7 +10,7 @@ import ProtectedRoute from '../../components/auth/ProtectedRoute';
 import AddProjectModal from '../../components/projects/AddProjectModal';
 import ProjectFilters from '../../components/projects/ProjectFilters';
 import ProjectModal from '../../components/projects/ProjectModal';
-import { useProjects } from '../../hooks/useProjects';
+// Удален неиспользуемый импорт useProjects
 
 interface Project {
   id: string;
@@ -35,9 +36,11 @@ interface Project {
 
 const ProjectsPage: NextPage = () => {
   const { user } = useAuth();
-  const { projects: allProjects, isLoading, error, fetchProjects } = useProjects();
+  const router = useRouter();
+  // Не используем хук useProjects, так как загружаем данные напрямую
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Состояние для модальных окон
   const [isProjectModalOpen, setIsProjectModalOpen] = useState(false);
@@ -48,161 +51,249 @@ const ProjectsPage: NextPage = () => {
   // Состояние для фильтров
   const [showOnlyMyProjects, setShowOnlyMyProjects] = useState(false);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
-  const [userProfile, setUserProfile] = useState<{ full_name: string } | null>(null);
+  // Удалено неиспользуемое состояние userProfile
+  // Инициализируем флаг готовности данных как false, чтобы показывать спиннер до загрузки данных
+  const [dataReady, setDataReady] = useState(false);
+
+  // Сбрасываем флаг готовности данных при монтировании компонента и при изменении маршрута
+  useEffect(() => {
+    // Сбрасываем флаг готовности данных при монтировании
+    setDataReady(false);
+    setLoading(true);
+
+    // При переходе на страницу проектов сбрасываем флаг готовности данных
+    const handleRouteChange = (url: string) => {
+      if (url === '/projects') {
+        setDataReady(false);
+        setLoading(true);
+      }
+    };
+
+    // Подписываемся на событие изменения маршрута
+    if (router.events) {
+      router.events.on('routeChangeComplete', handleRouteChange);
+
+      // Отписываемся при размонтировании
+      return () => {
+        router.events.off('routeChangeComplete', handleRouteChange);
+      };
+    }
+
+    return () => {};
+  }, [router]);
   const [filters, setFilters] = useState({
     search: '',
     status: 'all',
     sortBy: 'newest'
   });
 
-  // Функция для загрузки проектов (устарела, используется хук useProjects)
-  const loadProjects = async () => {
-    if (!user) return;
-
-    try {
-      setLoading(true);
-      // Запрашиваем все проекты и связанные профили
-      const { data: projectsData, error: projectsError } = await supabase
-        .from('projects')
-        .select('*');
-
-      if (projectsError) throw projectsError;
-
-      // Запрашиваем все профили
-      const { data: profilesData, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, full_name');
-
-      if (profilesError) throw profilesError;
-
-      // Запрашиваем информацию об участниках проектов
-      const { data: teamMembersData, error: teamMembersError } = await supabase
-        .from('project_meta')
-        .select('project_id, key, value')
-        .eq('key', 'team_members');
-
-      if (teamMembersError) throw teamMembersError;
-
-      // Объединяем данные проектов и профилей
-      console.log('Projects data:', projectsData);
-      console.log('Profiles data:', profilesData);
-      console.log('Team members data:', teamMembersData);
-
-      // Дополнительная отладочная информация о структуре данных участников
-      if (teamMembersData && teamMembersData.length > 0) {
-        console.log('Пример данных участников:', teamMembersData[0]);
-        console.log('Тип данных value:', typeof teamMembersData[0].value);
-        console.log('Структура value:', JSON.stringify(teamMembersData[0].value, null, 2));
+  // Централизованный эффект для загрузки и фильтрации данных
+  useEffect(() => {
+    // Функция для загрузки данных и их фильтрации
+    const loadAndFilterData = async () => {
+      // Если это контекстный поиск, не показываем спиннер
+      if (filters.search && projects.length > 0) {
+        // Для контекстного поиска не сбрасываем флаги
+      } else {
+        // Сбрасываем флаг готовности данных и устанавливаем состояние загрузки
+        setDataReady(false);
+        setLoading(true);
       }
 
-      // Добавляем информацию о пользователях и участниках в проекты
-      const projectsWithProfiles = (projectsData || []).map(project => {
-        // Находим профиль добавившего проект
-        const ownerProfile = profilesData?.find(profile => profile.id === project.owner_id);
-
-        // Находим участников проекта
-        const teamMembersEntry = teamMembersData?.find(entry => entry.project_id === project.id);
-
-        // Дополнительная отладочная информация о структуре данных участников конкретного проекта
-        if (teamMembersEntry) {
-          console.log(`Участники проекта ${project.title}:`, teamMembersEntry);
-          console.log(`Тип данных value для проекта ${project.title}:`, typeof teamMembersEntry.value);
-          console.log(`Структура value для проекта ${project.title}:`, JSON.stringify(teamMembersEntry.value, null, 2));
-        }
-
-        const teamMembers = teamMembersEntry ? teamMembersEntry.value : [];
-
-        return {
-          ...project,
-          profiles: ownerProfile || { full_name: 'Не указан' },
-          team_members: teamMembers
-        };
-      });
-
-      console.log('Projects with profiles:', projectsWithProfiles);
-      setProjects(projectsWithProfiles);
-    } catch (err: any) {
-      console.error('Ошибка при загрузке проектов:', err);
-      setError(err.message || 'Не удалось загрузить проекты');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Загрузка профиля пользователя
-  const fetchUserProfile = async () => {
-    if (!user) return;
-
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('full_name')
-        .eq('id', user.id)
-        .single();
-
-      if (error) {
-        console.error('Error fetching user profile:', error);
+      // Проверяем, что пользователь авторизован
+      if (!user) {
+        setLoading(false);
         return;
       }
 
-      console.log('User profile loaded:', data);
-      setUserProfile(data);
-    } catch (err) {
-      console.error('Error in fetchUserProfile:', err);
-    }
-  };
+      // Если это контекстный поиск и у нас уже есть загруженные проекты
+      if (filters.search && projects.length > 0) {
+        // Фильтруем существующие проекты по поисковому запросу
+        const searchResults = projects.filter(project =>
+          project.title.toLowerCase().includes(filters.search.toLowerCase())
+        );
 
-  useEffect(() => {
-    if (user) {
-      fetchProjects(filters);
-      fetchUserProfile();
-    }
-  }, [user?.id, filters]);
+        // Применяем фильтр "Показывать только мои проекты"
+        if (showOnlyMyProjects) {
+          const mySearchResults = searchResults.filter(project => {
+            if (project.team_members && project.team_members.length > 0) {
+              return project.team_members.some((member: { name: string }) => {
+                return member.name === user.user_metadata?.full_name;
+              });
+            }
+            return false;
+          });
+          setFilteredProjects(mySearchResults);
+        } else {
+          setFilteredProjects(searchResults);
+        }
 
-  // Обновляем локальное состояние проектов при изменении данных из хука
-  useEffect(() => {
-    // Устанавливаем состояние загрузки и обновляем проекты
-    setLoading(isLoading);
-    setProjects(allProjects as Project[]);
-  }, [allProjects, isLoading]);
-
-  // Фильтрация проектов при изменении фильтра или списка проектов
-  useEffect(() => {
-    // Если нет проектов или фильтр выключен, показываем все проекты
-    if (projects.length === 0 || !showOnlyMyProjects || !user) {
-      setFilteredProjects(projects);
-      return;
-    }
-
-    // Фильтруем проекты по участию пользователя
-    const myProjects = projects.filter(project => {
-      // Проверяем, есть ли пользователь среди участников проекта
-      if (!userProfile || !userProfile.full_name) {
-        console.log('User profile not loaded yet');
-        return false;
+        // Устанавливаем флаг готовности данных мгновенно
+        setLoading(false);
+        setDataReady(true);
+        return;
       }
 
-      if (project.team_members && project.team_members.length > 0) {
-        // Получаем имя пользователя из профиля
-        const userFullName = userProfile.full_name;
-        console.log(`Checking if user ${userFullName} is in project ${project.title} team members:`, project.team_members);
+      try {
+        // Загружаем профиль пользователя
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
 
-        // Проверяем по имени пользователя
-        return project.team_members.some(member => {
-          const match = member.name === userFullName;
-          if (match) {
-            console.log(`Found match for user ${userFullName} in project ${project.title}`);
+        // Загружаем профиль пользователя для проверки роли
+        const { data: profileRoleData } = await supabase
+          .from('profiles')
+          .select('roles')
+          .eq('id', user.id)
+          .single();
+
+        const isAdmin = profileRoleData?.roles === 'admin';
+
+        // Загружаем проекты с применением фильтров
+        let query = supabase
+          .from('projects')
+          .select(`
+            *,
+            profiles:owner_id (email, full_name),
+            project_members!project_id (id),
+            project_stages!project_id (id, completed)
+          `);
+
+        // Если пользователь не админ, ограничиваем видимость проектов
+        if (!isAdmin) {
+          // Пользователь видит все активные проекты и свои проекты в любом статусе
+          query = query.or(`status.eq.active,owner_id.eq.${user.id}`);
+        }
+
+        // Применяем фильтр по статусу, если он указан и не равен 'all'
+        if (filters.status && filters.status !== 'all') {
+          if (isAdmin) {
+            // Для администраторов показываем проекты с указанным статусом
+            query = query.eq('status', filters.status);
+          } else {
+            // Для обычных пользователей показываем только активные проекты или их собственные проекты с указанным статусом
+            if (filters.status === 'active') {
+              query = query.eq('status', 'active');
+            } else {
+              // Для других статусов показываем только собственные проекты пользователя
+              query = query.eq('status', filters.status).eq('owner_id', user.id);
+            }
           }
-          return match;
+        }
+
+        // Применяем фильтр поиска
+        if (filters.search) {
+          query = query.ilike('title', `%${filters.search}%`);
+        }
+
+        // Получаем данные
+        const { data: projectsData, error: projectsError } = await query;
+
+        if (projectsError) {
+          throw projectsError;
+        }
+
+        // Загружаем информацию об участниках проектов
+        const { data: teamMembersData, error: teamMembersError } = await supabase
+          .from('project_meta')
+          .select('project_id, key, value')
+          .eq('key', 'team_members');
+
+        if (teamMembersError) {
+          console.error('Ошибка при загрузке данных об участниках:', teamMembersError);
+        }
+
+        // Обрабатываем данные
+        const processedProjects = (projectsData || []).map(project => {
+          // Вычисляем прогресс на основе завершенных этапов
+          const stages = project.project_stages || [];
+          const completedStages = stages.filter((stage: any) => stage.completed).length;
+          const progress = stages.length > 0 ? Math.round((completedStages / stages.length) * 100) : 0;
+
+          // Получаем количество участников
+          const membersCount = (project.project_members || []).length;
+
+          // Находим участников проекта в метаданных
+          const teamMembersEntry = teamMembersData?.find(entry => entry.project_id === project.id);
+          const teamMembers = teamMembersEntry ? teamMembersEntry.value : [];
+
+          return {
+            ...project,
+            owner: project.profiles,
+            progress,
+            members_count: membersCount,
+            team_members: teamMembers
+          };
         });
+
+        // Сортируем проекты
+        const sortedProjects = [...processedProjects].sort((a, b) => {
+          switch (filters.sortBy) {
+            case 'newest':
+              return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+            case 'oldest':
+              return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+            case 'name':
+              return a.title.localeCompare(b.title);
+            case 'progress':
+              return b.progress - a.progress;
+            case 'deadline':
+              // Если есть дедлайны, сортируем по ним
+              if (a.deadline && b.deadline) {
+                return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+              }
+              // Проекты без дедлайна в конце
+              if (!a.deadline) return 1;
+              if (!b.deadline) return -1;
+              return 0;
+            default:
+              return 0;
+          }
+        });
+
+        // Обновляем локальное состояние проектов
+        setProjects(sortedProjects as Project[]);
+
+        // Применяем фильтр "Показывать только мои проекты"
+        if (showOnlyMyProjects && profileData?.full_name && sortedProjects.length > 0) {
+          const myProjects = sortedProjects.filter(project => {
+            if (project.team_members && project.team_members.length > 0) {
+              return project.team_members.some((member: { name: string }) => {
+                return member.name === profileData.full_name;
+              });
+            }
+            return false;
+          });
+          setFilteredProjects(myProjects as Project[]);
+        } else {
+          setFilteredProjects(sortedProjects as Project[]);
+        }
+
+        // Устанавливаем флаг готовности данных
+        // Если это контекстный поиск, показываем результаты мгновенно
+        if (filters.search) {
+          setLoading(false);
+          setDataReady(true);
+        } else {
+          // Для остальных случаев даем минимальную задержку
+          setTimeout(() => {
+            setLoading(false);
+            setDataReady(true);
+          }, 50);
+        }
+      } catch (err) {
+        console.error('Error loading projects:', err);
+        setError('Не удалось загрузить проекты');
+        setLoading(false);
       }
-      return false;
-    });
+    };
 
-    console.log('Filtered projects:', myProjects);
+    // Запускаем загрузку и фильтрацию данных
+    loadAndFilterData();
 
-    setFilteredProjects(myProjects);
-  }, [showOnlyMyProjects, projects, user?.id, userProfile]);
+  }, [user?.id, filters, showOnlyMyProjects]);
 
   // Функция для открытия модального окна редактирования
   const handleEditProject = (projectId: string) => {
@@ -226,12 +317,20 @@ const ProjectsPage: NextPage = () => {
 
   // Функция для обновления списка проектов после редактирования
   const handleProjectUpdated = () => {
-    fetchProjects(filters);
+    // Сбрасываем флаг готовности данных и перезагружаем данные
+    setDataReady(false);
+    setLoading(true);
+    // Изменение фильтров запустит эффект загрузки данных
+    setFilters({ ...filters });
   };
 
   // Функция для обновления списка проектов после добавления
   const handleProjectAdded = () => {
-    fetchProjects(filters);
+    // Сбрасываем флаг готовности данных и перезагружаем данные
+    setDataReady(false);
+    setLoading(true);
+    // Изменение фильтров запустит эффект загрузки данных
+    setFilters({ ...filters });
   };
 
   // Функция для обработки изменения фильтров
@@ -240,7 +339,15 @@ const ProjectsPage: NextPage = () => {
     status: string;
     sortBy: string;
   }) => {
-    setFilters(newFilters);
+    // Если это контекстный поиск, не показываем спиннер
+    if (newFilters.search && filters.search !== newFilters.search) {
+      // Сохраняем флаг готовности данных для контекстного поиска
+      setFilters(newFilters);
+    } else {
+      // Сбрасываем флаг готовности данных для других фильтров
+      setDataReady(false);
+      setFilters(newFilters);
+    }
   };
 
   const handleCreateProject = () => {
@@ -254,6 +361,8 @@ const ProjectsPage: NextPage = () => {
 
   // Функция для переключения фильтра "Показывать только мои проекты"
   const handleToggleMyProjects = () => {
+    // Сбрасываем флаг готовности данных при переключении фильтра
+    setDataReady(false);
     setShowOnlyMyProjects(!showOnlyMyProjects);
   };
 
@@ -297,9 +406,10 @@ const ProjectsPage: NextPage = () => {
             </button>
           </div>
 
-          {loading ? (
+
+          {loading || !dataReady ? (
             <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-crypto-green-500"></div>
+              <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-cryptix-green shadow-glow"></div>
             </div>
           ) : filteredProjects.length === 0 ? (
             <div className="bg-crypto-black/30 border border-glass-border rounded-lg p-8 text-center">

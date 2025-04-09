@@ -113,7 +113,12 @@ const ProjectViewModal: React.FC<ProjectViewModalProps> = ({
         // Если таблица project_reviews существует и есть комментарии
         if (!reviewsError && reviews && reviews.length > 0) {
           // Загружаем имена и роли пользователей для комментариев
-          const reviewerIds = [...new Set(reviews.map(review => review.reviewer_id))];
+          // Используем объект для уникальных ID вместо Set
+          const reviewerIdsMap: Record<string, boolean> = {};
+          reviews.forEach(review => {
+            reviewerIdsMap[review.reviewer_id] = true;
+          });
+          const reviewerIds = Object.keys(reviewerIdsMap);
 
           const { data: reviewers } = await supabase
             .from('profiles')
@@ -226,7 +231,7 @@ const ProjectViewModal: React.FC<ProjectViewModalProps> = ({
           throw updateError;
         } else {
           // Обновляем локальные данные проекта
-          setProjectData(prev => ({
+          setProjectData((prev: any) => ({
             ...prev,
             status: newStatus
           }));

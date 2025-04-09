@@ -63,9 +63,10 @@ const RadialProgressChart: React.FC<RadialProgressChartProps> = ({ data }) => {
             }}
             angleAxisId={0}
             data={chartData}
-            animationBegin={200}
-            animationDuration={1200}
+            animationBegin={0}
+            animationDuration={1500}
             animationEasing="ease-out"
+            isAnimationActive={true}
           />
           <Tooltip
             formatter={(value) => [`${value}`, 'Количество']}

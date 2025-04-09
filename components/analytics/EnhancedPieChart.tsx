@@ -103,9 +103,10 @@ const EnhancedPieChart: React.FC<EnhancedPieChartProps> = ({ data }) => {
                 nameKey="name"
                 onMouseEnter={onPieEnter}
                 paddingAngle={3}
-                animationBegin={200}
-                animationDuration={1200}
+                animationBegin={0}
+                animationDuration={1500}
                 animationEasing="ease-out"
+                isAnimationActive={true}
               >
                 {data.map((entry, index) => (
                   <Cell
