@@ -35,6 +35,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
   // Загружаем данные проекта при открытии модального окна
   useEffect(() => {
     if (isOpen && projectId) {
+      console.log('Modal opened, fetching project data for ID:', projectId);
       fetchProjectData();
       checkUserRole();
     }
@@ -95,6 +96,8 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
         .eq('project_id', projectId)
         .order('id', { ascending: true });
 
+      console.log('Loaded project stages:', stages);
+
       if (stagesError) throw stagesError;
 
       // Загружаем комментарии к проекту из таблицы project_reviews
@@ -138,12 +141,47 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
       const teamMembers = teamMembersItem?.value || [];
 
       // Формируем полные данные проекта
+      console.log('Preparing full project data with stages:', stages);
+
+      // Проверяем формат дат этапов
+      if (stages && stages.length > 0) {
+        stages.forEach((stage, index) => {
+          console.log(`Stage ${index} deadline:`, stage.deadline, 'type:', typeof stage.deadline);
+
+          // Добавляем поле display_deadline для отображения в формате дд.мм.гг
+          if (stage.deadline) {
+            try {
+              // Проверяем, что дата в формате ISO (YYYY-MM-DD)
+              if (typeof stage.deadline === 'string' && !stage.deadline.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                console.log(`Stage ${index} deadline is not in ISO format:`, stage.deadline);
+                // Преобразуем дату в формат ISO
+                const date = new Date(stage.deadline);
+                stage.deadline = date.toISOString().split('T')[0];
+                console.log(`Converted stage ${index} deadline to ISO format:`, stage.deadline);
+              }
+
+              const date = new Date(stage.deadline);
+              stage.display_deadline = date.toLocaleDateString('ru-RU', {
+                day: '2-digit',
+                month: '2-digit',
+                year: '2-digit'
+              });
+              console.log(`Added display_deadline for stage ${index}:`, stage.display_deadline);
+            } catch (e) {
+              console.error(`Error formatting date for stage ${index}:`, e);
+            }
+          }
+        });
+      }
+
       const fullProjectData = {
         ...project,
         team_members: teamMembers,
         stages: stages || [],
         reviews: processedReviews
       };
+
+      console.log('Full project data prepared:', fullProjectData);
 
       setProjectData(fullProjectData);
       setNewStatus(fullProjectData.status);
@@ -245,6 +283,9 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
       // Очищаем поле комментария
       setComment('');
 
+      // Обновляем данные проекта
+      fetchProjectData();
+
       return true; // Возвращаем true, если сохранение прошло успешно
 
       // Статус уже обновлен в списке проектов через onProjectUpdated
@@ -325,6 +366,9 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
 
         // Вызываем колбэк для обновления списка проектов
         onProjectUpdated();
+
+        // Обновляем данные проекта
+        fetchProjectData();
       } else {
         console.log('User does not have permission to delete this comment');
         setError('У вас нет прав на удаление этого комментария');
@@ -342,7 +386,11 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
   // Обработчик успешного обновления проекта
   const handleProjectUpdated = () => {
     console.log('handleProjectUpdated called');
+    // Обновляем данные проекта
+    fetchProjectData();
+    // Вызываем коллбэк для обновления списка проектов
     onProjectUpdated();
+    // Закрываем модальное окно
     handleClose();
   };
 
@@ -396,37 +444,43 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                 style={{ width: `${projectData.progress || 0}%` }}
               ></div>
             </div>
-            <p className="text-white text-xs mt-1 text-right">{projectData.progress || 0}%</p>
+            <p className="text-white text-xs mt-1 text-left">{projectData.progress || 0}%</p>
           </div>
           <div>
-            <p className="text-gray-400 text-sm mb-1">Ссылки</p>
-            <div className="flex space-x-3">
-              {projectData.repository_url && (
-                <a
-                  href={projectData.repository_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-cryptix-green hover:text-cryptix-green/80 transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                  </svg>
-                </a>
-              )}
-              {projectData.demo_url && (
-                <a
-                  href={projectData.demo_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-cryptix-green hover:text-cryptix-green/80 transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                </a>
-              )}
-            </div>
+            {(projectData.repository_url || projectData.demo_url) && (
+              <>
+                <p className="text-gray-400 text-sm mb-1">Ссылки</p>
+                <div className="flex flex-row space-x-3">
+                  {projectData.repository_url && (
+                    <a
+                      href={projectData.repository_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-3 py-1.5 bg-cryptix-green/10 text-cryptix-green text-sm font-medium rounded-md border border-cryptix-green/30 hover:bg-cryptix-green/20 transition-colors max-w-fit"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                      </svg>
+                      Репозиторий
+                    </a>
+                  )}
+                  {projectData.demo_url && (
+                    <a
+                      href={projectData.demo_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center px-3 py-1.5 bg-cryptix-green/10 text-cryptix-green text-sm font-medium rounded-md border border-cryptix-green/30 hover:bg-cryptix-green/20 transition-colors max-w-fit"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      Демо-версия
+                    </a>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -621,13 +675,20 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
   );
 
   // Содержимое вкладки "Редактирование"
-  const renderEditTab = () => (
-    <ProjectForm
-      initialData={projectData}
-      mode="edit"
-      onSuccess={handleProjectUpdated}
-    />
-  );
+  const renderEditTab = () => {
+    console.log('Rendering edit tab with projectData:', projectData);
+    if (projectData && projectData.stages) {
+      console.log('Project stages:', projectData.stages);
+    }
+
+    return (
+      <ProjectForm
+        initialData={projectData}
+        mode="edit"
+        onSuccess={handleProjectUpdated}
+      />
+    );
+  };
 
   return (
     <Modal
@@ -662,7 +723,14 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
             ] : [])
           ]}
           defaultTab={activeTab}
-          onChange={(tabId) => setActiveTab(tabId as 'view' | 'edit')}
+          onChange={(tabId) => {
+            console.log('Tab changed to:', tabId);
+            setActiveTab(tabId as 'view' | 'edit');
+            if (tabId === 'edit') {
+              // Обновляем данные проекта при переключении на вкладку редактирования
+              fetchProjectData();
+            }
+          }}
         />
       ) : (
         <div className="text-center text-gray-400 py-8">

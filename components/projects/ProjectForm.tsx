@@ -86,6 +86,11 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
   mode = 'create',
   onSuccess
 }) => {
+  console.log('ProjectForm initialized with initialData:', initialData);
+  if (initialData && initialData.stages) {
+    console.log('Initial stages:', initialData.stages);
+  }
+
   const { user } = useAuth();
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -102,13 +107,18 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     stages: [{ name: '', deadline: '', completed: false, display_deadline: '' }],
   });
 
+  console.log('FormData initialized:', formData);
+  if (formData.stages) {
+    console.log('FormData stages:', formData.stages);
+  }
+
   // Состояние для хранения дат в формате Date
-  console.log('Initializing deadlineDate with formData.deadline:', formData.deadline);
+  console.log('Initializing deadlineDate with formData.deadline:', formData.deadline, 'type:', typeof formData.deadline);
   const [deadlineDate, setDeadlineDate] = useState<Date | null>(() => {
     if (formData.deadline) {
       try {
         const date = new Date(formData.deadline);
-        console.log('Created Date object from deadline:', date);
+        console.log('Created Date object from deadline:', date, 'ISO string:', date.toISOString());
         return date;
       } catch (e) {
         console.error('Error creating Date from deadline:', e);
@@ -118,9 +128,22 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
     return null;
   });
 
-  const [stageDates, setStageDates] = useState<(Date | null)[]>(
-    formData.stages.map(stage => stage.deadline ? new Date(stage.deadline) : null)
-  );
+  const [stageDates, setStageDates] = useState<(Date | null)[]>(() => {
+    console.log('Initializing stageDates with formData.stages:', formData.stages);
+    return formData.stages.map((stage, index) => {
+      if (stage.deadline) {
+        try {
+          const date = new Date(stage.deadline);
+          console.log(`Created Date object for stage ${index} from deadline:`, date);
+          return date;
+        } catch (e) {
+          console.error(`Error creating Date for stage ${index} from deadline:`, e);
+          return null;
+        }
+      }
+      return null;
+    });
+  });
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -203,22 +226,31 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
 
   // Обработчик изменения даты этапа
   const handleStageDeadlineChange = (index: number, date: Date | null) => {
+    console.log(`handleStageDeadlineChange called for stage ${index} with date:`, date);
+
     // Обновляем массив дат этапов
     const newStageDates = [...stageDates];
     newStageDates[index] = date;
     setStageDates(newStageDates);
+    console.log('Updated stageDates:', newStageDates);
 
     // Обновляем данные формы
     const newStages = [...formData.stages];
+    console.log('Current stage data:', newStages[index]);
+
     if (date) {
       const isoDate = date.toISOString().split('T')[0]; // Формат YYYY-MM-DD
       const displayDate = formatDate(isoDate);
+      console.log(`Setting stage ${index} deadline to:`, isoDate, 'display:', displayDate);
+
       newStages[index] = {
         ...newStages[index],
         deadline: isoDate,
         display_deadline: displayDate
       };
     } else {
+      console.log(`Clearing stage ${index} deadline`);
+
       newStages[index] = {
         ...newStages[index],
         deadline: '',
@@ -226,7 +258,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
       };
     }
 
+    console.log('Updated stage data:', newStages[index]);
     setFormData(prev => ({ ...prev, stages: newStages }));
+    console.log('Updated form data stages:', newStages);
   };
 
   const addStage = () => {
@@ -401,10 +435,14 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
 
       // Рассчитываем прогресс проекта
       const validStages = formData.stages.filter(stage => stage.name.trim());
+      console.log('Valid stages for submission:', validStages);
+
       const completedStages = validStages.filter(stage => stage.completed);
       const progress = validStages.length > 0
         ? Math.round((completedStages.length / validStages.length) * 100)
         : 0;
+
+      console.log('Project progress:', progress);
 
       // Создаем или обновляем проект
       let project;
@@ -512,41 +550,96 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
         }
 
         // Обновляем существующие этапы
+        console.log('Updating stages:', validStages);
+
         for (const stage of validStages) {
           if (stage.id) {
             // Обновляем существующий этап
-            await supabase
+            console.log('Updating existing stage:', stage.id, 'with data:', {
+              name: stage.name,
+              deadline: stage.deadline || null,
+              completed: stage.completed
+            });
+            console.log('Stage deadline type:', typeof stage.deadline);
+
+            // Используем значение даты как есть
+            let deadlineValue = stage.deadline || null;
+            console.log('Using deadline value:', deadlineValue);
+
+            const { data: updateData, error: updateError } = await supabase
               .from('project_stages')
               .update({
                 name: stage.name,
-                deadline: stage.deadline || null,
+                deadline: deadlineValue,
                 completed: stage.completed
               })
-              .eq('id', stage.id);
+              .eq('id', stage.id)
+              .select();
+
+            console.log('Update result:', { updateData, updateError });
+
+            if (updateError) {
+              console.error('Error updating stage:', updateError);
+            }
           } else {
             // Добавляем новый этап
-            await supabase
+            console.log('Inserting new stage with data:', {
+              project_id: formData.id,
+              name: stage.name,
+              deadline: stage.deadline || null,
+              completed: stage.completed
+            });
+            console.log('Stage deadline type:', typeof stage.deadline);
+
+            // Используем значение даты как есть
+            let deadlineValue = stage.deadline || null;
+            console.log('Using deadline value:', deadlineValue);
+
+            const { data: insertData, error: insertError } = await supabase
               .from('project_stages')
               .insert({
                 project_id: formData.id,
                 name: stage.name,
-                deadline: stage.deadline || null,
+                deadline: deadlineValue,
                 completed: stage.completed
-              });
+              })
+              .select();
+
+            console.log('Insert result:', { insertData, insertError });
+
+            if (insertError) {
+              console.error('Error inserting stage:', insertError);
+            }
           }
         }
       } else {
         // В режиме создания просто добавляем все этапы
-        const stagesToInsert = validStages.map(stage => ({
-          project_id: project.id,
-          name: stage.name,
-          deadline: stage.deadline || null,
-          completed: stage.completed
-        }));
+        console.log('Creating stages for new project:', validStages);
 
-        const { error: stagesError } = await supabase
+        const stagesToInsert = validStages.map(stage => {
+          console.log('Processing stage for insertion:', stage);
+          console.log('Stage deadline type:', typeof stage.deadline);
+
+          // Используем значение даты как есть
+          let deadlineValue = stage.deadline || null;
+          console.log('Using deadline value:', deadlineValue);
+
+          return {
+            project_id: project.id,
+            name: stage.name,
+            deadline: deadlineValue,
+            completed: stage.completed
+          };
+        });
+
+        console.log('Stages to insert:', stagesToInsert);
+
+        const { data: insertedStages, error: stagesError } = await supabase
           .from('project_stages')
-          .insert(stagesToInsert);
+          .insert(stagesToInsert)
+          .select();
+
+        console.log('Inserted stages:', insertedStages, 'Error:', stagesError);
 
         if (stagesError) console.error('Ошибка при сохранении этапов:', stagesError);
       }
@@ -616,7 +709,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
 
       <div className="space-y-3">
         <div className="flex flex-wrap -mx-2">
-          <div className="w-full md:w-3/5 px-2">
+          <div className="w-full md:w-3/4 px-2">
             <div className="form-group">
               <label htmlFor="title" className="block text-sm font-medium text-gray-300 mb-1">
                 Название проекта *
@@ -633,9 +726,9 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
               />
             </div>
           </div>
-          <div className="w-full md:w-2/5 px-2">
+          <div className="w-full md:w-1/4 px-2">
             <div className="form-group">
-              <label htmlFor="deadline" className="block text-sm font-medium text-gray-300 mb-1">
+              <label htmlFor="deadline" className="block text-sm font-medium text-gray-300 mb-1 text-right">
                 Дедлайн проекта
               </label>
               <CustomDatePicker
@@ -864,7 +957,7 @@ const ProjectForm: React.FC<ProjectFormProps> = ({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                 )}
-                {mode === 'edit' ? 'Сохранить изменения' : 'Добавить проект'}
+                {mode === 'edit' ? 'Сохранить' : 'Добавить проект'}
               </>
             )}
           </button>

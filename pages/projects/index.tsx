@@ -48,6 +48,7 @@ const ProjectsPage: NextPage = () => {
   // Состояние для фильтров
   const [showOnlyMyProjects, setShowOnlyMyProjects] = useState(false);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
+  const [userProfile, setUserProfile] = useState<{ full_name: string } | null>(null);
   const [filters, setFilters] = useState({
     search: '',
     status: 'all',
@@ -128,9 +129,33 @@ const ProjectsPage: NextPage = () => {
     }
   };
 
+  // Загрузка профиля пользователя
+  const fetchUserProfile = async () => {
+    if (!user) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching user profile:', error);
+        return;
+      }
+
+      console.log('User profile loaded:', data);
+      setUserProfile(data);
+    } catch (err) {
+      console.error('Error in fetchUserProfile:', err);
+    }
+  };
+
   useEffect(() => {
     if (user) {
       fetchProjects(filters);
+      fetchUserProfile();
     }
   }, [user?.id, filters]);
 
@@ -149,14 +174,35 @@ const ProjectsPage: NextPage = () => {
       return;
     }
 
-    // Фильтруем проекты по владельцу
+    // Фильтруем проекты по участию пользователя
     const myProjects = projects.filter(project => {
-      // Проверяем, является ли пользователь владельцем проекта
-      return project.owner_id === user.id;
+      // Проверяем, есть ли пользователь среди участников проекта
+      if (!userProfile || !userProfile.full_name) {
+        console.log('User profile not loaded yet');
+        return false;
+      }
+
+      if (project.team_members && project.team_members.length > 0) {
+        // Получаем имя пользователя из профиля
+        const userFullName = userProfile.full_name;
+        console.log(`Checking if user ${userFullName} is in project ${project.title} team members:`, project.team_members);
+
+        // Проверяем по имени пользователя
+        return project.team_members.some(member => {
+          const match = member.name === userFullName;
+          if (match) {
+            console.log(`Found match for user ${userFullName} in project ${project.title}`);
+          }
+          return match;
+        });
+      }
+      return false;
     });
 
+    console.log('Filtered projects:', myProjects);
+
     setFilteredProjects(myProjects);
-  }, [showOnlyMyProjects, projects, user?.id]);
+  }, [showOnlyMyProjects, projects, user?.id, userProfile]);
 
   // Функция для открытия модального окна редактирования
   const handleEditProject = (projectId: string) => {
@@ -218,7 +264,7 @@ const ProjectsPage: NextPage = () => {
           <title>Projects | Digital Projects Tracker</title>
         </Head>
 
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-4 mt-2">
           {error && (
             <div className="bg-red-500/20 border border-red-500 text-white p-4 rounded-md mb-6">
               {error}

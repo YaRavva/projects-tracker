@@ -37,7 +37,7 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ initialFilters, onFilte
   };
 
   return (
-    <div className="glass-card mb-6 mt-8">
+    <div className="glass-card mb-6">
       <div className="glass-card-body">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
