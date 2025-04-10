@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import Modal from '../ui/Modal';
 import Tabs from '../ui/Tabs';
+import Dropdown from '../ui/Dropdown';
 import ProjectForm from './ProjectForm';
 import { useAuth } from '../../contexts/AuthContext';
 import ProjectStatusBadge, { ProjectStatus } from './ProjectStatusBadge';
@@ -423,69 +424,75 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
 
       {/* Основная информация */}
       <div className="glass-card p-4">
-        <h3 className="text-lg font-medium text-white mb-3">Информация о проекте</h3>
+        <div className="flex justify-between items-center mb-3">
+          <h3 className="text-lg font-medium text-white">Информация о проекте</h3>
+          <div>
+            <span className="text-gray-400 text-sm mr-2">Добавил:</span>
+            <span className="text-white">{projectData.profiles?.full_name || 'Неизвестно'}</span>
+          </div>
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
+          <div className="col-span-1 md:col-span-2">
             <p className="text-gray-400 text-sm mb-1">Описание</p>
-            <p className="text-white">{projectData.description || 'Нет описания'}</p>
+            <p className="text-white max-h-[400px] overflow-y-auto">{projectData.description || 'Нет описания'}</p>
           </div>
-          <div>
-            <p className="text-gray-400 text-sm mb-1">Добавил</p>
-            <p className="text-white">{projectData.profiles?.full_name || 'Неизвестно'}</p>
-          </div>
-          <div>
-            <p className="text-gray-400 text-sm mb-1">Дата создания</p>
-            <p className="text-white">{formatDate(projectData.created_at)}</p>
-          </div>
-          <div>
-            <p className="text-gray-400 text-sm mb-1">Дедлайн</p>
-            <p className="text-white">{projectData.deadline ? formatDate(projectData.deadline) : 'Не указан'}</p>
-          </div>
-          <div>
-            <p className="text-gray-400 text-sm mb-1">Прогресс</p>
-            <div className="progress-bar w-full">
-              <div
-                className="progress-bar-fill"
-                style={{ width: `${projectData.progress || 0}%` }}
-              ></div>
+          <div className="col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="glass-card p-3">
+              <div className="flex justify-between items-center">
+                <p className="text-gray-400 text-sm">Дата создания</p>
+                <p className="text-white font-medium">{formatDate(projectData.created_at)}</p>
+              </div>
             </div>
-            <p className="text-white text-xs mt-1 text-left font-medium">{projectData.progress || 0}%</p>
-          </div>
-          <div>
-            {(projectData.repository_url || projectData.demo_url) && (
-              <>
-                <p className="text-gray-400 text-sm mb-1">Ссылки</p>
-                <div className="flex flex-row space-x-3">
-                  {projectData.repository_url && (
-                    <a
-                      href={projectData.repository_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-3 py-1.5 bg-cryptix-green/10 text-cryptix-green text-sm font-medium rounded-md border border-cryptix-green/30 hover:bg-cryptix-green/20 transition-colors max-w-fit"
-                    >
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                      </svg>
-                      Репозиторий
-                    </a>
-                  )}
-                  {projectData.demo_url && (
-                    <a
-                      href={projectData.demo_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center px-3 py-1.5 bg-cryptix-green/10 text-cryptix-green text-sm font-medium rounded-md border border-cryptix-green/30 hover:bg-cryptix-green/20 transition-colors max-w-fit"
-                    >
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                      </svg>
-                      Демо-версия
-                    </a>
-                  )}
-                </div>
-              </>
-            )}
+            <div className="glass-card p-3">
+              <div className="flex justify-between items-center">
+                <p className="text-gray-400 text-sm">Дедлайн</p>
+                <p className="text-white font-medium">{projectData.deadline ? formatDate(projectData.deadline) : 'Не указан'}</p>
+              </div>
+            </div>
+            <div className="glass-card p-3">
+              <p className="text-gray-400 text-sm mb-2">Прогресс</p>
+              <div className="progress-bar w-full">
+                <div
+                  className="progress-bar-fill"
+                  style={{ width: `${projectData.progress || 0}%` }}
+                ></div>
+              </div>
+              <p className="text-white text-xs mt-1 text-left font-medium">{projectData.progress || 0}%</p>
+            </div>
+            <div className="glass-card p-3">
+              <p className="text-gray-400 text-sm mb-2">Ссылки</p>
+              <div className="flex flex-row space-x-3">
+                {projectData.repository_url ? (
+                  <a
+                    href={projectData.repository_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-3 py-1.5 bg-cryptix-green/10 text-cryptix-green text-sm font-medium rounded-md border border-cryptix-green/30 hover:bg-cryptix-green/20 transition-colors max-w-fit"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
+                    Репозиторий
+                  </a>
+                ) : (
+                  <span className="text-gray-500 text-sm">Репозиторий не указан</span>
+                )}
+                {projectData.demo_url && (
+                  <a
+                    href={projectData.demo_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center px-3 py-1.5 bg-cryptix-green/10 text-cryptix-green text-sm font-medium rounded-md border border-cryptix-green/30 hover:bg-cryptix-green/20 transition-colors max-w-fit"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                    Демо-версия
+                  </a>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -606,24 +613,33 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                 <label htmlFor="status" className="block text-sm font-medium text-gray-300 mb-1">
                   Статус
                 </label>
-                <div className="relative">
-                  <select
-                    id="status"
-                    className="w-full px-3 py-2 h-10 bg-cryptix-darker border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30 focus:border-cryptix-green/50 appearance-none"
-                    value={newStatus}
-                    onChange={(e) => setNewStatus(e.target.value as ProjectStatus)}
-                  >
-                    <option value="pending">На рассмотрении</option>
-                    <option value="active">Активный</option>
-                    <option value="returned">Возвращен на доработку</option>
-                    <option value="rejected">Отклонен</option>
-                    <option value="completed">Завершен</option>
-                  </select>
-                  <div className="absolute inset-y-0 right-0 flex items-center px-2 pointer-events-none">
-                    <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </div>
+                <div className="relative" style={{ zIndex: 9999 }}>
+                  <Dropdown
+                    options={[
+                      { name: 'На рассмотрении', value: 'pending' },
+                      { name: 'Активный', value: 'active' },
+                      { name: 'Возвращен на доработку', value: 'returned' },
+                      { name: 'Отклонен', value: 'rejected' },
+                      { name: 'Завершены', value: 'completed' }
+                    ]}
+                    selected={[
+                      'На рассмотрении',
+                      'Активный',
+                      'Возвращен на доработку',
+                      'Отклонен',
+                      'Завершен'
+                    ].find(status => {
+                      const statusMap: Record<string, ProjectStatus> = {
+                        'На рассмотрении': 'pending',
+                        'Активный': 'active',
+                        'Возвращен на доработку': 'returned',
+                        'Отклонен': 'rejected',
+                        'Завершены': 'completed'
+                      };
+                      return statusMap[status] === newStatus;
+                    }) || 'На рассмотрении'}
+                    onSelect={(option) => setNewStatus(option.value as ProjectStatus)}
+                  />
                 </div>
               </div>
             )}

@@ -566,9 +566,15 @@ input[type="checkbox"]:focus {
   color: var(--cryptix-green) !important;
   font-weight: 600 !important;
   padding: 10px !important;
-  border-radius: 0 0 0.3rem 0.3rem !important;
-  margin-top: 8px !important;
+  border-radius: 0.5rem !important;
+  margin: 8px !important;
   text-shadow: 0 0 5px rgba(0, 255, 157, 0.5) !important;
+  transition: all 0.2s ease !important;
+}
+
+.react-datepicker__today-button:hover {
+  background-color: rgba(0, 255, 157, 0.2) !important;
+  box-shadow: 0 0 10px rgba(0, 255, 157, 0.3) !important;
 }
 
 .react-datepicker__close-icon {
@@ -620,40 +626,27 @@ input[type="checkbox"]:focus {
   margin-top: 5px !important;
 }
 
-.react-datepicker select {
-  appearance: none !important;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8' viewBox='0 0 8 8'%3E%3Cpath fill='%2300ff9d' d='M0 2l4 4 4-4z'/%3E%3C/svg%3E") !important;
-  background-repeat: no-repeat !important;
-  background-position: right 0.5rem center !important;
-  padding-right: 1.5rem !important;
+/* Стили для выпадающих списков в календаре */
+.react-datepicker .dropdown-menu {
+  max-height: 200px !important;
+  overflow-y: auto !important;
 }
 
-.react-datepicker select:focus {
-  outline: none !important;
-  box-shadow: 0 0 0 2px rgba(0, 255, 157, 0.3) !important;
-}
-
-.react-datepicker select option {
-  background-color: var(--cryptix-darker) !important;
-  color: white !important;
-  padding: 8px !important;
-}
-
-.react-datepicker select::-webkit-scrollbar {
+.react-datepicker .dropdown-menu::-webkit-scrollbar {
   width: 8px !important;
 }
 
-.react-datepicker select::-webkit-scrollbar-track {
+.react-datepicker .dropdown-menu::-webkit-scrollbar-track {
   background: rgba(4, 10, 15, 0.3) !important;
   border-radius: 4px !important;
 }
 
-.react-datepicker select::-webkit-scrollbar-thumb {
+.react-datepicker .dropdown-menu::-webkit-scrollbar-thumb {
   background: rgba(0, 255, 157, 0.3) !important;
   border-radius: 4px !important;
 }
 
-.react-datepicker select::-webkit-scrollbar-thumb:hover {
+.react-datepicker .dropdown-menu::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 255, 157, 0.5) !important;
 }
 

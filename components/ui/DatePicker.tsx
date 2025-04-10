@@ -2,6 +2,7 @@ import React, { forwardRef, useState } from 'react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { ru } from 'date-fns/locale';
+import CustomSelect from './CustomSelect';
 
 // Массив месяцев на русском языке
 const MONTHS = [
@@ -140,32 +141,28 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
               </svg>
             </button>
 
-            <div className="flex items-center space-x-2">
-              <select
-                value={date.getFullYear()}
-                onChange={({ target: { value } }) => changeYear(parseInt(value))}
-                className="bg-transparent text-white border border-glass-border rounded px-2 py-1 text-sm"
-              >
-                {Array.from({ length: 20 }, (_, i) => date.getFullYear() - 5 + i).map(year => (
-                  <option key={year} value={year}>
-                    {year}
-                  </option>
-                ))}
-              </select>
+            <div className="flex items-center space-x-2 flex-1 px-2">
+              <div className="w-2/5">
+                <CustomSelect
+                  options={Array.from({ length: 20 }, (_, i) => {
+                    const year = date.getFullYear() - 5 + i;
+                    return { label: year.toString(), value: year };
+                  })}
+                  value={date.getFullYear()}
+                  onChange={(value) => changeYear(Number(value))}
+                />
+              </div>
 
-              <select
-                value={date.getMonth()}
-                onChange={({ target: { value } }) =>
-                  changeMonth(parseInt(value))
-                }
-                className="bg-transparent text-white border border-glass-border rounded px-2 py-1 text-sm"
-              >
-                {MONTHS.map((month, index) => (
-                  <option key={month} value={index}>
-                    {month}
-                  </option>
-                ))}
-              </select>
+              <div className="w-3/5">
+                <CustomSelect
+                  options={MONTHS.map((month, index) => ({
+                    label: month,
+                    value: index
+                  }))}
+                  value={date.getMonth()}
+                  onChange={(value) => changeMonth(Number(value))}
+                />
+              </div>
             </div>
 
             <button
