@@ -43,7 +43,7 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ initialFilters, onFilte
     { name: 'На рассмотрении', value: 'pending' },
     { name: 'Возвращены', value: 'returned' },
     { name: 'Отклонены', value: 'rejected' },
-    { name: 'Завершен', value: 'completed' },
+    { name: 'Завершены', value: 'completed' },
   ];
 
   const sortOptions = [
