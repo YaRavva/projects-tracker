@@ -60,52 +60,39 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ initialFilters, onFilte
 
 
   return (
-    <div className="glass-card mb-6 relative z-20">
-      <div className="glass-card-body">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label htmlFor="search" className="block text-sm font-medium text-gray-300 mb-1">
-              Поиск
-            </label>
-            <input
-              type="text"
-              id="search"
-              placeholder="Название проекта..."
-              className="glass-input w-full px-3 h-10 bg-cryptix-darker border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30 focus:border-cryptix-green/50"
-              value={search}
-              onChange={handleSearchChange}
-            />
-          </div>
-          <div className="relative" style={{ zIndex: 9999 }}>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-300 mb-1">
-              Статус
-            </label>
-            <Dropdown
-              options={statusOptions}
-              selected={getSelectedOption(statusOptions, status)}
-              onSelect={(option) => {
-                const selectedStatus = option.value || option.name;
-                setStatus(selectedStatus);
-                onFilterChange({ search, status: selectedStatus, sortBy });
-              }}
-            />
-          </div>
+    <div className="flex flex-wrap items-center gap-4 relative z-50">
+      <div className="relative w-64">
+        <input
+          type="text"
+          id="search"
+          placeholder="Поиск проектов..."
+          className="glass-input w-full px-3 h-9 bg-cryptix-darker border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30 focus:border-cryptix-green/50 text-sm"
+          value={search}
+          onChange={handleSearchChange}
+        />
+      </div>
+      <div className="relative w-48" style={{ zIndex: 99999 }}>
+        <Dropdown
+          options={statusOptions}
+          selected={getSelectedOption(statusOptions, status)}
+          onSelect={(option) => {
+            const selectedStatus = option.value || option.name;
+            setStatus(selectedStatus);
+            onFilterChange({ search, status: selectedStatus, sortBy });
+          }}
+        />
+      </div>
 
-          <div className="relative" style={{ zIndex: 9998 }}>
-            <label htmlFor="sortBy" className="block text-sm font-medium text-gray-300 mb-1">
-              Сортировка
-            </label>
-            <Dropdown
-              options={sortOptions}
-              selected={getSelectedOption(sortOptions, sortBy)}
-              onSelect={(option) => {
-                const selectedSort = option.value || option.name;
-                setSortBy(selectedSort);
-                onFilterChange({ search, status, sortBy: selectedSort });
-              }}
-            />
-          </div>
-        </div>
+      <div className="relative w-48" style={{ zIndex: 99998 }}>
+        <Dropdown
+          options={sortOptions}
+          selected={getSelectedOption(sortOptions, sortBy)}
+          onSelect={(option) => {
+            const selectedSort = option.value || option.name;
+            setSortBy(selectedSort);
+            onFilterChange({ search, status, sortBy: selectedSort });
+          }}
+        />
       </div>
     </div>
   );

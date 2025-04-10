@@ -17,6 +17,7 @@ const ProjectStatusBadge: React.FC<ProjectStatusBadgeProps> = ({ status, classNa
           bgColor: 'bg-cryptix-green/20',
           textColor: 'text-cryptix-green',
           borderColor: 'border-cryptix-green/30',
+          extraClasses: 'animate-pulse-slow shadow-glow-sm',
           icon: (
             <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
@@ -82,10 +83,10 @@ const ProjectStatusBadge: React.FC<ProjectStatusBadgeProps> = ({ status, classNa
     }
   };
 
-  const { text, bgColor, textColor, borderColor, icon } = getStatusConfig();
+  const { text, bgColor, textColor, borderColor, icon, extraClasses = '' } = getStatusConfig();
 
   return (
-    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${bgColor} ${textColor} border ${borderColor} ${className}`}>
+    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap ${bgColor} ${textColor} border ${borderColor} ${extraClasses} ${className}`}>
       {icon}
       {text}
     </span>

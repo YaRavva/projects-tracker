@@ -35,11 +35,11 @@ const Dropdown: React.FC<DropdownProps> = ({ options, selected, onSelect }) => {
   }, []);
 
   return (
-    <div className="relative inline-block text-left w-full z-[9999]" ref={dropdownRef}>
+    <div className="relative inline-block text-left w-full z-[99999]" ref={dropdownRef}>
       <div>
         <button
           type="button"
-          className="flex items-center justify-between w-full px-3 py-2 bg-glass-bg backdrop-blur-md border border-glass-border rounded-md text-gray-300 hover:border-cryptix-green/50 transition-colors focus:outline-none"
+          className="flex items-center justify-between w-full px-3 py-1.5 bg-glass-bg backdrop-blur-md border border-glass-border rounded-md text-gray-300 hover:border-cryptix-green/50 transition-colors focus:outline-none text-sm"
           id="menu-button"
           aria-expanded={isOpen}
           aria-haspopup="true"
@@ -64,7 +64,7 @@ const Dropdown: React.FC<DropdownProps> = ({ options, selected, onSelect }) => {
             top: '100%',
             position: 'absolute',
             width: '100%',
-            zIndex: 9999
+            zIndex: 99999
           }}
           role="menu"
           aria-orientation="vertical"

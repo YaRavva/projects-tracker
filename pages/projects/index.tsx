@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../contexts/AuthContext';
 import Layout from '../../components/layout/Layout';
 import ProjectsTable from '../../components/projects/ProjectsTable';
+import ProjectsCards from '../../components/projects/ProjectsCards';
 import ProtectedRoute from '../../components/auth/ProtectedRoute';
 import AddProjectModal from '../../components/projects/AddProjectModal';
 import ProjectFilters from '../../components/projects/ProjectFilters';
@@ -54,6 +55,9 @@ const ProjectsPage: NextPage = () => {
   // Удалено неиспользуемое состояние userProfile
   // Инициализируем флаг готовности данных как false, чтобы показывать спиннер до загрузки данных
   const [dataReady, setDataReady] = useState(false);
+
+  // Состояние для переключения между табличным и карточным видом
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
 
   // Сбрасываем флаг готовности данных при монтировании компонента и при изменении маршрута
   useEffect(() => {
@@ -380,11 +384,13 @@ const ProjectsPage: NextPage = () => {
             </div>
           )}
 
-          {/* Фильтры проектов */}
-          <ProjectFilters initialFilters={filters} onFilterChange={handleFilterChange} />
+          <div className="mb-6 mt-2 flex flex-wrap justify-between items-center gap-4">
+            <div className="flex flex-wrap items-center gap-4">
+              {/* Фильтры проектов */}
+              <ProjectFilters initialFilters={filters} onFilterChange={handleFilterChange} />
 
-          <div className="mb-6 mt-8 flex justify-between items-center">
-            <div className="flex items-center space-x-3">
+              <div className="h-8 border-l border-glass-border hidden md:block"></div>
+
               <div className="flex items-center space-x-2">
                 <input
                   type="checkbox"
@@ -398,12 +404,33 @@ const ProjectsPage: NextPage = () => {
                 </label>
               </div>
             </div>
-            <button
-              onClick={handleCreateProject}
-              className="btn-primary"
-            >
-              Добавить проект
-            </button>
+
+            <div className="flex flex-wrap items-center gap-4">
+              <div className="flex bg-glass-bg backdrop-blur-md border border-glass-border rounded-md overflow-hidden">
+                <button
+                  onClick={() => setViewMode('table')}
+                  className={`px-3 py-1.5 text-sm ${viewMode === 'table' ? 'bg-cryptix-green/20 text-cryptix-green' : 'text-gray-300'}`}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setViewMode('cards')}
+                  className={`px-3 py-1.5 text-sm ${viewMode === 'cards' ? 'bg-cryptix-green/20 text-cryptix-green' : 'text-gray-300'}`}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                  </svg>
+                </button>
+              </div>
+              <button
+                onClick={handleCreateProject}
+                className="bg-cryptix-green text-cryptix-darker font-medium px-4 py-1.5 rounded-md hover:bg-cryptix-green/90 transition-colors text-sm"
+              >
+                Добавить проект
+              </button>
+            </div>
           </div>
 
 
@@ -430,11 +457,19 @@ const ProjectsPage: NextPage = () => {
           ) : (
             <>
               <div className="relative" style={{ zIndex: 1 }}>
-                <ProjectsTable
-                  projects={filteredProjects}
-                  onEdit={handleEditProject}
-                  onView={handleViewProject}
-                />
+                {viewMode === 'table' ? (
+                  <ProjectsTable
+                    projects={filteredProjects}
+                    onEdit={handleEditProject}
+                    onView={handleViewProject}
+                  />
+                ) : (
+                  <ProjectsCards
+                    projects={filteredProjects}
+                    onEdit={handleEditProject}
+                    onView={handleViewProject}
+                  />
+                )}
               </div>
             </>
           )}
