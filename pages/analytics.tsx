@@ -22,13 +22,16 @@ const AnalyticsPage: React.FC = () => {
     averageProgress: 0,
     totalUsers: 0,
     projectsThisMonth: 0,
-    projectsLastMonth: 0
+    projectsLastMonth: 0,
+    completedStatusProjects: 0
   });
 
   const [progressData, setProgressData] = useState([
-    { name: 'Завершено', value: 0, color: '#00ff9d' },
-    { name: 'В процессе', value: 0, color: '#7dffcb' },
-    { name: 'Не начато', value: 0, color: '#8892b0' },
+    { name: 'Завершен', value: 0, color: '#00ff9d' },
+    { name: 'Активный', value: 0, color: '#3b82f6' },
+    { name: 'На рассмотрении', value: 0, color: '#facc15' },
+    { name: 'Возвращен', value: 0, color: '#f97316' },
+    { name: 'Отклонен', value: 0, color: '#ef4444' },
   ]);
 
   const [activityData, setActivityData] = useState([
@@ -70,10 +73,11 @@ const AnalyticsPage: React.FC = () => {
 
         // Рассчитываем статистику
         const totalProjects = projects?.length || 0;
-        const completedProjects = projects?.filter(p => p.progress === 100)?.length || 0;
+        const projectsWithProgress100 = projects?.filter(p => p.progress === 100)?.length || 0;
         const inProgressProjects = projects?.filter(p => p.progress > 0 && p.progress < 100)?.length || 0;
 
         // Рассчитываем количество проектов по статусам
+        const completedProjects = projects?.filter(p => p.status === 'completed')?.length || 0;
         const activeProjects = projects?.filter(p => p.status === 'active')?.length || 0;
         const pendingProjects = projects?.filter(p => p.status === 'pending')?.length || 0;
         const returnedProjects = projects?.filter(p => p.status === 'returned')?.length || 0;
@@ -106,20 +110,22 @@ const AnalyticsPage: React.FC = () => {
         // Обновляем состояние
         setStats({
           totalProjects,
-          completedProjects,
+          completedProjects: projectsWithProgress100,
           inProgressProjects,
           averageProgress,
           totalUsers,
           projectsThisMonth,
-          projectsLastMonth
+          projectsLastMonth,
+          completedStatusProjects: completedProjects
         });
 
         // Данные для графика статусов проектов
         setProgressData([
-          { name: 'Активный', value: activeProjects, color: '#00ff9d' },
-          { name: 'На рассмотрении', value: pendingProjects, color: '#7dffcb' },
-          { name: 'Возвращен', value: returnedProjects, color: '#ffcc00' },
-          { name: 'Отклонен', value: rejectedProjects, color: '#ff6b6b' },
+          { name: 'Завершен', value: completedProjects, color: '#00ff9d' },
+          { name: 'Активный', value: activeProjects, color: '#3b82f6' },
+          { name: 'На рассмотрении', value: pendingProjects, color: '#facc15' },
+          { name: 'Возвращен', value: returnedProjects, color: '#f97316' },
+          { name: 'Отклонен', value: rejectedProjects, color: '#ef4444' },
         ]);
 
         // Данные для графика активности
@@ -219,7 +225,7 @@ const AnalyticsPage: React.FC = () => {
                 />
                 <StatsCard
                   title="Завершенные проекты"
-                  value={stats.completedProjects}
+                  value={stats.completedStatusProjects}
                   icon={
                     <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -264,9 +270,7 @@ const AnalyticsPage: React.FC = () => {
                 <ProjectStats key={`project-stats-${Date.now()}`} data={projectStatsData} />
               </div>
 
-              {/* Альтернативные визуализации статусов проектов */}
-              <h2 className="text-2xl font-bold text-white mb-4">Альтернативные визуализации статусов проектов</h2>
-
+              {/* Визуализации статусов проектов */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div className="bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg p-6 shadow-glass">
                   <h2 className="text-xl font-semibold text-white mb-4">Карточки статусов</h2>
@@ -280,7 +284,7 @@ const AnalyticsPage: React.FC = () => {
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
                 <div className="bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg p-6 shadow-glass">
-                  <h2 className="text-xl font-semibold text-white mb-4">Воронка статусов</h2>
+                  <h2 className="text-xl font-semibold text-white mb-12">Воронка статусов</h2>
                   <ProjectFunnel key={`project-funnel-${Date.now()}`} data={progressData} />
                 </div>
                 <div className="bg-glass-bg backdrop-blur-md border border-glass-border rounded-lg p-6 shadow-glass">

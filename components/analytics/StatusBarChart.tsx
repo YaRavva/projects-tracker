@@ -33,6 +33,12 @@ const StatusBarChart: React.FC<StatusBarChartProps> = ({ data }) => {
     return null;
   };
 
+  // Сортируем данные в порядке статусов: На рассмотрении -> Возвращен -> Отклонен -> Активный -> Завершен
+  const sortedData = [...enhancedData].sort((a, b) => {
+    const order = { 'На рассмотрении': 0, 'Возвращен': 1, 'Отклонен': 2, 'Активный': 3, 'Завершен': 4 };
+    return (order[a.name as keyof typeof order] || 0) - (order[b.name as keyof typeof order] || 0);
+  });
+
   // Кастомная метка для баров
   const renderCustomizedLabel = (props: any) => {
     const { x, y, width, height, value } = props;
@@ -41,7 +47,7 @@ const StatusBarChart: React.FC<StatusBarChartProps> = ({ data }) => {
     if (value === 0) return null;
 
     // Находим процент из данных
-    const dataItem = enhancedData.find(item => item.value === value);
+    const dataItem = sortedData.find(item => item.value === value);
     const percentage = dataItem ? dataItem.percentage : 0;
 
     return (
@@ -80,7 +86,7 @@ const StatusBarChart: React.FC<StatusBarChartProps> = ({ data }) => {
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
           layout="vertical"
-          data={enhancedData}
+          data={sortedData}
           margin={{ top: 20, right: 30, left: 20, bottom: 10 }}
           barSize={40}
         >
@@ -109,7 +115,7 @@ const StatusBarChart: React.FC<StatusBarChartProps> = ({ data }) => {
             animationDuration={1500}
             animationEasing="ease-out"
           >
-            {enhancedData.map((entry, index) => (
+            {sortedData.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
                 fill={entry.color}

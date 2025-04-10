@@ -1,4 +1,4 @@
-// Скрипт для проверки структуры базы данных
+// Скрипт для проверки структуры базы данных (простой метод)
 const { createClient } = require('@supabase/supabase-js');
 
 // Получаем переменные окружения из .env.local
@@ -28,14 +28,14 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 async function checkDatabaseStructure() {
   try {
     console.log('Проверка структуры базы данных...');
-
+    
     // Проверяем наличие основных таблиц
-    const tables = ['profiles', 'projects', 'project_members', 'project_stages', 'project_meta', 'project_reviews'];
-
-    for (const table of tables) {
-      await checkTable(table);
+    const requiredTables = ['profiles', 'projects', 'project_members', 'project_stages', 'project_meta', 'project_reviews'];
+    
+    for (const tableName of requiredTables) {
+      await checkTable(tableName);
     }
-
+    
     console.log('Проверка завершена');
   } catch (error) {
     console.error('Ошибка при проверке структуры базы данных:', error);
@@ -49,28 +49,19 @@ async function checkTable(tableName) {
       .from(tableName)
       .select('*')
       .limit(1);
-
+    
     if (error) {
       console.error(`Ошибка при проверке таблицы ${tableName}:`, error.message);
       return false;
     }
-
-    console.log(`Таблица ${tableName} существует`);
-
-    // Получаем структуру таблицы
-    try {
-      const { data: columns, error: columnsError } = await supabase.rpc('get_table_info', { table_name: tableName });
-
-      if (columnsError) {
-        console.log(`Не удалось получить структуру таблицы ${tableName} через RPC`);
-      } else {
-        console.log(`Структура таблицы ${tableName}:`);
-        console.log(JSON.stringify(columns, null, 2));
-      }
-    } catch (e) {
-      console.log(`Не удалось получить структуру таблицы ${tableName}:`, e.message);
+    
+    console.log(`Таблица ${tableName} существует и доступна`);
+    console.log(`Количество записей: ${data ? data.length : 0}`);
+    
+    if (data && data.length > 0) {
+      console.log(`Пример данных:`, JSON.stringify(data[0], null, 2));
     }
-
+    
     return true;
   } catch (error) {
     console.error(`Ошибка при проверке таблицы ${tableName}:`, error);

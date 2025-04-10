@@ -19,6 +19,12 @@ const RadialProgress: React.FC<RadialProgressProps> = ({ data }) => {
     percentage: totalProjects > 0 ? Math.round((item.value / totalProjects) * 100) : 0
   }));
 
+  // Сортируем данные в порядке статусов: На рассмотрении -> Возвращен -> Отклонен -> Активный -> Завершен
+  const sortedData = [...enhancedData].sort((a, b) => {
+    const order = { 'На рассмотрении': 0, 'Возвращен': 1, 'Отклонен': 2, 'Активный': 3, 'Завершен': 4 };
+    return (order[a.name as keyof typeof order] || 0) - (order[b.name as keyof typeof order] || 0);
+  });
+
   // Кастомный компонент легенды - компактный вариант
   const CustomLegend = (props: any) => {
     const { payload } = props;
@@ -26,7 +32,7 @@ const RadialProgress: React.FC<RadialProgressProps> = ({ data }) => {
     return (
       <div className="flex flex-wrap justify-center gap-2 mt-2">
         {payload.map((entry: any, index: number) => {
-          const dataItem = enhancedData.find(item => item.name === entry.value);
+          const dataItem = sortedData.find(item => item.name === entry.value);
           const value = dataItem?.value || 0;
           const percentage = dataItem?.percentage || 0;
 
@@ -40,7 +46,7 @@ const RadialProgress: React.FC<RadialProgressProps> = ({ data }) => {
                 style={{ backgroundColor: entry.color }}
               />
               <span className="text-white text-xs">{entry.value}</span>
-              <span className="text-cryptix-green text-xs font-bold mx-1">{value}</span>
+              <span className="text-xs font-bold mx-1" style={{ color: entry.color }}>{value}</span>
               <span className="text-gray-400 text-xs">({percentage}%)</span>
             </div>
           );
@@ -57,7 +63,7 @@ const RadialProgress: React.FC<RadialProgressProps> = ({ data }) => {
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie
-                data={enhancedData}
+                data={sortedData}
                 cx="50%"
                 cy="50%"
                 innerRadius={60}
@@ -72,7 +78,7 @@ const RadialProgress: React.FC<RadialProgressProps> = ({ data }) => {
                 label={({ name, value, percent }) => `${value} (${(percent * 100).toFixed(0)}%)`}
                 labelLine={false}
               >
-                {enhancedData.map((entry, index) => (
+                {sortedData.map((entry, index) => (
                   <Cell
                     key={`cell-${index}`}
                     fill={entry.color}
@@ -87,7 +93,7 @@ const RadialProgress: React.FC<RadialProgressProps> = ({ data }) => {
 
         {/* Компактная легенда внизу */}
         <div className="mt-2">
-          <CustomLegend payload={enhancedData.map(item => ({ value: item.name, color: item.color }))} />
+          <CustomLegend payload={sortedData.map(item => ({ value: item.name, color: item.color }))} />
         </div>
       </div>
     </div>

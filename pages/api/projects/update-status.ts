@@ -40,7 +40,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
 
     // Проверяем, что действие допустимо
-    if (!['approve', 'reject', 'return'].includes(action)) {
+    if (!['approve', 'reject', 'return', 'complete'].includes(action)) {
       return res.status(400).json({ message: 'Недопустимое действие' });
     }
 
@@ -60,6 +60,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         break;
       case 'return':
         newStatus = 'returned';
+        break;
+      case 'complete':
+        newStatus = 'completed';
         break;
       default:
         return res.status(400).json({ message: 'Недопустимое действие' });

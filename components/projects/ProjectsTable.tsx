@@ -21,6 +21,11 @@ interface Project {
     class: string;
     isLeader: boolean;
   }[];
+  stages?: {
+    id: string;
+    name: string;
+    completed: boolean;
+  }[];
 }
 
 interface ProjectsTableProps {

@@ -193,6 +193,25 @@ const ProjectViewModal: React.FC<ProjectViewModalProps> = ({
         reviews: processedReviews
       };
 
+      // Проверяем, завершены ли все этапы проекта
+      if (stages && stages.length > 0) {
+        const allStagesCompleted = stages.every(stage => stage.completed);
+
+        // Если все этапы завершены и статус проекта 'active', автоматически меняем статус на 'completed'
+        if (allStagesCompleted && project.status === 'active') {
+          // Обновляем статус проекта в базе данных
+          const { error: updateError } = await supabase
+            .from('projects')
+            .update({ status: 'completed' })
+            .eq('id', projectId);
+
+          if (!updateError) {
+            // Обновляем статус в локальных данных
+            fullProjectData.status = 'completed';
+          }
+        }
+      }
+
       setProjectData(fullProjectData);
       setNewStatus(fullProjectData.status);
     } catch (err: any) {
