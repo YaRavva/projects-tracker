@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Dropdown from '../ui/Dropdown';
 
 interface ProjectFiltersProps {
   initialFilters?: {
@@ -36,6 +37,27 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ initialFilters, onFilte
     onFilterChange({ search, status, sortBy: value });
   };
 
+  const statusOptions = [
+    { name: 'Все проекты', value: 'all' },
+    { name: 'Активные', value: 'active' },
+    { name: 'На рассмотрении', value: 'pending' },
+    { name: 'Возвращены', value: 'returned' },
+    { name: 'Отклонены', value: 'rejected' },
+  ];
+
+  const sortOptions = [
+    { name: 'Сначала новые', value: 'newest' },
+    { name: 'Сначала старые', value: 'oldest' },
+    { name: 'По дедлайну', value: 'deadline' },
+    { name: 'По названию', value: 'name' },
+    { name: 'По прогрессу', value: 'progress' },
+  ];
+
+  const getSelectedOption = (options: { name: string; value: string; }[], value: string) => {
+    return options.find(option => option.value === value)?.name || '';
+  };
+
+
   return (
     <div className="glass-card mb-6">
       <div className="glass-card-body">
@@ -53,46 +75,39 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ initialFilters, onFilte
               onChange={handleSearchChange}
             />
           </div>
-
           <div>
             <label htmlFor="status" className="block text-sm font-medium text-gray-300 mb-1">
               Статус
             </label>
-            <select
-              id="status"
-              className="w-full px-3 h-10 bg-cryptix-darker border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30 focus:border-cryptix-green/50"
-              value={status}
-              onChange={handleStatusChange}
-            >
-              <option value="all">Все проекты</option>
-              <option value="active">Активные</option>
-              <option value="pending">На рассмотрении</option>
-              <option value="returned">Возвращены</option>
-              <option value="rejected">Отклонены</option>
-            </select>
+            <Dropdown
+              options={statusOptions}
+              selected={getSelectedOption(statusOptions, status)}
+              onSelect={(selectedStatus: string) => {
+                setStatus(selectedStatus);
+                onFilterChange({ search, status: selectedStatus, sortBy });
+              }}
+            />
           </div>
 
           <div>
             <label htmlFor="sortBy" className="block text-sm font-medium text-gray-300 mb-1">
               Сортировка
             </label>
-            <select
-              id="sortBy"
-              className="w-full px-3 h-10 bg-cryptix-darker border border-glass-border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-cryptix-green/30 focus:border-cryptix-green/50"
-              value={sortBy}
-              onChange={handleSortChange}
-            >
-              <option value="newest">Сначала новые</option>
-              <option value="oldest">Сначала старые</option>
-              <option value="deadline">По дедлайну</option>
-              <option value="name">По названию</option>
-              <option value="progress">По прогрессу</option>
-            </select>
+            <Dropdown
+              options={sortOptions}
+              selected={getSelectedOption(sortOptions, sortBy)}
+              onSelect={(selectedSort: string) => {
+                setSortBy(selectedSort);
+                onFilterChange({ search, status, sortBy: selectedSort });
+              }}
+            />
           </div>
         </div>
       </div>
     </div>
   );
 };
+
+
 
 export default ProjectFilters;
