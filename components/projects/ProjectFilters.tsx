@@ -43,6 +43,7 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ initialFilters, onFilte
     { name: 'На рассмотрении', value: 'pending' },
     { name: 'Возвращены', value: 'returned' },
     { name: 'Отклонены', value: 'rejected' },
+    { name: 'Завершен', value: 'completed' },
   ];
 
   const sortOptions = [
@@ -59,7 +60,7 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ initialFilters, onFilte
 
 
   return (
-    <div className="glass-card mb-6">
+    <div className="glass-card mb-6 relative z-20">
       <div className="glass-card-body">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
@@ -75,28 +76,30 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ initialFilters, onFilte
               onChange={handleSearchChange}
             />
           </div>
-          <div>
+          <div className="relative" style={{ zIndex: 9999 }}>
             <label htmlFor="status" className="block text-sm font-medium text-gray-300 mb-1">
               Статус
             </label>
             <Dropdown
               options={statusOptions}
               selected={getSelectedOption(statusOptions, status)}
-              onSelect={(selectedStatus: string) => {
+              onSelect={(option) => {
+                const selectedStatus = option.value || option.name;
                 setStatus(selectedStatus);
                 onFilterChange({ search, status: selectedStatus, sortBy });
               }}
             />
           </div>
 
-          <div>
+          <div className="relative" style={{ zIndex: 9998 }}>
             <label htmlFor="sortBy" className="block text-sm font-medium text-gray-300 mb-1">
               Сортировка
             </label>
             <Dropdown
               options={sortOptions}
               selected={getSelectedOption(sortOptions, sortBy)}
-              onSelect={(selectedSort: string) => {
+              onSelect={(option) => {
+                const selectedSort = option.value || option.name;
                 setSortBy(selectedSort);
                 onFilterChange({ search, status, sortBy: selectedSort });
               }}

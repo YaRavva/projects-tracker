@@ -10,7 +10,7 @@ export const useProjects = () => {
 
   const fetchProjects = async (filters?: {
     search?: string;
-    status?: 'all' | 'active' | 'pending' | 'returned' | 'rejected';
+    status?: 'all' | 'active' | 'pending' | 'returned' | 'rejected' | 'completed';
     sortBy?: string;
   }) => {
     if (!user) return;
@@ -57,6 +57,11 @@ export const useProjects = () => {
       // Если администратор фильтрует по статусу 'rejected', показываем только отклоненные проекты
       if (isAdmin && filters?.status === 'rejected') {
         query = query.eq('status', 'rejected');
+      }
+
+      // Если администратор фильтрует по статусу 'completed', показываем только завершенные проекты
+      if (isAdmin && filters?.status === 'completed') {
+        query = query.eq('status', 'completed');
       }
 
       // Дополнительно фильтруем по участию в проекте

@@ -443,13 +443,13 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
           </div>
           <div>
             <p className="text-gray-400 text-sm mb-1">Прогресс</p>
-            <div className="w-full bg-glass-bg h-2 rounded-full overflow-hidden">
+            <div className="progress-bar w-full">
               <div
-                className="bg-cryptix-green h-full rounded-full"
+                className="progress-bar-fill"
                 style={{ width: `${projectData.progress || 0}%` }}
               ></div>
             </div>
-            <p className="text-white text-xs mt-1 text-left">{projectData.progress || 0}%</p>
+            <p className="text-white text-xs mt-1 text-left font-medium">{projectData.progress || 0}%</p>
           </div>
           <div>
             {(projectData.repository_url || projectData.demo_url) && (

@@ -126,7 +126,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ projectId }) => {
   const handleProjectUpdated = async () => {
     try {
       setLoading(true);
-      
+
       // Перезагружаем данные проекта
       const { data, error } = await supabase
         .from('projects')
@@ -142,7 +142,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ projectId }) => {
         .single();
 
       if (error) throw error;
-      
+
       // Обновляем состояние
       setProject(prev => prev ? { ...prev, ...data } : data);
     } catch (err) {
@@ -174,7 +174,7 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ projectId }) => {
 
   // Проверяем доступ к проекту
   const canViewProject = isAdmin || isOwner || project.status === 'active';
-  
+
   if (!canViewProject) {
     return (
       <div className="glass-card">
@@ -295,13 +295,6 @@ const ProjectDetails: React.FC<ProjectDetailsProps> = ({ projectId }) => {
                 className="progress-bar-fill"
                 style={{ width: `${project.progress}%` }}
               ></div>
-              <div className="relative w-full h-0 -mt-2 flex justify-between px-[1px]">
-                <div className="w-1 h-1 rounded-full bg-cryptix-green/30"></div>
-                <div className="w-1 h-1 rounded-full bg-cryptix-green/30"></div>
-                <div className="w-1 h-1 rounded-full bg-cryptix-green/30"></div>
-                <div className="w-1 h-1 rounded-full bg-cryptix-green/30"></div>
-                <div className="w-1 h-1 rounded-full bg-cryptix-green/30"></div>
-              </div>
             </div>
           </div>
 

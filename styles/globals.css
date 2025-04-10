@@ -314,6 +314,55 @@ input[type="checkbox"]:focus {
   box-shadow: 0 0 0 2px rgba(0, 255, 157, 0.3);
 }
 
+/* Стили для выпадающих меню */
+.dropdown-menu {
+  @apply absolute right-0 mt-2 w-full backdrop-blur-md border border-glass-border rounded-lg overflow-hidden animate-fadeIn;
+  background-color: rgba(4, 10, 15, 0.95); /* Более непрозрачный фон */
+  box-shadow: 0 0 30px rgba(0, 255, 157, 0.25), 0 0 10px rgba(0, 255, 157, 0.15), 0 0 5px rgba(0, 255, 157, 0.1);
+  z-index: 9999; /* Максимально высокий z-index, чтобы быть поверх всех элементов */
+  position: absolute !important; /* Принудительно абсолютное позиционирование */
+}
+
+.dropdown-item {
+  @apply w-full text-left px-4 py-2 text-gray-300 rounded-md transition-colors flex items-center justify-between;
+}
+
+.dropdown-item:hover {
+  @apply bg-cryptix-green/10 text-white;
+}
+
+.dropdown-item.selected {
+  @apply bg-cryptix-green/20 text-white;
+}
+
+/* Стили для прогресс-бара */
+.progress-bar {
+  @apply h-2 rounded-full overflow-hidden relative;
+  background-color: transparent;
+  border: 1px solid rgba(0, 255, 157, 0.3);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2), 0 1px 2px rgba(0, 255, 157, 0.1);
+}
+
+.progress-bar-fill {
+  @apply h-full rounded-full absolute top-0 left-0;
+  background: linear-gradient(to right, var(--cryptix-green-dark), var(--cryptix-green));
+  box-shadow: 0 0 10px rgba(0, 255, 157, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: width 0.5s ease-out;
+  transform-style: preserve-3d;
+  transform: translateZ(0);
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 50%;
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.2), transparent);
+  border-radius: 2px 2px 0 0;
+}
+
 /* Стили для react-datepicker */
 /* (оставляем эти стили как есть, если они были в оригинале) */
 /* ... (много стилей react-datepicker) ... */

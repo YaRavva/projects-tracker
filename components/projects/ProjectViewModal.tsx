@@ -469,7 +469,7 @@ const ProjectViewModal: React.FC<ProjectViewModalProps> = ({
                   ></div>
                 </div>
                 <div className="flex justify-between mt-1">
-                  <span className="text-xs text-cryptix-green">{projectData.progress}%</span>
+                  <span className="text-xs text-cryptix-green font-medium">{projectData.progress}%</span>
                 </div>
               </div>
 

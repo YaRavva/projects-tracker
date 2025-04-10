@@ -37,10 +37,10 @@ interface ProjectsTableProps {
 const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit, onView }) => {
 
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse">
+    <div className="overflow-x-auto relative z-0">
+      <table className="w-full border-collapse" style={{ zIndex: 1 }}>
         <thead>
-          <tr className="bg-glass-bg backdrop-blur-md border-b border-glass-border">
+          <tr className="bg-glass-bg backdrop-blur-md border-b border-glass-border" style={{ zIndex: 1 }}>
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden md:table-cell w-1/6">Название</th>
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden md:table-cell w-1/3">Описание</th>
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden md:table-cell w-1/6">Участники</th>
@@ -143,15 +143,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit, onView 
                       className="progress-bar-fill"
                       style={{ width: `${project.progress}%` }}
                     ></div>
-                    {/* Добавляем маркеры прогресса */}
-                    <div className="relative w-full h-0 -mt-2 flex justify-between px-[1px]">
-                      <div className="w-1 h-1 rounded-full bg-cryptix-green/30"></div>
-                      <div className="w-1 h-1 rounded-full bg-cryptix-green/30"></div>
-                      <div className="w-1 h-1 rounded-full bg-cryptix-green/30"></div>
-                    </div>
                   </div>
                   <div className="flex justify-between mt-1">
-                    <span className="text-xs text-cryptix-green">{project.progress}%</span>
+                    <span className="text-xs text-cryptix-green font-medium">{project.progress}%</span>
                   </div>
                 </div>
               </td>

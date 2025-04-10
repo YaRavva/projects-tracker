@@ -1,4 +1,4 @@
-export type ProjectStatus = 'active' | 'pending' | 'returned' | 'rejected';
+export type ProjectStatus = 'active' | 'pending' | 'returned' | 'rejected' | 'completed';
 
 export type ProjectMemberRole = 'leader' | 'member';
 

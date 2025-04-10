@@ -22,7 +22,7 @@ interface Project {
   repository_url: string | null;
   demo_url: string | null;
   owner_id: string;
-  status: 'active' | 'pending' | 'returned' | 'rejected';
+  status: 'active' | 'pending' | 'returned' | 'rejected' | 'completed';
   review_comment?: string | null;
   profiles: {
     full_name: string;
@@ -373,7 +373,7 @@ const ProjectsPage: NextPage = () => {
           <title>Projects | Digital Projects Tracker</title>
         </Head>
 
-        <div className="container mx-auto px-4 mt-2">
+        <div className="container mx-auto px-4 mt-2 relative">
           {error && (
             <div className="bg-red-500/20 border border-red-500 text-white p-4 rounded-md mb-6">
               {error}
@@ -429,11 +429,13 @@ const ProjectsPage: NextPage = () => {
             </div>
           ) : (
             <>
-              <ProjectsTable
-                projects={filteredProjects}
-                onEdit={handleEditProject}
-                onView={handleViewProject}
-              />
+              <div className="relative" style={{ zIndex: 1 }}>
+                <ProjectsTable
+                  projects={filteredProjects}
+                  onEdit={handleEditProject}
+                  onView={handleViewProject}
+                />
+              </div>
             </>
           )}
         </div>
