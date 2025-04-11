@@ -2,8 +2,9 @@ import React from 'react';
 import { formatDate, parseDate } from '../../lib/dateUtils';
 import ProjectStatusBadge, { ProjectStatus } from './ProjectStatusBadge';
 
-interface Project {
-  id: string;
+interface Project {  
+  id: string;  
+  commentsCount: number;
   title: string;
   description: string | null;
   created_at: string;
@@ -50,6 +51,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit, onView 
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden lg:table-cell w-1/6">Добавил</th>
             <th className="px-4 py-3 text-center text-sm font-medium text-gray-300 w-[180px]">Статус</th>
           </tr>
+          <th className="px-4 py-3 text-left text-sm font-medium text-gray-300"></th> 
         </thead>
         <tbody>
           {projects.map((project) => (
@@ -162,7 +164,18 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit, onView 
                   )}
                 </div>
               </td>
-
+              <td className="px-4 py-4 align-top">
+                <div className="flex items-center">
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    strokeWidth="1.5" 
+                    stroke="currentColor" 
+                    className="w-5 h-5 text-cryptix-green mr-1"><path strokeLinecap="round" strokeLinejoin="round" d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.107-.07.215-.139.324-.206.54-.314 1.082-.636 1.63-.975zm-6.247-1.068a1.875 1.875 0 01-.757-.429 1.875 1.875 0 01-.332-1.275 3.125 3.125 0 01.974-2.688 11.51 11.51 0 01-.662-1.255C3.441 16.292 2.25 14.329 2.25 12c0-5.046 4.562-9 10.125-9S22.5 6.954 22.5 12c0 3.165-1.113 5.959-2.919 8.025l-2.888-2.271a2.625 2.625 0 00-1.013-.634 2.875 2.875 0 00-2.13-1.074l-.345.032.295-3.342c.057-.643-.182-1.269-.642-1.703-.461-.435-1.185-.555-1.815-.319l-.416.167z" /></svg>
+                  <span className="font-bold text-white">{Math.floor(Math.random() * 6)}</span>
+                </div>
+              </td>
             </tr>
           ))}
         </tbody>
