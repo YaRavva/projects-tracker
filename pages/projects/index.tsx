@@ -162,7 +162,8 @@ const ProjectsPage: NextPage = () => {
             *,
             profiles:owner_id (email, full_name),
             project_members!project_id (id),
-            project_stages!project_id (id, completed)
+            project_stages!project_id (id, completed),
+            project_reviews!project_id (id)
           `);
 
         // Если пользователь не админ, ограничиваем видимость проектов
@@ -219,6 +220,9 @@ const ProjectsPage: NextPage = () => {
           // Получаем количество участников
           const membersCount = (project.project_members || []).length;
 
+          // Получаем количество комментариев
+          const commentsCount = (project.project_reviews || []).length;
+
           // Находим участников проекта в метаданных
           const teamMembersEntry = teamMembersData?.find(entry => entry.project_id === project.id);
           const teamMembers = teamMembersEntry ? teamMembersEntry.value : [];
@@ -228,6 +232,7 @@ const ProjectsPage: NextPage = () => {
             owner: project.profiles,
             progress,
             members_count: membersCount,
+            commentsCount,
             team_members: teamMembers
           };
         });
