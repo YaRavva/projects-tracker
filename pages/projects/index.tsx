@@ -25,6 +25,7 @@ interface Project {
   owner_id: string;
   status: 'active' | 'pending' | 'returned' | 'rejected' | 'completed';
   review_comment?: string | null;
+  commentsCount: number;
   profiles: {
     full_name: string;
   };
