@@ -50,8 +50,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit, onView 
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300">Прогресс</th>
             <th className="px-4 py-3 text-left text-sm font-medium text-gray-300 hidden lg:table-cell w-1/6">Добавил</th>
             <th className="px-4 py-3 text-center text-sm font-medium text-gray-300 w-[180px]">Статус</th>
+            <th className="px-4 py-3 text-left text-sm font-medium text-gray-300"></th>
           </tr>
-          <th className="px-4 py-3 text-left text-sm font-medium text-gray-300"></th>
         </thead>
         <tbody>
           {projects.map((project) => (
