@@ -83,7 +83,11 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
   // Форматирование даты в формат дд.мм.гг
   const formatDate = (date: Date): string => {
     console.log('formatDate called with date:', date);
-    const formatted = date.toLocaleDateString('ru-RU', {
+    // Создаем копию даты и устанавливаем время на полдень, чтобы избежать проблем с часовым поясом
+    const dateCopy = new Date(date);
+    dateCopy.setHours(12, 0, 0, 0);
+
+    const formatted = dateCopy.toLocaleDateString('ru-RU', {
       day: '2-digit',
       month: '2-digit',
       year: '2-digit'
@@ -98,7 +102,15 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = ({
         selected={selectedDate}
         onChange={(date) => {
           console.log('DatePicker onChange called with date:', date, 'for', id || 'unknown');
-          onChange(date);
+
+          // Если дата выбрана, устанавливаем время на полдень, чтобы избежать проблем с часовым поясом
+          if (date) {
+            const adjustedDate = new Date(date);
+            adjustedDate.setHours(12, 0, 0, 0);
+            onChange(adjustedDate);
+          } else {
+            onChange(null);
+          }
         }}
         customInput={<CustomInput />}
         dateFormat="dd.MM.yy"
