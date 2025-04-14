@@ -108,7 +108,7 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit, onView 
               </td>
               <td className="px-4 py-4 hidden lg:table-cell align-top">
                 {project.deadline ? (
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                  <span className={`px-2.5 py-1 rounded-full text-sm font-medium flex items-center justify-center ${
                     // Проверяем, что дедлайн прошел
                     (() => {
                       try {
@@ -132,7 +132,9 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit, onView 
                       ? 'bg-red-500/20 text-red-400'
                       : 'bg-yellow-500/20 text-yellow-400'
                   }`}>
-                    {formatDate(project.deadline)}
+                    <span className="flex items-center justify-center">
+                      {formatDate(project.deadline)}
+                    </span>
                   </span>
                 ) : (
                   <span className="text-gray-500 italic">Не указан</span>
