@@ -627,7 +627,7 @@ const ProjectModal: React.FC<ProjectModalProps> = ({
                       'Активный',
                       'Возвращен на доработку',
                       'Отклонен',
-                      'Завершен'
+                      'Завершены'
                     ].find(status => {
                       const statusMap: Record<string, ProjectStatus> = {
                         'На рассмотрении': 'pending',
