@@ -607,21 +607,21 @@ const ProjectViewModal: React.FC<ProjectViewModalProps> = ({
                         { name: 'На рассмотрении', value: 'pending' },
                         { name: 'Возвращен на доработку', value: 'returned' },
                         { name: 'Отклонен', value: 'rejected' },
-                        { name: 'Завершены', value: 'completed' }
+                        { name: 'Завершен', value: 'completed' }
                       ]}
                       selected={[
                         'Активный',
                         'На рассмотрении',
                         'Возвращен на доработку',
                         'Отклонен',
-                        'Завершены'
+                        'Завершен'
                       ].find(status => {
                         const statusMap: Record<string, ProjectStatus> = {
                           'Активный': 'active',
                           'На рассмотрении': 'pending',
                           'Возвращен на доработку': 'returned',
                           'Отклонен': 'rejected',
-                          'Завершены': 'completed'
+                          'Завершен': 'completed'
                         };
                         return statusMap[status] === newStatus;
                       }) || 'Активный'}

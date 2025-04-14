@@ -18,9 +18,9 @@ const ProgressCards: React.FC<ProgressCardsProps> = ({ data }) => {
     percentage: totalProjects > 0 ? Math.round((item.value / totalProjects) * 100) : 0
   }));
 
-  // Сортируем данные в порядке статусов: На рассмотрении -> Возвращен -> Отклонен -> Активный -> Завершены
+  // Сортируем данные в порядке статусов: На рассмотрении -> Возвращен -> Отклонен -> Активный -> Завершен
   const sortedData = [...enhancedData].sort((a, b) => {
-    const order = { 'На рассмотрении': 0, 'Возвращен': 1, 'Отклонен': 2, 'Активный': 3, 'Завершены': 4 };
+    const order = { 'На рассмотрении': 0, 'Возвращен': 1, 'Отклонен': 2, 'Активный': 3, 'Завершен': 4 };
     return (order[a.name as keyof typeof order] || 0) - (order[b.name as keyof typeof order] || 0);
   });
 

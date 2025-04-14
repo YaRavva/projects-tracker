@@ -13,7 +13,7 @@ const ProjectStatusBadge: React.FC<ProjectStatusBadgeProps> = ({ status, classNa
     switch (status) {
       case 'completed':
         return {
-          text: 'Завершены',
+          text: 'Завершен',
           bgColor: 'bg-cryptix-green/20',
           textColor: 'text-cryptix-green',
           borderColor: 'border-cryptix-green/30',
