@@ -109,28 +109,31 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit, onView 
               <td className="px-4 py-4 hidden lg:table-cell align-top">
                 {project.deadline ? (
                   <span className={`px-2.5 py-1 rounded-full text-sm font-medium flex items-center justify-center ${
-                    // Проверяем, что дедлайн прошел
-                    (() => {
-                      try {
-                        // Если дата в формате дд.мм.гг, преобразуем в ISO
-                        const parts = project.deadline.split('.');
-                        if (parts.length === 3) {
-                          // Если год двухзначный, добавляем '20' впереди
-                          let year = parts[2];
-                          if (year.length === 2) {
-                            year = '20' + year;
+                    // Если статус проекта "Завершен", показываем зеленый бейдж
+                    project.status === 'completed'
+                      ? 'bg-cryptix-green/20 text-cryptix-green'
+                      : // Иначе проверяем, что дедлайн прошел
+                        (() => {
+                          try {
+                            // Если дата в формате дд.мм.гг, преобразуем в ISO
+                            const parts = project.deadline.split('.');
+                            if (parts.length === 3) {
+                              // Если год двухзначный, добавляем '20' впереди
+                              let year = parts[2];
+                              if (year.length === 2) {
+                                year = '20' + year;
+                              }
+                              const isoDate = `${year}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
+                              return new Date(isoDate) < new Date();
+                            }
+                            // Если дата в другом формате, пробуем прямое преобразование
+                            return new Date(project.deadline) < new Date();
+                          } catch (e) {
+                            return false;
                           }
-                          const isoDate = `${year}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`;
-                          return new Date(isoDate) < new Date();
-                        }
-                        // Если дата в другом формате, пробуем прямое преобразование
-                        return new Date(project.deadline) < new Date();
-                      } catch (e) {
-                        return false;
-                      }
-                    })()
-                      ? 'bg-red-500/20 text-red-400'
-                      : 'bg-yellow-500/20 text-yellow-400'
+                        })()
+                          ? 'bg-red-500/20 text-red-400'
+                          : 'bg-yellow-500/20 text-yellow-400'
                   }`}>
                     <span className="flex items-center justify-center">
                       {formatDate(project.deadline)}
