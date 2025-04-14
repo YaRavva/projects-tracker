@@ -108,10 +108,10 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit, onView 
               </td>
               <td className="px-4 py-4 hidden lg:table-cell align-top">
                 {project.deadline ? (
-                  <span className={`px-2.5 py-1 rounded-full text-sm font-medium flex items-center justify-center ${
+                  <span className={`px-2.5 py-1 rounded-full text-sm font-medium flex items-center justify-center border ${
                     // Если статус проекта "Завершен", показываем зеленый бейдж
                     project.status === 'completed'
-                      ? 'bg-cryptix-green/20 text-cryptix-green'
+                      ? 'bg-cryptix-green/20 text-cryptix-green border-cryptix-green/30'
                       : // Иначе проверяем, что дедлайн прошел
                         (() => {
                           try {
@@ -132,8 +132,8 @@ const ProjectsTable: React.FC<ProjectsTableProps> = ({ projects, onEdit, onView 
                             return false;
                           }
                         })()
-                          ? 'bg-red-500/20 text-red-400'
-                          : 'bg-yellow-500/20 text-yellow-400'
+                          ? 'bg-red-500/20 text-red-400 border-red-500/30'
+                          : 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30'
                   }`}>
                     <span className="flex items-center justify-center">
                       {formatDate(project.deadline)}
