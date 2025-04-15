@@ -119,15 +119,35 @@ const ProjectsPage: NextPage = () => {
 
         // Применяем фильтр "Только мои"
         if (filters.status === 'my') {
-          const mySearchResults = searchResults.filter(project => {
-            if (project.team_members && project.team_members.length > 0) {
-              return project.team_members.some((member: { name: string }) => {
-                return member.name === user.user_metadata?.full_name;
-              });
-            }
-            return false;
-          });
-          setFilteredProjects(mySearchResults);
+          // Загружаем профиль пользователя для получения полного имени
+          supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', user.id)
+            .single()
+            .then(({ data: profileData }) => {
+              if (profileData?.full_name) {
+                const mySearchResults = searchResults.filter(project => {
+                  // Проверяем, является ли пользователь владельцем проекта
+                  if (project.owner_id === user.id) {
+                    return true;
+                  }
+                  // Проверяем, есть ли пользователь в списке участников
+                  if (project.team_members && project.team_members.length > 0) {
+                    return project.team_members.some((member: { name: string }) => {
+                      return member.name === profileData.full_name;
+                    });
+                  }
+                  return false;
+                });
+                setFilteredProjects(mySearchResults);
+              } else {
+                setFilteredProjects(searchResults);
+              }
+            })
+            .catch(() => {
+              setFilteredProjects(searchResults);
+            });
         } else {
           setFilteredProjects(searchResults);
         }
@@ -172,8 +192,8 @@ const ProjectsPage: NextPage = () => {
           query = query.or(`status.eq.active,owner_id.eq.${user.id}`);
         }
 
-        // Применяем фильтр по статусу, если он указан и не равен 'all'
-        if (filters.status && filters.status !== 'all') {
+        // Применяем фильтр по статусу, если он указан и не равен 'all' и не равен 'my'
+        if (filters.status && filters.status !== 'all' && filters.status !== 'my') {
           if (isAdmin) {
             // Для администраторов показываем проекты с указанным статусом
             query = query.eq('status', filters.status);
@@ -268,6 +288,11 @@ const ProjectsPage: NextPage = () => {
         // Применяем фильтр "Только мои"
         if (filters.status === 'my' && profileData?.full_name && sortedProjects.length > 0) {
           const myProjects = sortedProjects.filter(project => {
+            // Проверяем, является ли пользователь владельцем проекта
+            if (project.owner_id === user.id) {
+              return true;
+            }
+            // Проверяем, есть ли пользователь в списке участников
             if (project.team_members && project.team_members.length > 0) {
               return project.team_members.some((member: { name: string }) => {
                 return member.name === profileData.full_name;

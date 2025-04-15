@@ -38,8 +38,8 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ initialFilters, onFilte
   };
 
   const statusOptions = [
-    { name: 'Только мои', value: 'my' },
     { name: 'Все проекты', value: 'all' },
+    { name: 'Только мои', value: 'my' },
     { name: 'Активные', value: 'active' },
     { name: 'На рассмотрении', value: 'pending' },
     { name: 'Возвращены', value: 'returned' },
