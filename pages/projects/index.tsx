@@ -119,35 +119,36 @@ const ProjectsPage: NextPage = () => {
 
         // Применяем фильтр "Только мои"
         if (filters.status === 'my') {
-          // Загружаем профиль пользователя для получения полного имени
-          supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', user.id)
-            .single()
-            .then(({ data: profileData }) => {
-              if (profileData?.full_name) {
-                const mySearchResults = searchResults.filter(project => {
-                  // Проверяем, является ли пользователь владельцем проекта
-                  if (project.owner_id === user.id) {
-                    return true;
-                  }
-                  // Проверяем, есть ли пользователь в списке участников
-                  if (project.team_members && project.team_members.length > 0) {
-                    return project.team_members.some((member: { name: string }) => {
-                      return member.name === profileData.full_name;
-                    });
-                  }
-                  return false;
-                });
-                setFilteredProjects(mySearchResults);
-              } else {
-                setFilteredProjects(searchResults);
-              }
-            })
-            .catch(() => {
+          try {
+            // Загружаем профиль пользователя для получения полного имени
+            const { data: profileData } = await supabase
+              .from('profiles')
+              .select('full_name')
+              .eq('id', user.id)
+              .single();
+
+            if (profileData?.full_name) {
+              const mySearchResults = searchResults.filter(project => {
+                // Проверяем, является ли пользователь владельцем проекта
+                if (project.owner_id === user.id) {
+                  return true;
+                }
+                // Проверяем, есть ли пользователь в списке участников
+                if (project.team_members && project.team_members.length > 0) {
+                  return project.team_members.some((member: { name: string }) => {
+                    return member.name === profileData.full_name;
+                  });
+                }
+                return false;
+              });
+              setFilteredProjects(mySearchResults);
+            } else {
               setFilteredProjects(searchResults);
-            });
+            }
+          } catch (error) {
+            console.error('Error filtering projects:', error);
+            setFilteredProjects(searchResults);
+          }
         } else {
           setFilteredProjects(searchResults);
         }
