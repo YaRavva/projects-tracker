@@ -51,7 +51,6 @@ const ProjectsPage: NextPage = () => {
   const [projectModalTab, setProjectModalTab] = useState<'view' | 'edit'>('view');
 
   // Состояние для фильтров
-  const [showOnlyMyProjects, setShowOnlyMyProjects] = useState(false);
   const [filteredProjects, setFilteredProjects] = useState<Project[]>([]);
   // Удалено неиспользуемое состояние userProfile
   // Инициализируем флаг готовности данных как false, чтобы показывать спиннер до загрузки данных
@@ -118,8 +117,8 @@ const ProjectsPage: NextPage = () => {
           project.title.toLowerCase().includes(filters.search.toLowerCase())
         );
 
-        // Применяем фильтр "Показывать только мои проекты"
-        if (showOnlyMyProjects) {
+        // Применяем фильтр "Только мои"
+        if (filters.status === 'my') {
           const mySearchResults = searchResults.filter(project => {
             if (project.team_members && project.team_members.length > 0) {
               return project.team_members.some((member: { name: string }) => {
@@ -266,8 +265,8 @@ const ProjectsPage: NextPage = () => {
         // Обновляем локальное состояние проектов
         setProjects(sortedProjects as Project[]);
 
-        // Применяем фильтр "Показывать только мои проекты"
-        if (showOnlyMyProjects && profileData?.full_name && sortedProjects.length > 0) {
+        // Применяем фильтр "Только мои"
+        if (filters.status === 'my' && profileData?.full_name && sortedProjects.length > 0) {
           const myProjects = sortedProjects.filter(project => {
             if (project.team_members && project.team_members.length > 0) {
               return project.team_members.some((member: { name: string }) => {
@@ -303,7 +302,7 @@ const ProjectsPage: NextPage = () => {
     // Запускаем загрузку и фильтрацию данных
     loadAndFilterData();
 
-  }, [user?.id, filters, showOnlyMyProjects]);
+  }, [user?.id, filters]);
 
   // Функция для открытия модального окна редактирования
   const handleEditProject = (projectId: string) => {
@@ -369,12 +368,7 @@ const ProjectsPage: NextPage = () => {
     setIsAddModalOpen(false);
   };
 
-  // Функция для переключения фильтра "Показывать только мои проекты"
-  const handleToggleMyProjects = () => {
-    // Сбрасываем флаг готовности данных при переключении фильтра
-    setDataReady(false);
-    setShowOnlyMyProjects(!showOnlyMyProjects);
-  };
+
 
   return (
     <ProtectedRoute>
@@ -397,18 +391,7 @@ const ProjectsPage: NextPage = () => {
 
               <div className="h-8 border-l border-glass-border hidden md:block"></div>
 
-              <div className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
-                  id="showMyProjects"
-                  checked={showOnlyMyProjects}
-                  onChange={handleToggleMyProjects}
-                  className="cursor-pointer"
-                />
-                <label htmlFor="showMyProjects" className="text-white text-sm cursor-pointer">
-                  Показывать только мои проекты
-                </label>
-              </div>
+
             </div>
 
             <div className="flex flex-wrap items-center gap-4">

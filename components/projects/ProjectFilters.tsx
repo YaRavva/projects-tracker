@@ -38,12 +38,13 @@ const ProjectFilters: React.FC<ProjectFiltersProps> = ({ initialFilters, onFilte
   };
 
   const statusOptions = [
+    { name: 'Только мои', value: 'my' },
     { name: 'Все проекты', value: 'all' },
     { name: 'Активные', value: 'active' },
     { name: 'На рассмотрении', value: 'pending' },
     { name: 'Возвращены', value: 'returned' },
     { name: 'Отклонены', value: 'rejected' },
-    { name: 'Завершен', value: 'completed' },
+    { name: 'Завершены', value: 'completed' },
   ];
 
   const sortOptions = [
